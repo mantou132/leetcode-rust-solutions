@@ -1,7 +1,7 @@
 use core::mem::size_of;
 use core::ptr;
 
-use super::{allocate, reallocate, deallocate};
+use super::{malloc, realloc, free};
 
 
 pub struct Array<T> {
@@ -22,26 +22,24 @@ impl<T> Array<T> {
         self.data
     }
 
-
     pub fn new(capacity: usize) -> Array<T> {
         let size = size_of::<T>() * capacity;
         Array {
             capacity: capacity,
-            data: unsafe { allocate(size) as *mut _ },
+            data: unsafe { malloc(size) as *mut _ },
         }
     }
 
     pub fn resize(&mut self, capacity: usize) {
-        let old_size = size_of::<T>() * self.capacity;
         let size = size_of::<T>() * capacity;
         self.data = unsafe{
-            reallocate(self.data as *mut _, old_size, size) as *mut _
+            realloc(self.data as *mut _, size) as *mut _
         };
 
         self.capacity = capacity;
     }
 
-    pub fn move_in(&mut self, index: usize, item: T){
+    pub fn write(&mut self, index: usize, item: T){
         if index >= self.capacity {
             abort!("index out of range");
         }
@@ -51,7 +49,7 @@ impl<T> Array<T> {
         }
     }
 
-    pub fn move_out(&mut self, index: usize) -> T {
+    pub fn read(&mut self, index: usize) -> T {
         if index >= self.capacity {
             abort!("index out of range");
         }
@@ -75,9 +73,8 @@ impl<T> Array<T> {
 
 impl<T> Drop for Array<T>{
     fn drop(&mut self){
-        let old_size = size_of::<T>() * self.capacity;
         unsafe{
-            deallocate(self.data as *mut _, old_size)
+            free(self.data as *mut _)
         }
     }
 }

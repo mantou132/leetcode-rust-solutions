@@ -24,7 +24,7 @@ impl Iterator for InputStream {
 
         match self.offset < self.size {
             true => {
-                let c = self.data.move_out(self.offset);
+                let c = self.data.read(self.offset);
                 self.offset += 1;
                 Some(c)
             },
@@ -48,7 +48,7 @@ impl OutputStreamTrait for OutputStream {
             self.offset = 0;
         }
 
-        self.data.move_in(self.offset, c);
+        self.data.write(self.offset, c);
         self.offset += 1;
     }
 }

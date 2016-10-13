@@ -4,6 +4,9 @@ description = "porus library"
 version = "0.0.0"
 authors = ["bhuztez <bhuztez@gmail.com>"]
 
+[profile.dev]
+rpath = true
+
 [profile.release]
 panic = "abort"
 opt-level = "s"
