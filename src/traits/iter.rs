@@ -1,9 +1,4 @@
-use core::option::Option;
-
-pub trait Iterator {
-    type Item;
-    fn next(&mut self) -> Option<Self::Item>;
-}
+pub use core::iter::Iterator;
 
 pub trait PeekingIterator {
     type Item;

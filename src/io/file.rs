@@ -1,5 +1,4 @@
-use super::super::traits::iter::Iterator;
-use super::super::traits::io::OutputStream as OutputStreamTrait;
+use super::super::traits;
 use super::super::mem::array::Array;
 use super::super::libc::{read, write};
 use super::super::iter::{peeking, Peekable};
@@ -11,7 +10,7 @@ pub struct InputStream {
     data: Array<u8>,
 }
 
-impl Iterator for InputStream {
+impl traits::Iterator for InputStream {
     type Item = u8;
 
     fn next(&mut self) -> Option<u8> {
@@ -40,7 +39,7 @@ pub struct OutputStream {
     data: Array<u8>,
 }
 
-impl OutputStreamTrait for OutputStream {
+impl traits::OutputStream for OutputStream {
     fn write(&mut self, c: u8) {
         let capacity = self.data.capacity();
         if self.offset == capacity {

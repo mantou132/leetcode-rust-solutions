@@ -1,5 +1,5 @@
-pub mod iter;
+mod iter;
 pub use self::iter::*;
 
-pub mod io;
+mod io;
 pub use self::io::*;
