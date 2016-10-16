@@ -1,13 +1,13 @@
-use super::traits;
+use super::traits::*;
 
 
-pub struct Peekable<T: traits::Iterator> {
+pub struct Peekable<T: Iterator> {
     iter: T,
     item: Option<T::Item>,
 }
 
 
-impl<T: traits::Iterator> traits::PeekingIterator for Peekable<T> {
+impl<T: Iterator> PeekingIterator for Peekable<T> {
     type Item = T::Item;
 
     fn peek<'a>(&'a mut self) -> Option<&'a Self::Item> {

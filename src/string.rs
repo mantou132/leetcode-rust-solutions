@@ -5,7 +5,7 @@ use core::mem::{size_of, transmute};
 use core::ptr::{copy_nonoverlapping, drop_in_place};
 use core::slice::from_raw_parts;
 use super::mem::{malloc, realloc, free};
-use super::traits;
+use super::traits::InputStream;
 
 
 struct SharedString {
@@ -406,13 +406,20 @@ pub fn string(s: &'static [u8]) -> String {
     }
 }
 
-pub fn read_string<Stream: traits::InputStream>(stream: &mut Stream, buffer_size: usize) -> String {
+
+pub fn read_string_until<Stream: InputStream, Fun: Fn(u8)->bool>(stream: &mut Stream, end: Fun, buffer_size: usize) -> String {
     let mut inline = String::new_inline();
     let inline_size = size_of::<String>()-1;
 
     for i in 0 .. inline_size {
         match stream.peek() {
             None => {
+                inline.length |= (i as u8) << 3;
+                unsafe {
+                    return transmute(inline);
+                }
+            },
+            Some(&c) if end(c) => {
                 inline.length |= (i as u8) << 3;
                 unsafe {
                     return transmute(inline);
@@ -449,6 +456,10 @@ pub fn read_string<Stream: traits::InputStream>(stream: &mut Stream, buffer_size
                 s.length = i;
                 break;
             },
+            Some(&c) if end(c) => {
+                s.length = i;
+                break;
+            },
             Some(&c) =>
                 unsafe {
                     *(s.s.offset(i as isize) as *mut _) = c;
@@ -456,10 +467,6 @@ pub fn read_string<Stream: traits::InputStream>(stream: &mut Stream, buffer_size
         }
 
         stream.consume();
-    }
-
-    if let Some(_) = stream.peek() {
-        abort!("buffer overflow");
     }
 
     unsafe {
@@ -471,78 +478,15 @@ pub fn read_string<Stream: traits::InputStream>(stream: &mut Stream, buffer_size
 }
 
 
-pub fn read_string_until<Stream: traits::InputStream>(stream: &mut Stream, end: u8, buffer_size: usize) -> String {
-    let mut inline = String::new_inline();
-    let inline_size = size_of::<String>()-1;
+#[cfg_attr(not(debug_assertions), inline(always))]
+pub fn read_string<Stream: InputStream>(stream: &mut Stream, buffer_size: usize) -> String {
+    read_string_until(stream, |_| {false}, buffer_size)
+}
 
-    for i in 0 .. inline_size {
-        match stream.peek() {
-            None => {
-                inline.length |= (i as u8) << 3;
-                unsafe {
-                    return transmute(inline);
-                }
-            },
-            Some(&c) if c == end => {
-                inline.length |= (i as u8) << 3;
-                unsafe {
-                    return transmute(inline);
-                }
-            },
-            Some(&c) =>
-                unsafe {
-                    *(inline.s.as_mut_ptr().offset(i as isize)) = c;
-                },
-        }
 
-        stream.consume();
-    }
-
-    let ptr =
-        unsafe {
-            malloc(size_of::<usize>() + buffer_size)
-        };
-
-    let mut s = SharedString {
-        counter: ptr as *mut usize,
-        length: buffer_size,
-        s: unsafe { ptr.offset(size_of::<usize>() as isize) },
-    };
-
-    unsafe {
-        *(s.counter) = 1;
-        copy_nonoverlapping(inline.s.as_ptr(), s.s as *mut _, inline_size);
-    }
-
-    for i in inline_size .. buffer_size {
-        match stream.peek() {
-            None => {
-                s.length = i;
-                break;
-            },
-            Some(&c) if c == end => {
-                s.length = i;
-                break;
-            },
-            Some(&c) =>
-                unsafe {
-                    *(s.s.offset(i as isize) as *mut _) = c;
-                },
-        }
-
-        stream.consume();
-    }
-
-    if let Some(&c) = stream.peek() {
-        if c != end {
-            abort!("buffer overflow");
-        }
-    }
-
-    unsafe {
-        let ptr = realloc(ptr, size_of::<usize>() + s.length);
-        s.counter = ptr as *mut _;
-        s.s = ptr.offset(size_of::<usize>() as isize);
-        return transmute(s);
+#[macro_export]
+macro_rules! str {
+    ($s:expr) => {
+        &($crate::string::string($s))
     }
 }

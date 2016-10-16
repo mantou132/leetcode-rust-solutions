@@ -1,7 +1,7 @@
 use core::cmp::PartialOrd;
 use core::ops::{Add, Mul, Div, Rem, Neg, Not};
 use core::marker::{Sized, Copy};
-use super::traits;
+use super::traits::{InputStream, OutputStream};
 
 pub mod file;
 
@@ -24,19 +24,17 @@ trait Signed : Sized + Copy + Add<Self,Output=Self> + Mul<Self,Output=Self> + Ne
 }
 
 
-pub fn eof<Stream: traits::InputStream>(stream: &mut Stream) -> bool {
+pub fn eof<Stream: InputStream>(stream: &mut Stream) -> bool {
     match stream.peek() {
         None => true,
         _ => false,
     }
 }
 
-
-pub fn ignore_space<Stream: traits::InputStream>(stream: &mut Stream) -> &mut Stream {
+pub fn ignore<Stream: InputStream, Fun: Fn(u8) -> bool>(stream: &mut Stream, ignore: Fun) -> &mut Stream {
     loop {
         match stream.peek() {
-            // \t, \r \v \f \n
-            Some(&b' ') | Some(&0x09) | Some(&0x0a) | Some(&0x0b) | Some(&0x0c) | Some(&0x0d) => (),
+            Some(&c) if ignore(c) => (),
             _ => break,
         }
 
@@ -47,7 +45,7 @@ pub fn ignore_space<Stream: traits::InputStream>(stream: &mut Stream) -> &mut St
 }
 
 
-fn read_unsigned<T: Unsigned, Stream: traits::InputStream>(stream: &mut Stream) -> T {
+fn read_unsigned<T: Unsigned, Stream: InputStream>(stream: &mut Stream) -> T {
     let mut x = T::from_u8(0u8);
 
     loop {
@@ -65,7 +63,7 @@ fn read_unsigned<T: Unsigned, Stream: traits::InputStream>(stream: &mut Stream) 
 }
 
 
-fn read_signed<T: Signed, Stream: traits::InputStream>(stream: &mut Stream) -> T {
+fn read_signed<T: Signed, Stream: InputStream>(stream: &mut Stream) -> T {
     let mut x = T::from_u8(0u8);
     let mut s = T::from_u8(1u8);
 
@@ -93,7 +91,7 @@ fn read_signed<T: Signed, Stream: traits::InputStream>(stream: &mut Stream) -> T
 }
 
 
-fn write_unsigned_aux<T: Unsigned, Stream: traits::OutputStream>(stream: &mut Stream, u: T) {
+fn write_unsigned_aux<T: Unsigned, Stream: OutputStream>(stream: &mut Stream, u: T) {
     if u != T::from_u8(0u8) {
         write_unsigned_aux(stream, u / T::from_u8(10));
         stream.write(b'0' + T::to_u8(u % T::from_u8(10)));
@@ -101,7 +99,7 @@ fn write_unsigned_aux<T: Unsigned, Stream: traits::OutputStream>(stream: &mut St
 }
 
 
-fn write_unsigned<T: Unsigned, Stream: traits::OutputStream>(stream: &mut Stream, u: T) {
+fn write_unsigned<T: Unsigned, Stream: OutputStream>(stream: &mut Stream, u: T) {
     if u == T::from_u8(0u8) {
         stream.write(b'0');
     } else {
@@ -110,7 +108,7 @@ fn write_unsigned<T: Unsigned, Stream: traits::OutputStream>(stream: &mut Stream
 }
 
 
-fn write_signed_aux<T: Unsigned, Stream: traits::OutputStream>(stream: &mut Stream, u: T, neg: bool) {
+fn write_signed_aux<T: Unsigned, Stream: OutputStream>(stream: &mut Stream, u: T, neg: bool) {
     if u == T::from_u8(0u8) {
         if neg {
             stream.write(b'-');
@@ -122,7 +120,7 @@ fn write_signed_aux<T: Unsigned, Stream: traits::OutputStream>(stream: &mut Stre
 }
 
 
-fn write_signed<T: Signed, Stream: traits::OutputStream>(stream: &mut Stream, i: T) {
+fn write_signed<T: Signed, Stream: OutputStream>(stream: &mut Stream, i: T) {
     if i == T::from_u8(0u8) {
         stream.write(b'0');
     } else {
@@ -138,87 +136,87 @@ fn write_signed<T: Signed, Stream: traits::OutputStream>(stream: &mut Stream, i:
 }
 
 
-pub fn read_u8<Stream: traits::InputStream>(stream: &mut Stream) -> u8 {
+pub fn read_u8<Stream: InputStream>(stream: &mut Stream) -> u8 {
     read_unsigned::<u8, Stream>(stream)
 }
 
-pub fn read_u16<Stream: traits::InputStream>(stream: &mut Stream) -> u16 {
+pub fn read_u16<Stream: InputStream>(stream: &mut Stream) -> u16 {
     read_unsigned::<u16, Stream>(stream)
 }
 
-pub fn read_u32<Stream: traits::InputStream>(stream: &mut Stream) -> u32 {
+pub fn read_u32<Stream: InputStream>(stream: &mut Stream) -> u32 {
     read_unsigned::<u32, Stream>(stream)
 }
 
-pub fn read_u64<Stream: traits::InputStream>(stream: &mut Stream) -> u64 {
+pub fn read_u64<Stream: InputStream>(stream: &mut Stream) -> u64 {
     read_unsigned::<u64, Stream>(stream)
 }
 
-pub fn read_usize<Stream: traits::InputStream>(stream: &mut Stream) -> usize {
+pub fn read_usize<Stream: InputStream>(stream: &mut Stream) -> usize {
     read_unsigned::<usize, Stream>(stream)
 }
 
-pub fn read_i8<Stream: traits::InputStream>(stream: &mut Stream) -> i8 {
+pub fn read_i8<Stream: InputStream>(stream: &mut Stream) -> i8 {
     read_signed::<i8, Stream>(stream)
 }
 
-pub fn read_i16<Stream: traits::InputStream>(stream: &mut Stream) -> i16 {
+pub fn read_i16<Stream: InputStream>(stream: &mut Stream) -> i16 {
     read_signed::<i16, Stream>(stream)
 }
 
-pub fn read_i32<Stream: traits::InputStream>(stream: &mut Stream) -> i32 {
+pub fn read_i32<Stream: InputStream>(stream: &mut Stream) -> i32 {
     read_signed::<i32, Stream>(stream)
 }
 
-pub fn read_i64<Stream: traits::InputStream>(stream: &mut Stream) -> i64 {
+pub fn read_i64<Stream: InputStream>(stream: &mut Stream) -> i64 {
     read_signed::<i64, Stream>(stream)
 }
 
-pub fn read_isize<Stream: traits::InputStream>(stream: &mut Stream) -> isize {
+pub fn read_isize<Stream: InputStream>(stream: &mut Stream) -> isize {
     read_signed::<isize, Stream>(stream)
 }
 
-pub fn write_u8<Stream: traits::OutputStream>(stream: &mut Stream, x: u8) {
+pub fn write_u8<Stream: OutputStream>(stream: &mut Stream, x: u8) {
     write_unsigned::<u8, Stream>(stream, x)
 }
 
-pub fn write_u16<Stream: traits::OutputStream>(stream: &mut Stream, x: u16) {
+pub fn write_u16<Stream: OutputStream>(stream: &mut Stream, x: u16) {
     write_unsigned::<u16, Stream>(stream, x)
 }
 
-pub fn write_u32<Stream: traits::OutputStream>(stream: &mut Stream, x: u32) {
+pub fn write_u32<Stream: OutputStream>(stream: &mut Stream, x: u32) {
     write_unsigned::<u32, Stream>(stream, x)
 }
 
-pub fn write_u64<Stream: traits::OutputStream>(stream: &mut Stream, x: u64) {
+pub fn write_u64<Stream: OutputStream>(stream: &mut Stream, x: u64) {
     write_unsigned::<u64, Stream>(stream, x)
 }
 
-pub fn write_usize<Stream: traits::OutputStream>(stream: &mut Stream, x: usize) {
+pub fn write_usize<Stream: OutputStream>(stream: &mut Stream, x: usize) {
     write_unsigned::<usize, Stream>(stream, x)
 }
 
-pub fn write_i8<Stream: traits::OutputStream>(stream: &mut Stream, x: i8) {
+pub fn write_i8<Stream: OutputStream>(stream: &mut Stream, x: i8) {
     write_signed::<i8, Stream>(stream, x)
 }
 
-pub fn write_i16<Stream: traits::OutputStream>(stream: &mut Stream, x: i16) {
+pub fn write_i16<Stream: OutputStream>(stream: &mut Stream, x: i16) {
     write_signed::<i16, Stream>(stream, x)
 }
 
-pub fn write_i32<Stream: traits::OutputStream>(stream: &mut Stream, x: i32) {
+pub fn write_i32<Stream: OutputStream>(stream: &mut Stream, x: i32) {
     write_signed::<i32, Stream>(stream, x)
 }
 
-pub fn write_i64<Stream: traits::OutputStream>(stream: &mut Stream, x: i64) {
+pub fn write_i64<Stream: OutputStream>(stream: &mut Stream, x: i64) {
     write_signed::<i64, Stream>(stream, x)
 }
 
-pub fn write_isize<Stream: traits::OutputStream>(stream: &mut Stream, x: isize) {
+pub fn write_isize<Stream: OutputStream>(stream: &mut Stream, x: isize) {
     write_signed::<isize, Stream>(stream, x)
 }
 
-pub fn write_s<Stream: traits::OutputStream>(stream: &mut Stream, x: &[u8]) {
+pub fn write_s<Stream: OutputStream>(stream: &mut Stream, x: &[u8]) {
     for c in x {
         stream.write(*c);
     }
@@ -228,7 +226,7 @@ use super::string::String;
 pub use super::string::{read_string, read_string_until};
 
 #[cfg_attr(not(debug_assertions), inline(always))]
-pub fn write_string<Stream: traits::OutputStream>(stream: &mut Stream, x: &String) {
+pub fn write_string<Stream: OutputStream>(stream: &mut Stream, x: &String) {
     write_s(stream, x);
 }
 

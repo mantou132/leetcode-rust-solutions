@@ -8,6 +8,7 @@ pub mod ctype;
 pub mod traits;
 pub mod mem;
 pub mod iter;
+#[macro_use]
 pub mod string;
 pub mod io;
 

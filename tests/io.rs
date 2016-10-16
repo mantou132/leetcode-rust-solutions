@@ -3,6 +3,7 @@ extern crate porus;
 
 use porus::tests;
 use porus::io::*;
+use porus::ctype::isspace;
 
 
 #[test]
@@ -17,8 +18,8 @@ fn test_eof() {
 
 #[test]
 fn test_ignore_space() {
-    let stream = &mut tests::InputStream::new(b" ");
-    assert!(eof(ignore_space(stream)));
+    let stream = &mut tests::InputStream::new(b"    ");
+    assert!(eof(ignore(stream, isspace)));
 }
 
 

@@ -3,15 +3,15 @@ extern crate porus;
 
 use porus::traits::*;
 use porus::tests;
-use porus::string::string;
 use porus::io::{read_string, read_string_until, write_string};
+use porus::ctype::isnewline;
 
 
 #[test]
 fn test_eq() {
-    let a = &string(b"abcd");
-    let b = &string(b"abcd");
-    let c = &string(b"abcde");
+    let a = str!(b"abcd");
+    let b = str!(b"abcd");
+    let c = str!(b"abcde");
     assert!(a == b);
     assert!(a != c);
 }
@@ -19,7 +19,7 @@ fn test_eq() {
 
 #[test]
 fn test_iter() {
-    let a = &string(b"abc");
+    let a = str!(b"abc");
     let mut i = a.iter();
 
     assert!(b'a' == *(i.next().unwrap()));
@@ -31,9 +31,9 @@ fn test_iter() {
 
 #[test]
 fn test_add() {
-    let a = &string(b"abcdefghijklmnopqrstuvwxyz");
-    let b = &string(b"0");
-    let c = &string(b"1");
+    let a = str!(b"abcdefghijklmnopqrstuvwxyz");
+    let b = str!(b"0");
+    let c = str!(b"1");
 
     assert!(a + b == a + b);
     assert!(a + c == a + c);
@@ -45,8 +45,8 @@ fn test_add() {
 
 #[test]
 fn test_mul() {
-    let a = &string(b"abc");
-    let b = &string(b"abcabcabc");
+    let a = str!(b"abc");
+    let b = str!(b"abcabcabc");
     assert!(a == &(a * 1));
     assert!(b == &(a * 3));
 }
@@ -55,13 +55,13 @@ fn test_mul() {
 #[test]
 fn test_read_string() {
     let bytes = b"abc";
-    let s = &string(bytes);
+    let s = str!(bytes);
     let stream = &mut tests::InputStream::new(bytes);
     let t = &read_string(stream, bytes.len());
     assert!(s == t);
 
     let bytes = b"abcdefghijklmnopqrstuvwxyz";
-    let s = &string(bytes);
+    let s = str!(bytes);
     let stream = &mut tests::InputStream::new(bytes);
     let t = &read_string(stream, bytes.len());
     assert!(s == t);
@@ -70,18 +70,19 @@ fn test_read_string() {
 
 #[test]
 fn test_read_string_until() {
-    let bytes = b"abcdefghijklmnopqrstuvwxyz";
+    let bytes = b"abcdefghijklmnopqrstuvwxyz\n";
     let stream = &mut tests::InputStream::new(bytes);
-    let s = &read_string_until(stream, b'z', bytes.len());
-    assert!(s == &string(b"abcdefghijklmnopqrstuvwxy"));
+    let s = &read_string_until(stream, isnewline, bytes.len());
+    assert!(s == str!(b"abcdefghijklmnopqrstuvwxyz"));
 }
 
 
 #[test]
-#[should_panic(expected="buffer overflow")]
 fn test_read_string_overflow() {
+    let s = str!(b"abcdefghijklmnopqrstuvwxy");
     let stream = &mut tests::InputStream::new(b"abcdefghijklmnopqrstuvwxyz");
-    read_string(stream, 25);
+    let t = &read_string(stream, 25);
+    assert!(s == t);
 }
 
 
@@ -91,7 +92,7 @@ fn test_write_string() {
     let array = &mut [0;26];
     {
         let stream = &mut tests::OutputStream::new(array);
-        write_string(stream, &string(bytes));
+        write_string(stream, str!(bytes));
     }
 
     assert!(array == bytes);
