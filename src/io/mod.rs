@@ -225,84 +225,68 @@ pub fn write_s<Stream: OutputStream>(stream: &mut Stream, x: &[u8]) {
 use super::string::String;
 pub use super::string::{read_string, read_string_until};
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn write_string<Stream: OutputStream>(stream: &mut Stream, x: &String) {
     write_s(stream, x);
 }
 
 
 impl FromU8 for u8 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl FromU8 for u16 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl FromU8 for u32 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl FromU8 for u64 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl FromU8 for usize {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl FromU8 for i8 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl FromU8 for i16 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl FromU8 for i32 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl FromU8 for i64 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl FromU8 for isize {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn from_u8(x: u8) -> Self { x as Self }
 }
 
 impl ToU8 for u8 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_u8(x: Self) -> u8 { x as u8 }
 }
 
 impl ToU8 for u16 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_u8(x: Self) -> u8 { x as u8 }
 }
 
 impl ToU8 for u32 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_u8(x: Self) -> u8 { x as u8 }
 }
 
 impl ToU8 for u64 {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_u8(x: Self) -> u8 { x as u8 }
 }
 
 impl ToU8 for usize {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_u8(x: Self) -> u8 { x as u8 }
 }
 
@@ -325,34 +309,29 @@ impl Unsigned for usize {
 impl Signed for i8 {
     type Unsigned = u8;
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
 }
 
 impl Signed for i16 {
     type Unsigned = u16;
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
 }
 
 impl Signed for i32 {
     type Unsigned = u32;
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
 }
 
 impl Signed for i64 {
     type Unsigned = u64;
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
 }
 
 impl Signed for isize {
     type Unsigned = usize;
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
 }

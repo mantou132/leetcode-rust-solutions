@@ -1,4 +1,4 @@
-use super::super::traits;
+use porus::traits;
 
 pub struct InputStream<'a> {
     s: &'a [u8],
@@ -20,7 +20,7 @@ impl<'a> traits::PeekingIterator for InputStream<'a> {
 }
 
 impl<'a> InputStream<'a> {
-    pub fn new(s: &'a [u8]) -> InputStream<'a> {
+    pub fn new(s: &'a [u8]) -> Self {
         InputStream {
             s: s,
         }
@@ -44,7 +44,7 @@ impl<'a> traits::OutputStream for OutputStream<'a> {
 }
 
 impl<'a> OutputStream<'a> {
-    pub fn new(s: &'a mut[u8]) -> OutputStream<'a> {
+    pub fn new(s: &'a mut[u8]) -> Self {
         OutputStream {
             offset: 0,
             s: s,

@@ -1,4 +1,3 @@
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isupper(c: u8) -> bool {
     match c {
         b'A' ... b'Z' => true,
@@ -6,7 +5,6 @@ pub fn isupper(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn islower(c: u8) -> bool {
     match c {
         b'a' ... b'z' => true,
@@ -14,7 +12,6 @@ pub fn islower(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isalpha(c: u8) -> bool {
     match c {
         b'A' ... b'Z' => true,
@@ -23,7 +20,6 @@ pub fn isalpha(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isdigit(c: u8) -> bool {
     match c {
         b'0' ... b'9' => true,
@@ -31,7 +27,6 @@ pub fn isdigit(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isxdigit(c: u8) -> bool {
     match c {
         b'A' ... b'F' => true,
@@ -41,7 +36,6 @@ pub fn isxdigit(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isalnum(c: u8) -> bool {
     match c {
         b'A' ... b'Z' => true,
@@ -51,7 +45,6 @@ pub fn isalnum(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn ispunct(c: u8) -> bool {
     match c {
         b'!' ... b'/' => true,
@@ -62,7 +55,6 @@ pub fn ispunct(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isgraph(c: u8) -> bool {
     match c {
         b'!' ... b'~' => true,
@@ -70,7 +62,6 @@ pub fn isgraph(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isprint(c: u8) -> bool {
     match c {
         b' ' ... b'~' => true,
@@ -78,7 +69,6 @@ pub fn isprint(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isblank(c: u8) -> bool {
     match c {
         b' ' | b'\t' => true,
@@ -86,8 +76,6 @@ pub fn isblank(c: u8) -> bool {
     }
 }
 
-
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isnewline(c: u8) -> bool {
     match c {
         b'\n' => true,
@@ -95,7 +83,6 @@ pub fn isnewline(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn isspace(c: u8) -> bool {
     match c {
         b' ' | b'\t' ... b'\r' => true,
@@ -103,7 +90,6 @@ pub fn isspace(c: u8) -> bool {
     }
 }
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn iscntrl(c: u8) -> bool {
     match c {
         0 ... 0x1f => true,

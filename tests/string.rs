@@ -2,9 +2,11 @@
 extern crate porus;
 
 use porus::traits::*;
-use porus::tests;
 use porus::io::{read_string, read_string_until, write_string};
 use porus::ctype::isnewline;
+
+pub mod common;
+use common::io;
 
 
 #[test]
@@ -56,13 +58,13 @@ fn test_mul() {
 fn test_read_string() {
     let bytes = b"abc";
     let s = str!(bytes);
-    let stream = &mut tests::InputStream::new(bytes);
+    let stream = &mut io::InputStream::new(bytes);
     let t = &read_string(stream, bytes.len());
     assert!(s == t);
 
     let bytes = b"abcdefghijklmnopqrstuvwxyz";
     let s = str!(bytes);
-    let stream = &mut tests::InputStream::new(bytes);
+    let stream = &mut io::InputStream::new(bytes);
     let t = &read_string(stream, bytes.len());
     assert!(s == t);
 }
@@ -71,7 +73,7 @@ fn test_read_string() {
 #[test]
 fn test_read_string_until() {
     let bytes = b"abcdefghijklmnopqrstuvwxyz\n";
-    let stream = &mut tests::InputStream::new(bytes);
+    let stream = &mut io::InputStream::new(bytes);
     let s = &read_string_until(stream, isnewline, bytes.len());
     assert!(s == str!(b"abcdefghijklmnopqrstuvwxyz"));
 }
@@ -80,7 +82,7 @@ fn test_read_string_until() {
 #[test]
 fn test_read_string_overflow() {
     let s = str!(b"abcdefghijklmnopqrstuvwxy");
-    let stream = &mut tests::InputStream::new(b"abcdefghijklmnopqrstuvwxyz");
+    let stream = &mut io::InputStream::new(b"abcdefghijklmnopqrstuvwxyz");
     let t = &read_string(stream, 25);
     assert!(s == t);
 }
@@ -91,7 +93,7 @@ fn test_write_string() {
     let bytes = b"abcdefghijklmnopqrstuvwxyz";
     let array = &mut [0;26];
     {
-        let stream = &mut tests::OutputStream::new(array);
+        let stream = &mut io::OutputStream::new(array);
         write_string(stream, str!(bytes));
     }
 

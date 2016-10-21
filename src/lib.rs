@@ -1,4 +1,6 @@
 #![feature(allocator)]
+#![feature(specialization)]
+#![feature(stmt_expr_attributes)]
 #![allocator]
 #![no_std]
 
@@ -6,12 +8,9 @@
 pub mod libc;
 pub mod ctype;
 pub mod traits;
-pub mod mem;
+pub mod storage;
 pub mod iter;
 #[macro_use]
 pub mod string;
 pub mod io;
-
-#[cfg(debug_assertions)]
-#[macro_use]
-pub mod tests;
+pub mod collections;

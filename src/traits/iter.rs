@@ -1,4 +1,4 @@
-pub use core::iter::Iterator;
+pub use core::iter::{Iterator, ExactSizeIterator};
 
 pub trait PeekingIterator {
     type Item;

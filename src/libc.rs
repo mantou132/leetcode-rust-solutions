@@ -104,3 +104,82 @@ pub fn write_abort_msg(file: &str, line: u32, msg: &str) {
     write_u32(2, line);
     write(2, b"\n".as_ptr(), 1);
 }
+
+
+extern "C" {
+    pub fn malloc(size: usize) -> *mut u8;
+    pub fn free(ptr: *mut u8);
+    pub fn realloc(ptr: *mut u8, size: usize) -> *mut u8;
+}
+
+
+#[no_mangle]
+pub extern fn __rust_allocate(size: usize, _align: usize) -> *mut u8 {
+    unsafe {
+        malloc(size)
+    }
+}
+
+#[no_mangle]
+pub extern fn __rust_deallocate(ptr: *mut u8, _old_size: usize, _align: usize) {
+    unsafe {
+        free(ptr)
+    }
+}
+
+#[no_mangle]
+pub extern fn __rust_reallocate(ptr: *mut u8, _old_size: usize, size: usize,
+                                _align: usize) -> *mut u8 {
+    unsafe {
+        realloc(ptr, size)
+    }
+}
+
+#[no_mangle]
+pub extern fn __rust_reallocate_inplace(_ptr: *mut u8, old_size: usize,
+                                        _size: usize, _align: usize) -> usize {
+    old_size
+}
+
+#[no_mangle]
+pub extern fn __rust_usable_size(size: usize, _align: usize) -> usize {
+    size
+}
+
+
+extern "C" {
+    pub fn printf(fmt: *const u8, ...) -> i32;
+    pub fn scanf(fmt: *const u8, ...) -> i32;
+}
+
+
+#[macro_export]
+macro_rules! scanf {
+    ($fmt:expr) => ({
+        unsafe {
+            $crate::libc::scanf(concat!($fmt, "\0").as_ptr());
+        }
+    });
+
+    ($fmt:expr, $($arg:expr), +) => ({
+        unsafe {
+            $crate::libc::scanf(concat!($fmt, "\0").as_ptr(), $($arg), +);
+        }
+    });
+}
+
+
+#[macro_export]
+macro_rules! printf {
+    ($fmt:expr) => ({
+        unsafe {
+            $crate::libc::printf(concat!($fmt, "\0").as_ptr());
+        }
+    });
+
+    ($fmt:expr, $($arg:expr), +) => ({
+        unsafe {
+            $crate::libc::printf(concat!($fmt, "\0").as_ptr(), $($arg), +);
+        }
+    });
+}

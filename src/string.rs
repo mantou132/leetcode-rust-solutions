@@ -4,7 +4,7 @@ use core::ops::{Deref, Add, Mul};
 use core::mem::{size_of, transmute};
 use core::ptr::{copy_nonoverlapping, drop_in_place};
 use core::slice::from_raw_parts;
-use super::mem::{malloc, realloc, free};
+use super::libc::{malloc, realloc, free};
 use super::traits::InputStream;
 
 
@@ -72,8 +72,7 @@ use self::Tag::*;
 
 
 impl Clone for SharedString {
-    #[cfg_attr(not(debug_assertions), inline(always))]
-    fn clone(&self) -> SharedString {
+    fn clone(&self) -> Self {
         unsafe {
             *self.counter += 1;
         }
@@ -86,8 +85,7 @@ impl Clone for SharedString {
 }
 
 impl Clone for InlineString {
-    #[cfg_attr(not(debug_assertions), inline(always))]
-    fn clone(&self) -> InlineString {
+    fn clone(&self) -> Self {
         InlineString {
             length: self.length,
             s: self.s,
@@ -96,8 +94,7 @@ impl Clone for InlineString {
 }
 
 impl Clone for StaticString {
-    #[cfg_attr(not(debug_assertions), inline(always))]
-    fn clone(&self) -> StaticString {
+    fn clone(&self) -> Self {
         StaticString {
             padding: self.padding,
             length: self.length,
@@ -107,7 +104,6 @@ impl Clone for StaticString {
 }
 
 impl Drop for SharedString {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn drop(&mut self) {
         unsafe{
             *self.counter -= 1;
@@ -119,49 +115,42 @@ impl Drop for SharedString {
 }
 
 impl String {
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn as_inline(&self) -> &InlineString {
         unsafe {
             &*(self as *const _ as *const _)
         }
     }
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn as_inline_mut(&mut self) -> &mut InlineString {
         unsafe {
             &mut *(self as *mut _ as *mut _)
         }
     }
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn as_shared(&self) -> &SharedString {
         unsafe {
             &*(self as *const _ as *const _)
         }
     }
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn as_shared_mut(&mut self) -> &mut SharedString {
         unsafe {
             &mut *(self as *mut _ as *mut _)
         }
     }
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn as_static(&self) -> &StaticString {
         unsafe {
             &*(self as *const _ as *const _)
         }
     }
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn as_static_mut(&mut self) -> &mut StaticString {
         unsafe {
             &mut *(self as *mut _ as *mut _)
         }
     }
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn tag(&self) -> Tag {
         match self.as_inline().length & 0x3 {
             0 => Shared,
@@ -171,7 +160,6 @@ impl String {
         }
     }
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     pub fn len(&self) -> usize {
         match self.tag() {
             Shared => self.as_shared().length,
@@ -180,7 +168,6 @@ impl String {
         }
     }
 
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn as_ptr(&self) -> *const u8 {
         match self.tag() {
             Shared => self.as_shared().s,
@@ -190,7 +177,6 @@ impl String {
     }
 
     #[cfg(target_pointer_width="64")]
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn new_inline() -> InlineString {
         InlineString {
             length: 1,
@@ -199,7 +185,6 @@ impl String {
     }
 
     #[cfg(target_pointer_width="32")]
-    #[cfg_attr(not(debug_assertions), inline(always))]
     fn new_inline() -> InlineString {
         InlineString {
             length: 1,
@@ -207,7 +192,7 @@ impl String {
         }
     }
 
-    fn new_by_length(length: usize) -> String {
+    fn new_by_length(length: usize) -> Self {
         if length < size_of::<String>() {
             let mut i = String::new_inline();
             i.length |= (length as u8) << 3;
@@ -245,7 +230,7 @@ impl Deref for String {
 }
 
 impl Clone for String {
-    fn clone(&self) -> String {
+    fn clone(&self) -> Self {
         match self.tag() {
             Shared =>
                 unsafe {
@@ -268,15 +253,15 @@ impl Drop for String {
         match self.tag() {
             Shared =>
                 unsafe {
-                    drop_in_place(self.as_shared_mut());
+                    drop_in_place(self.as_shared_mut() as *mut _);
                 },
             Inline =>
                 unsafe {
-                    drop_in_place(self.as_inline_mut());
+                    drop_in_place(self.as_inline_mut() as *mut _);
                 },
             Static =>
                 unsafe {
-                    drop_in_place(self.as_static_mut());
+                    drop_in_place(self.as_static_mut() as *mut _);
                 },
         }
     }
@@ -478,7 +463,6 @@ pub fn read_string_until<Stream: InputStream, Fun: Fn(u8)->bool>(stream: &mut St
 }
 
 
-#[cfg_attr(not(debug_assertions), inline(always))]
 pub fn read_string<Stream: InputStream>(stream: &mut Stream, buffer_size: usize) -> String {
     read_string_until(stream, |_| {false}, buffer_size)
 }
