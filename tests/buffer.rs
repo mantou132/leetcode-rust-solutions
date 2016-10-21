@@ -12,10 +12,10 @@ use common::drop::{Counter, Item};
 fn test_drop() {
     let counter = Counter::new();
     {
-        let deque = &mut Buffer::<Item>::with_capacity(5);
+        let stack = &mut Buffer::<Item>::with_capacity(5);
 
         for _ in 0..5 {
-            Deque::push_back(deque, Item::new(counter.clone()));
+            Stack::push(stack, Item::new(counter.clone()));
         }
     }
 
@@ -44,185 +44,48 @@ fn test_list() {
 
 #[test]
 fn test_deque() {
-    let deque = &mut Buffer::<usize>::with_capacity(0);
-
-    for i in 0..5 {
-        Deque::push_front(deque, i);
-    }
-
-    assert!(Collection::size(deque) == 5);
-
-    for i in (0..5).rev() {
-        assert!(Deque::front(deque) == Some(&(i)));
-        assert!(Deque::pop_front(deque) == i);
-    }
-
-    assert!(Collection::size(deque) == 0);
-
-    for i in 0..5 {
-        Deque::push_front(deque, i);
-    }
-
-    assert!(Collection::size(deque) == 5);
-
-    for i in 0..5 {
-        assert!(Deque::back(deque) == Some(&(i)));
-        assert!(Deque::pop_back(deque) == i);
-    }
-
-    assert!(Collection::size(deque) == 0);
-
-    for i in 0..5 {
-        Deque::push_back(deque, i);
-    }
-
-    assert!(Collection::size(deque) == 5);
-
-    for i in (0..5).rev() {
-        assert!(Deque::back(deque) == Some(&(i)));
-        assert!(Deque::pop_back(deque) == i);
-    }
-
-    assert!(Collection::size(deque) == 0);
-
-    for i in 0..5 {
-        Deque::push_back(deque, i);
-    }
-
-    assert!(Collection::size(deque) == 5);
-
-    for i in 0..5 {
-        assert!(Deque::front(deque) == Some(&(i)));
-        assert!(Deque::pop_front(deque) == i);
-    }
-
-    assert!(Collection::size(deque) == 0);
+    common::deque::test_deque(&mut Buffer::<usize>::with_capacity(0));
 }
 
 
 #[test]
 #[should_panic(expected="empty")]
 fn test_deque_empty_pop_front() {
-    let deque = &mut Buffer::<usize>::with_capacity(5);
-    Deque::push_back(deque, 1);
-    Deque::push_back(deque, 2);
-    Deque::pop_front(deque);
-    Deque::pop_front(deque);
-    assert!(Deque::is_empty(deque));
-    Deque::pop_front(deque);
+    common::deque::test_empty_pop_front(&mut Buffer::<usize>::with_capacity(5));
+
 }
 
 
 #[test]
 #[should_panic(expected="empty")]
 fn test_deque_empty_pop_back() {
-    let deque = &mut Buffer::<usize>::with_capacity(5);
-    Deque::push_front(deque, 1);
-    Deque::push_front(deque, 2);
-    Deque::pop_back(deque);
-    Deque::pop_back(deque);
-    assert!(Deque::is_empty(deque));
-    Deque::pop_back(deque);
+    common::deque::test_empty_pop_back(&mut Buffer::<usize>::with_capacity(5));
 }
 
 
 #[test]
 #[should_panic(expected="overflow")]
-fn test_deque_push_front_overflow() {
-    let deque = &mut Buffer::<usize, FixedCapacity>::with_capacity(5);
-    for i in 0..6 {
-        Deque::push_front(deque, i);
-    }
+fn test_deque_bounded_push_front_overflow() {
+    common::deque::test_bounded_push_front_overflow(&mut Buffer::<usize, FixedCapacity>::with_capacity(5));
 }
 
 
 #[test]
 #[should_panic(expected="overflow")]
-fn test_deque_push_back_overflow() {
-    let deque = &mut Buffer::<usize, FixedCapacity>::with_capacity(5);
-    for i in 0..6 {
-        Deque::push_back(deque, i);
-    }
+fn test_deque_bounded_push_back_overflow() {
+    common::deque::test_bounded_push_back_overflow(&mut Buffer::<usize, FixedCapacity>::with_capacity(5));
 }
 
 
 #[test]
-fn test_deque_grow() {
-    let deque = &mut Buffer::<usize>::with_capacity(0);
-
-    for i in 0..11 {
-        Deque::push_back(deque, i);
-    }
-
-    let capacity = Unbounded::capacity(deque);
-
-    for _ in 0..5 {
-        Deque::pop_front(deque);
-    }
-
-    assert!(Unbounded::capacity(deque) < capacity);
+fn test_deque_unbounded_grow() {
+    common::deque::test_unbounded_grow(&mut Buffer::<usize>::with_capacity(0));
 }
 
 
 #[test]
-fn test_deque_reserve() {
-    let deque = &mut Buffer::<usize>::with_capacity(0);
-
-    for i in 0..5 {
-        Deque::push_back(deque, i);
-    }
-
-    Unbounded::reserve(deque, 20);
-    assert!(Unbounded::capacity(deque) == 20);
-
-    for i in 0..5 {
-        assert!(Deque::pop_front(deque) == i);
-    }
-
-
-    let deque = &mut Buffer::<usize>::with_capacity(0);
-
-    for i in 0..5 {
-        Deque::push_front(deque, i);
-    }
-
-    Unbounded::reserve(deque, 20);
-    assert!(Unbounded::capacity(deque) == 20);
-
-    for i in 0..5 {
-        assert!(Deque::pop_back(deque) == i);
-    }
-}
-
-
-#[test]
-fn test_deque_shrink() {
-    let deque = &mut Buffer::<usize>::with_capacity(0);
-
-    for i in 0..11 {
-        Deque::push_back(deque, i);
-    }
-
-    Unbounded::shrink_to_fit(deque);
-    assert!(Unbounded::capacity(deque) == 11);
-
-    for i in 0..11 {
-        assert!(Deque::pop_front(deque) == i);
-    }
-
-
-    let deque = &mut Buffer::<usize>::with_capacity(0);
-
-    for i in 0..11 {
-        Deque::push_front(deque, i);
-    }
-
-    Unbounded::shrink_to_fit(deque);
-    assert!(Unbounded::capacity(deque) == 11);
-
-    for i in 0..11 {
-        assert!(Deque::pop_back(deque) == i);
-    }
+fn test_deque_unbounded_reserve() {
+    common::deque::test_unbounded_reserve(&mut Buffer::<usize>::with_capacity(0));
 }
 
 
