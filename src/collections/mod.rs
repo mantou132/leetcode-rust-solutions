@@ -7,5 +7,8 @@ pub use self::array::*;
 mod buffer;
 pub use self::buffer::*;
 
-pub mod flist;
-pub mod list;
+mod flist;
+pub use self::flist::*;
+
+mod list;
+pub use self::list::*;

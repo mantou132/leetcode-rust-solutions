@@ -2,7 +2,8 @@
 extern crate porus;
 
 use porus::traits::*;
-use porus::collections::list;
+use porus::collections::LinkedList;
+use porus::storage::Pool;
 
 pub mod common;
 use common::drop::{Counter, Item};
@@ -12,7 +13,7 @@ use common::drop::{Counter, Item};
 fn test_drop() {
     let counter = Counter::new();
     {
-        let stack = &mut list::new();
+        let stack = &mut LinkedList::new();
 
         for _ in 0..5 {
             Stack::push(stack, Item::new(counter.clone()));
@@ -25,15 +26,15 @@ fn test_drop() {
 
 #[test]
 fn test_deque() {
-    common::deque::test_deque(&mut list::new());
-    common::deque::test_deque(&mut list::with_capacity(5));
+    common::deque::test_deque(&mut LinkedList::new());
+    common::deque::test_deque(&mut LinkedList::with_allocator(Pool::with_capacity(5)));
 }
 
 
 #[test]
 #[should_panic(expected="empty")]
 fn test_deque_empty_pop_front() {
-    common::deque::test_empty_pop_front(&mut list::new());
+    common::deque::test_empty_pop_front(&mut LinkedList::new());
 
 }
 
@@ -41,19 +42,19 @@ fn test_deque_empty_pop_front() {
 #[test]
 #[should_panic(expected="empty")]
 fn test_deque_empty_pop_back() {
-    common::deque::test_empty_pop_back(&mut list::new());
+    common::deque::test_empty_pop_back(&mut LinkedList::new());
 }
 
 
 #[test]
 #[should_panic(expected="overflow")]
 fn test_deque_bounded_push_front_overflow() {
-    common::deque::test_bounded_push_front_overflow(&mut list::with_capacity(5));
+    common::deque::test_bounded_push_front_overflow(&mut LinkedList::with_allocator(Pool::with_capacity(5)));
 }
 
 
 #[test]
 #[should_panic(expected="overflow")]
 fn test_deque_bounded_push_back_overflow() {
-    common::deque::test_bounded_push_back_overflow(&mut list::with_capacity(5));
+    common::deque::test_bounded_push_back_overflow(&mut LinkedList::with_allocator(Pool::with_capacity(5)));
 }

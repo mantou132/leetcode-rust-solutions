@@ -1,6 +1,6 @@
 use core::ptr::null_mut;
 use super::super::traits::{Allocator, Bounded, Collection, Stack};
-use super::super::storage::{SystemAllocator, Pool};
+use super::super::storage::SystemAllocator;
 
 
 pub struct ForwardListNode<T> {
@@ -9,10 +9,32 @@ pub struct ForwardListNode<T> {
 }
 
 
-pub struct ForwardList<T, A : Allocator<Item=ForwardListNode<T>>> {
+pub struct ForwardList<T, A : Allocator<Item=ForwardListNode<T>> = SystemAllocator<ForwardListNode<T>>> {
     size: usize,
     top: *mut ForwardListNode<T>,
     allocator: A,
+}
+
+
+impl<T> ForwardList<T, SystemAllocator<ForwardListNode<T>>> {
+    pub fn new() -> Self {
+        ForwardList {
+            size: 0,
+            top: null_mut(),
+            allocator: SystemAllocator::new(),
+        }
+    }
+}
+
+
+impl<T, A : Allocator<Item=ForwardListNode<T>>> ForwardList<T,A> {
+    pub fn with_allocator(allocator: A) -> Self {
+        ForwardList {
+            size: 0,
+            top: null_mut(),
+            allocator: allocator,
+        }
+    }
 }
 
 
@@ -75,22 +97,5 @@ impl<T, A : Allocator<Item=ForwardListNode<T>>> Drop for ForwardList<T,A> {
         while !(self.is_empty()) {
             Stack::pop(self);
         }
-    }
-}
-
-
-pub fn new<T>() -> ForwardList<T, SystemAllocator<ForwardListNode<T>>> {
-    ForwardList {
-        size: 0,
-        top: null_mut(),
-        allocator: SystemAllocator::new(),
-    }
-}
-
-pub fn with_capacity<T>(capacity: usize) -> ForwardList<T,Pool<ForwardListNode<T>>> {
-    ForwardList {
-        size: 0,
-        top: null_mut(),
-        allocator: Pool::with_capacity(capacity),
     }
 }

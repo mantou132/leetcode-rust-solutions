@@ -1,6 +1,6 @@
 use core::ptr::null_mut;
 use super::super::traits::{Allocator, Bounded, Collection, Deque, Stack};
-use super::super::storage::{SystemAllocator, Pool};
+use super::super::storage::SystemAllocator;
 
 
 pub struct LinkedListHeader {
@@ -15,11 +15,35 @@ pub struct LinkedListNode<T> {
 }
 
 
-pub struct LinkedList<T, A : Allocator<Item=LinkedListNode<T>>> {
+pub struct LinkedList<T, A : Allocator<Item=LinkedListNode<T>> = SystemAllocator<LinkedListNode<T>>> {
     size: usize,
     front: *mut LinkedListNode<T>,
     back: *mut LinkedListNode<T>,
     allocator: A,
+}
+
+
+impl<T> LinkedList<T, SystemAllocator<LinkedListNode<T>>> {
+    pub fn new() -> Self {
+        LinkedList {
+            size: 0,
+            front: null_mut(),
+            back: null_mut(),
+            allocator: SystemAllocator::new(),
+        }
+    }
+}
+
+
+impl<T, A : Allocator<Item=LinkedListNode<T>>> LinkedList<T,A> {
+    pub fn with_allocator(allocator: A) -> Self {
+        LinkedList {
+            size: 0,
+            front: null_mut(),
+            back: null_mut(),
+            allocator: allocator,
+        }
+    }
 }
 
 
@@ -150,25 +174,5 @@ impl<T, A : Allocator<Item=LinkedListNode<T>>> Drop for LinkedList<T,A> {
         while !(Deque::is_empty(self)) {
             Stack::pop(self);
         }
-    }
-}
-
-
-pub fn new<T>() -> LinkedList<T, SystemAllocator<LinkedListNode<T>>> {
-    LinkedList {
-        size: 0,
-        front: null_mut(),
-        back: null_mut(),
-        allocator: SystemAllocator::new(),
-    }
-}
-
-
-pub fn with_capacity<T>(capacity: usize) -> LinkedList<T,Pool<LinkedListNode<T>>> {
-    LinkedList {
-        size: 0,
-        front: null_mut(),
-        back: null_mut(),
-        allocator: Pool::with_capacity(capacity),
     }
 }
