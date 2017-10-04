@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate porus;
 
 use std::mem::size_of;

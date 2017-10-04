@@ -1,6 +1,5 @@
 #![cfg_attr(not(debug_assertions), no_main)]
 
-#[macro_use]
 extern crate porus;
 use porus::io::*;
 use porus::ctype::{isupper, isnewline};

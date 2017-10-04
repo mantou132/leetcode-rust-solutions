@@ -1,7 +1,5 @@
-#![feature(allocator)]
 #![feature(specialization)]
 #![feature(stmt_expr_attributes)]
-#![allocator]
 #![no_std]
 
 #[macro_use]

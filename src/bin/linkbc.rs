@@ -1,3 +1,14 @@
+// LICENSE of librustc_trans/back/lto.rs
+// Copyright 2013 The Rust Project Developers. See the COPYRIGHT
+// file at the top-level directory of this distribution and at
+// http://rust-lang.org/COPYRIGHT.
+//
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
+
 #![feature(rustc_private)]
 extern crate rustc;
 extern crate rustc_llvm;
@@ -10,7 +21,6 @@ use std::ffi::CString;
 use std::fs::File;
 use std::vec::Vec;
 use std::io::Read;
-use std::rc::Rc;
 
 
 fn main() {
@@ -30,10 +40,9 @@ fn main() {
     let name = CString::new(args.next().unwrap()).unwrap();
     let (opts, _) = rustc::session::config::build_session_options_and_crate_config(&matches);
 
-    let dep_graph = rustc::dep_graph::DepGraph::new(false);
     let registry = rustc_driver::diagnostics_registry();
-    let cstore = Rc::new(rustc_metadata::cstore::CStore::new(&dep_graph));
-    let session = rustc::session::build_session(opts, &dep_graph, None, registry, cstore.clone());
+    let session = rustc::session::build_session(opts, None, registry);
+    rustc_trans::init(&session);
     let tm = rustc_trans::back::write::create_target_machine(&session);
 
     unsafe {

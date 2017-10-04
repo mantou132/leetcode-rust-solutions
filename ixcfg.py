@@ -2,34 +2,21 @@ import os
 import os.path
 from ix import has_to_recompile as ix_has_to_recompile, compile_file
 from ix.utils import index_of, replace_ext
+import subprocess
 
+
+DEBUG_RLIB = os.path.join(ROOTDIR, "target/debug/libporus.rlib")
 SOLUTION_PATTERN = r'^(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs$'
 
-def rlib_path(build):
-    return os.path.join(ROOTDIR, "target", build, "libporus.rlib")
 
-def bc_path(build):
-    return os.path.join(ROOTDIR, "target", build, "deps/porus.bc")
-
-
-DEBUG_RLIB = rlib_path("debug")
-LINKBC = os.path.join(ROOTDIR, "target/debug/linkbc")
-
-
-def has_to_recompile(source, target, build="debug"):
+def has_to_recompile(source, target, rlib=DEBUG_RLIB):
     if ix_has_to_recompile(source, target):
         return True
 
-    if os.stat(rlib_path(build)).st_mtime >= os.stat(target).st_mtime:
+    if os.stat(rlib).st_mtime >= os.stat(target).st_mtime:
         return True
 
     return False
-
-
-def get_llvm_target(compiler):
-    return ( ({"x86": "i686", "x86_64": "x86_64"}[compiler.arch])
-             + "-" +
-             ({"Windows": "pc-windows", "Linux": "unknown-linux"}[compiler.os]) + "-gnu")
 
 
 def get_compile_argv(filename):
@@ -40,6 +27,7 @@ def get_compile_argv(filename):
     return ['rustc', '--extern', 'porus='+DEBUG_RLIB, "-o", target, filename], target
 
 
+
 def pick_compiler(compilers):
     compilers = [c for c in compilers if c.lang == "C" and c.name in ("GCC", "MinGW")]
     compilers.sort(key=lambda c: (index_of(['Linux','Windows'], c.os), index_of(['x86_64','x86'], c.arch)))
@@ -47,54 +35,77 @@ def pick_compiler(compilers):
         return compilers[0]
 
 
-def check_lib(llvm_target):
-    build = llvm_target+ "/release"
-    rlib = rlib_path(build)
-
-    argv = ['cargo', 'build', '--lib', '--release', '--target', llvm_target]
-    if compile_file(ROOTDIR, argv, "src/lib.rs", rlib) is None:
-        return False
-
-    bc = bc_path(build)
-    argv = ['cargo', 'rustc', '--lib', '--release', '--target', llvm_target, '--', '--emit', 'llvm-bc']
-
-    if compile_file(ROOTDIR, argv, rlib, bc) is None:
-        return False
-
-    return True
+def get_llvm_target(compiler):
+    return ( ({"x86": "i686", "x86_64": "x86_64"}[compiler.arch])
+             + "-" +
+             ({"Windows": "pc-windows", "Linux": "unknown-linux"}[compiler.os]) + "-gnu")
 
 
-def check_linkbc():
-    src = 'src/bin/linkbc.rs'
-    if ix_has_to_recompile(src, LINKBC):
-        argv = ['cargo', 'build', '--bin=linkbc']
-        if compile_file(ROOTDIR, argv, src, LINKBC) is None:
+
+class SubmissionCompilerContext:
+    LINKBC = os.path.join(ROOTDIR, "target/debug/linkbc")
+
+
+    def __init__(self, llvm_target):
+        self.llvm_target = llvm_target
+        self.rlib_path = os.path.join(ROOTDIR, "target", llvm_target, "release/libporus.rlib")
+
+
+    def check(self):
+        argv = ['cargo', 'rustc', '--lib', '--release', '--target', self.llvm_target, '--', '--emit', 'llvm-bc']
+        if compile_file(ROOTDIR, argv, self.rlib_path) is None:
             return False
-    return True
+
+        argv = ['ar', 't', self.rlib_path]
+        members = subprocess.run(argv, stdout=subprocess.PIPE, check=True).stdout.splitlines()
+        if not members:
+            return False
+
+        member = [m for m in members if m.endswith(b'.0.bytecode.encoded')][0]
+        self.bc_path = os.path.join(ROOTDIR, "target", self.llvm_target, "release/deps", member[:-19].decode()+'.bc')
+
+        src = 'src/bin/linkbc.rs'
+        if ix_has_to_recompile(src, self.LINKBC):
+            argv = ['cargo', 'build', '--bin=linkbc']
+            if compile_file(ROOTDIR, argv, src, self.LINKBC) is None:
+                return False
+
+        return True
 
 
-def get_submit_argv(filename, target, llvm_target):
-    return ['rustc',
-            "--emit", "llvm-bc",
-            "-C", "opt-level=s",
-            "-C", "panic=abort",
-            "--target", llvm_target,
-            '--extern', 'porus='+rlib_path(llvm_target+"/release"),
-            "-o", target, filename]
+    def get_submit_argv(self, source, target):
+        return ['rustc',
+                "--emit", "llvm-bc",
+                "-C", "opt-level=s",
+                "-C", "panic=abort",
+                "--target", self.llvm_target,
+                '--extern', 'porus='+self.rlib_path,
+                "-o", target, source]
 
 
-def get_linkbc_argv(filename, target, llvm_target):
-    argv = get_submit_argv(filename, target, llvm_target)
-    argv[0] = LINKBC
-    return argv + ["--", target, filename, bc_path(llvm_target+"/release")]
+    def get_linkbc_argv(self, source, target):
+        argv = self.get_submit_argv(source, target)
+        argv[0] = self.LINKBC
+        return argv + ["--", target, self.bc_path, source]
 
 
-ESCAPE_CHARS = {
-    '\\':'\\\\','\"':r'\"','\n':r'\n','\t':r'\t'
-}
+    def compile(self, source):
+        bc = replace_ext(source, "bc")
 
-def escape_asm(asm):
-    return '__asm__("' + ''.join(ESCAPE_CHARS.get(c,c) for c in asm) + '");'
+        if has_to_recompile(source, bc, self.rlib_path):
+            argv = self.get_submit_argv(source, bc)
+            if compile_file(ROOTDIR, argv, source, bc) is None:
+                return None
+
+        target = replace_ext(source, "s")
+
+        if has_to_recompile(source, target, self.rlib_path):
+            argv = self.get_linkbc_argv(bc, target)
+            if compile_file(ROOTDIR, argv, bc, target) is None:
+                return None
+
+        return target
+
 
 
 def prepare_submission(compilers, filename):
@@ -103,27 +114,17 @@ def prepare_submission(compilers, filename):
         return None
 
     llvm_target = get_llvm_target(compiler)
-    build = llvm_target + '/release'
 
-    if not check_lib(llvm_target):
+    context = SubmissionCompilerContext(llvm_target)
+
+    if not context.check():
         return None
 
-    if not check_linkbc():
+    asm = context.compile(filename)
+    if asm is None:
         return None
-
-    bc = replace_ext(filename, "bc")
-    if has_to_recompile(filename, bc, build):
-        argv = get_submit_argv(filename, bc, llvm_target)
-        if compile_file(ROOTDIR, argv, filename, bc) is None:
-            return None
-
-    asm = replace_ext(filename, "s")
-    if has_to_recompile(filename, asm, build):
-        argv = get_linkbc_argv(bc, asm, llvm_target)
-        if compile_file(ROOTDIR, argv, bc, asm) is None:
-            return None
 
     with open(asm,'rb') as f:
         code = f.read()
 
-    return compiler, escape_asm(code.decode("utf-8"))
+    return compiler, code
