@@ -7,7 +7,7 @@ use porus::storage::Pool;
 
 
 #[test]
-#[should_panic(expect="full")]
+#[should_panic(expected="overflow")]
 fn test_pool_full() {
     let pool = &mut Pool::<usize>::with_capacity(1);
     pool.add(1);

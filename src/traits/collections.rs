@@ -63,23 +63,31 @@ pub trait Deque : Collection {
     fn pop_back(&mut self) -> Self::Item;
 }
 
+pub trait Map : Collection {
+    type Key;
+    type Value;
+
+    fn get(&self, key: &Self::Key) -> Option<&Self::Value>;
+}
+
+
 impl<T : Deque> Stack for T {
     type Item = T::Item;
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        Deque::is_empty(self)
     }
 
     fn top(&self) -> Option<&Self::Item> {
-        self.back()
+        Deque::back(self)
     }
 
     fn push(&mut self, item: Self::Item) {
-        self.push_back(item)
+        Deque::push_back(self,item)
     }
 
     fn pop(&mut self) -> Self::Item {
-        self.pop_back()
+        Deque::pop_back(self)
     }
 }
 
@@ -88,22 +96,36 @@ impl<T : Deque> Queue for T {
     type Item = T::Item;
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        Deque::is_empty(self)
     }
 
     fn first(&self) -> Option<&Self::Item> {
-        self.front()
+        Deque::front(self)
     }
 
     fn last(&self) -> Option<&Self::Item> {
-        self.back()
+        Deque::back(self)
     }
 
     fn push(&mut self, item: Self::Item) {
-        self.push_back(item)
+        Deque::push_back(self,item)
     }
 
     fn pop(&mut self) -> Self::Item {
-        self.pop_front()
+        Deque::pop_front(self)
+    }
+}
+
+
+impl<T : List> Map for T {
+    type Key = usize;
+    type Value = T::Item;
+
+    fn get(&self, key: &usize) -> Option<&Self::Value> {
+        if *key < Collection::size(self) {
+            Some(List::get(self, *key))
+        } else {
+            None
+        }
     }
 }
