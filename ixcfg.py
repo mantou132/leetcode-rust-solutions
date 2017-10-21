@@ -20,7 +20,8 @@ def has_to_recompile(source, target, rlib=DEBUG_RLIB):
 
 
 def get_compile_argv(filename):
-    if compile_file(ROOTDIR, ['cargo', 'build', '--lib'], 'src/lib.rs', DEBUG_RLIB) is None:
+    VERBOSE_FLAG = '-v' if VERBOSE else '-q'
+    if compile_file(ROOTDIR, ['cargo', 'build', VERBOSE_FLAG, '--lib'], 'src/lib.rs', DEBUG_RLIB) is None:
         raise Exception("failed to build library")
 
     target = replace_ext(filename,"elf")
@@ -48,10 +49,11 @@ class SubmissionCompilerContext:
     def __init__(self, llvm_target):
         self.llvm_target = llvm_target
         self.rlib_path = os.path.join(ROOTDIR, "target", llvm_target, "release/libporus.rlib")
+        self.verbose = '-v' if VERBOSE else '-q'
 
 
     def check(self):
-        argv = ['cargo', 'rustc', '--lib', '--release', '--target', self.llvm_target, '--', '--emit', 'llvm-bc']
+        argv = ['cargo', 'rustc', self.verbose, '--lib', '--release', '--target', self.llvm_target, '--', '--emit', 'llvm-bc']
         if compile_file(ROOTDIR, argv, self.rlib_path) is None:
             return False
 
@@ -64,7 +66,7 @@ class SubmissionCompilerContext:
         self.bc_path = os.path.join(ROOTDIR, "target", self.llvm_target, "release/deps", member.decode()+'.bc')
 
         src = 'src/bin/linkbc.rs'
-        argv = ['cargo', 'build', '--bin=linkbc']
+        argv = ['cargo', 'build', self.verbose, '--bin=linkbc']
         if compile_file(ROOTDIR, argv, src) is None:
             return False
 
@@ -83,7 +85,7 @@ class SubmissionCompilerContext:
 
     def get_linkbc_argv(self, source, target):
         argv = self.get_submit_argv(source, target)
-        return ['cargo', 'run', '--bin', 'linkbc', '--'] + argv[1:] + ["--", target, self.bc_path, source]
+        return ['cargo', 'run', self.verbose, '--bin', 'linkbc', '--'] + argv[1:] + ["--", target, self.bc_path, source]
 
 
     def compile(self, source):
