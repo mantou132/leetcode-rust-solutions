@@ -36,7 +36,7 @@ impl<T> LinkedList<T, SystemAllocator<LinkedListNode<T>>> {
 
 
 impl<T, A : Allocator<Item=LinkedListNode<T>>> LinkedList<T,A> {
-    pub fn with_allocator(allocator: A) -> Self {
+    pub fn new_with_allocator(allocator: A) -> Self {
         LinkedList {
             size: 0,
             front: null_mut(),

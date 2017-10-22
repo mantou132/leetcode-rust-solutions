@@ -12,7 +12,7 @@ use common::drop::{Counter, Item};
 fn test_drop() {
     let counter = Counter::new();
     {
-        let stack = &mut Buffer::<Item>::with_capacity(5);
+        let stack = &mut Buffer::<Item>::new_with_capacity(5);
 
         for _ in 0..5 {
             Stack::push(stack, Item::new(counter.clone()));
@@ -27,7 +27,7 @@ fn test_drop() {
 fn test_set_drop() {
     let counter = Counter::new();
     {
-        let deque = &mut Buffer::<Item>::with_capacity(5);
+        let deque = &mut Buffer::<Item>::new_with_capacity(5);
         Deque::push_back(deque, Item::new(counter.clone()));
         ListMut::set(deque, 0, Item::new(counter.clone()));
     }
@@ -44,14 +44,14 @@ fn test_list() {
 
 #[test]
 fn test_deque() {
-    common::deque::test_deque(&mut Buffer::<usize>::with_capacity(0));
+    common::deque::test_deque(&mut Buffer::<usize>::new_with_capacity(0));
 }
 
 
 #[test]
 #[should_panic(expected="empty")]
 fn test_deque_empty_pop_front() {
-    common::deque::test_empty_pop_front(&mut Buffer::<usize>::with_capacity(5));
+    common::deque::test_empty_pop_front(&mut Buffer::<usize>::new_with_capacity(5));
 
 }
 
@@ -59,77 +59,77 @@ fn test_deque_empty_pop_front() {
 #[test]
 #[should_panic(expected="empty")]
 fn test_deque_empty_pop_back() {
-    common::deque::test_empty_pop_back(&mut Buffer::<usize>::with_capacity(5));
+    common::deque::test_empty_pop_back(&mut Buffer::<usize>::new_with_capacity(5));
 }
 
 
 #[test]
 #[should_panic(expected="overflow")]
 fn test_deque_bounded_push_front_overflow() {
-    common::deque::test_bounded_push_front_overflow(&mut Buffer::<usize, FixedCapacity>::with_capacity(5));
+    common::deque::test_bounded_push_front_overflow(&mut Buffer::<usize, FixedCapacity>::new_with_capacity(5));
 }
 
 
 #[test]
 #[should_panic(expected="overflow")]
 fn test_deque_bounded_push_back_overflow() {
-    common::deque::test_bounded_push_back_overflow(&mut Buffer::<usize, FixedCapacity>::with_capacity(5));
+    common::deque::test_bounded_push_back_overflow(&mut Buffer::<usize, FixedCapacity>::new_with_capacity(5));
 }
 
 
 #[test]
 fn test_deque_unbounded_grow() {
-    common::deque::test_unbounded_grow(&mut Buffer::<usize>::with_capacity(0));
+    common::deque::test_unbounded_grow(&mut Buffer::<usize>::new_with_capacity(0));
 }
 
 
 #[test]
 fn test_deque_unbounded_reserve() {
-    common::deque::test_unbounded_reserve(&mut Buffer::<usize>::with_capacity(0));
+    common::deque::test_unbounded_reserve(&mut Buffer::<usize>::new_with_capacity(0));
 }
 
 
 #[test]
 fn test_stack() {
-    common::stack::test_stack(&mut Buffer::<usize>::with_capacity(5));
+    common::stack::test_stack(&mut Buffer::<usize>::new_with_capacity(5));
 }
 
 
 #[test]
 #[should_panic(expected="empty")]
 fn test_stack_empty() {
-    common::stack::test_empty(&mut Buffer::<usize>::with_capacity(5));
+    common::stack::test_empty(&mut Buffer::<usize>::new_with_capacity(5));
 }
 
 
 #[test]
 #[should_panic(expected="overflow")]
 fn test_bounded_stack_overflow() {
-    common::stack::test_bounded_overflow(&mut Buffer::<usize, FixedCapacity>::with_capacity(5));
+    common::stack::test_bounded_overflow(&mut Buffer::<usize, FixedCapacity>::new_with_capacity(5));
 }
 
 
 #[test]
 fn test_unbounded_stack_grow() {
-    common::stack::test_unbounded_grow(&mut Buffer::<usize>::with_capacity(0));
+    common::stack::test_unbounded_grow(&mut Buffer::<usize>::new_with_capacity(0));
 }
 
 
 #[test]
 fn test_unbounded_stack_shrink() {
-    common::stack::test_unbounded_shrink(&mut Buffer::<usize>::with_capacity(0));
+    common::stack::test_unbounded_shrink(&mut Buffer::<usize>::new_with_capacity(0));
 }
 
 
 #[test]
 fn test_unbounded_reserve() {
-    common::unbounded::test_reserve(&mut Buffer::<usize>::with_capacity(0));
+    common::unbounded::test_reserve(&mut Buffer::<usize>::new_with_capacity(0));
 }
 
 
 #[test]
 fn test_unbounded_shrink() {
-    let stack = &mut Buffer::<usize>::with_capacity(0);
+    let stack = &mut Buffer::<usize>::new_with_capacity(0);
 
     for i in 0..11 {
         Stack::push(stack, i);

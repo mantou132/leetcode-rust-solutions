@@ -15,7 +15,7 @@ pub struct Pool<T> {
 
 impl<T> Pool<T> {
 
-    pub fn with_capacity(capacity: usize) -> Self {
+    pub fn new_with_capacity(capacity: usize) -> Self {
         let ptr =
             unsafe {
                 malloc(max(size_of::<T>(),size_of::<usize>()) * capacity) as *mut T

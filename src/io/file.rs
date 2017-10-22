@@ -64,7 +64,7 @@ pub fn input(fd: i32, buffer_size: usize) -> Peekable<InputStream> {
             fd: fd,
             size: buffer_size,
             offset: buffer_size,
-            buffer: Chunk::with_capacity(buffer_size)
+            buffer: Chunk::new_with_capacity(buffer_size)
         })
 }
 
@@ -72,6 +72,6 @@ pub fn output(fd: i32, buffer_size: usize) -> OutputStream {
     OutputStream {
         fd: fd,
         offset: 0,
-        buffer: Chunk::with_capacity(buffer_size)
+        buffer: Chunk::new_with_capacity(buffer_size)
     }
 }

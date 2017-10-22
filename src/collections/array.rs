@@ -14,16 +14,16 @@ pub struct Array<T, Policy : CapacityPolicy = DefaultResizingPolicy> {
 
 impl<T, P : CapacityPolicy> Array<T, P> {
 
-    pub fn with_capacity(capacity: usize) -> Self {
+    pub fn new_with_capacity(capacity: usize) -> Self {
         Array {
             size: 0,
-            data: Chunk::with_capacity(P::initial(capacity)),
+            data: Chunk::new_with_capacity(P::initial(capacity)),
             _policy: PhantomData,
         }
     }
 
     pub fn new<Iter: ExactSizeIterator<Item=T>>(iter: Iter) -> Self {
-        let mut array = Self::with_capacity(iter.len());
+        let mut array = Self::new_with_capacity(iter.len());
         for item in iter {
             Stack::push(&mut array, item);
         }

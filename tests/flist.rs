@@ -27,7 +27,7 @@ fn test_drop() {
 #[test]
 fn test_stack() {
     common::stack::test_stack(&mut ForwardList::new());
-    common::stack::test_stack(&mut ForwardList::with_allocator(Pool::with_capacity(5)));
+    common::stack::test_stack(&mut ForwardList::new_with_allocator(Pool::new_with_capacity(5)));
 }
 
 
@@ -41,5 +41,5 @@ fn test_stack_empty() {
 #[test]
 #[should_panic(expected="overflow")]
 fn test_bounded_stack_overflow() {
-    common::stack::test_bounded_overflow(&mut ForwardList::with_allocator(Pool::with_capacity(5)));
+    common::stack::test_bounded_overflow(&mut ForwardList::new_with_allocator(Pool::new_with_capacity(5)));
 }

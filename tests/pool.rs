@@ -9,14 +9,14 @@ use porus::storage::Pool;
 #[test]
 #[should_panic(expected="overflow")]
 fn test_pool_full() {
-    let pool = &mut Pool::<usize>::with_capacity(1);
+    let pool = &mut Pool::<usize>::new_with_capacity(1);
     pool.add(1);
     pool.add(1);
 }
 
 #[test]
 fn test_add_remove() {
-    let pool = &mut Pool::<usize>::with_capacity(3);
+    let pool = &mut Pool::<usize>::new_with_capacity(3);
 
     let item1 = pool.add(1);
     assert!(1 == unsafe {*item1});
@@ -48,7 +48,7 @@ fn test_add_remove() {
 
 #[test]
 fn test_add_small() {
-    let pool = &mut Pool::<u8>::with_capacity(3);
+    let pool = &mut Pool::<u8>::new_with_capacity(3);
 
     let item1 = pool.add(1);
     assert!(1 == unsafe {*item1});

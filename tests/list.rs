@@ -27,7 +27,7 @@ fn test_drop() {
 #[test]
 fn test_deque() {
     common::deque::test_deque(&mut LinkedList::new());
-    common::deque::test_deque(&mut LinkedList::with_allocator(Pool::with_capacity(5)));
+    common::deque::test_deque(&mut LinkedList::new_with_allocator(Pool::new_with_capacity(5)));
 }
 
 
@@ -49,12 +49,12 @@ fn test_deque_empty_pop_back() {
 #[test]
 #[should_panic(expected="overflow")]
 fn test_deque_bounded_push_front_overflow() {
-    common::deque::test_bounded_push_front_overflow(&mut LinkedList::with_allocator(Pool::with_capacity(5)));
+    common::deque::test_bounded_push_front_overflow(&mut LinkedList::new_with_allocator(Pool::new_with_capacity(5)));
 }
 
 
 #[test]
 #[should_panic(expected="overflow")]
 fn test_deque_bounded_push_back_overflow() {
-    common::deque::test_bounded_push_back_overflow(&mut LinkedList::with_allocator(Pool::with_capacity(5)));
+    common::deque::test_bounded_push_back_overflow(&mut LinkedList::new_with_allocator(Pool::new_with_capacity(5)));
 }

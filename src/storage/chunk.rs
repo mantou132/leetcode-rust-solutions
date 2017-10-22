@@ -11,7 +11,7 @@ pub struct Chunk<T> {
 
 impl<T> Chunk<T> {
 
-    pub fn with_capacity(capacity: usize) -> Self {
+    pub fn new_with_capacity(capacity: usize) -> Self {
         let size = size_of::<T>() * capacity;
         Chunk {
             capacity: capacity,

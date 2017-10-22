@@ -28,7 +28,7 @@ impl<T> ForwardList<T, SystemAllocator<ForwardListNode<T>>> {
 
 
 impl<T, A : Allocator<Item=ForwardListNode<T>>> ForwardList<T,A> {
-    pub fn with_allocator(allocator: A) -> Self {
+    pub fn new_with_allocator(allocator: A) -> Self {
         ForwardList {
             size: 0,
             top: null_mut(),
