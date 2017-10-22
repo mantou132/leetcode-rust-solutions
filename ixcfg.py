@@ -28,22 +28,25 @@ def get_compile_argv(filename):
     return ['rustc', '--extern', 'porus='+DEBUG_RLIB, "-o", target, filename], target
 
 
-
-def pick_compiler(compilers):
-    compilers = [c for c in compilers if c.lang == "C" and c.name in ("GCC", "MinGW")]
-    compilers.sort(key=lambda c: (index_of(['Linux','Windows'], c.os), index_of(['x86_64','x86'], c.arch)))
-    if compilers:
-        return compilers[0]
+def list_generated_files(filename):
+    return [replace_ext(filename, ext) for ext in ["elf","bc","s"]]
 
 
-def get_llvm_target(compiler):
-    return ( ({"x86": "i686", "x86_64": "x86_64"}[compiler.arch])
+def pick_env(envs):
+    envs = [c for c in envs if c.lang == "C" and c.name in ("GCC", "MinGW")]
+    envs.sort(key=lambda c: (index_of(['Linux','Windows'], c.os), index_of(['x86_64','x86'], c.arch)))
+    if envs:
+        return envs[0]
+
+
+def get_llvm_target(env):
+    return ( ({"x86": "i686", "x86_64": "x86_64"}[env.arch])
              + "-" +
-             ({"Windows": "pc-windows", "Linux": "unknown-linux"}[compiler.os]) + "-gnu")
+             ({"Windows": "pc-windows", "Linux": "unknown-linux"}[env.os]) + "-gnu")
 
 
 
-class SubmissionCompilerContext:
+class SubmissionContext:
 
 
     def __init__(self, llvm_target):
@@ -106,15 +109,14 @@ class SubmissionCompilerContext:
         return target
 
 
-
-def prepare_submission(compilers, filename):
-    compiler = pick_compiler(compilers)
-    if not compiler:
+def prepare_submission(envs, filename):
+    env = pick_env(envs)
+    if not env:
         return None
 
-    llvm_target = get_llvm_target(compiler)
+    llvm_target = get_llvm_target(env)
 
-    context = SubmissionCompilerContext(llvm_target)
+    context = SubmissionContext(llvm_target)
 
     if not context.check():
         return None
@@ -126,4 +128,4 @@ def prepare_submission(compilers, filename):
     with open(asm,'rb') as f:
         code = f.read()
 
-    return compiler, code
+    return env, code
