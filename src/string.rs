@@ -176,6 +176,12 @@ impl String {
         }
     }
 
+    pub fn as_bytes(&self) -> &[u8] {
+        unsafe {
+            from_raw_parts(self.as_ptr(), self.len())
+        }
+    }
+
     #[cfg(target_pointer_width="64")]
     fn new_inline() -> InlineString {
         InlineString {

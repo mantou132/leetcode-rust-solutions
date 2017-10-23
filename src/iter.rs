@@ -20,6 +20,10 @@ impl<T: Iterator> PeekingIterator for Peekable<T> {
 }
 
 
+impl<T: Iterator<Item=u8>> InputStream for Peekable<T> {
+}
+
+
 pub fn peeking<T: Iterator>(mut iter: T) -> Peekable<T> {
     let item = iter.next();
     Peekable {

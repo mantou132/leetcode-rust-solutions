@@ -2,7 +2,7 @@
 extern crate porus;
 
 use porus::traits::*;
-use porus::io::{read_string, read_string_until, write_string};
+use porus::io::{read_string, read_string_until, write};
 use porus::ctype::isnewline;
 
 pub mod common;
@@ -94,7 +94,7 @@ fn test_write_string() {
     let array = &mut [0;26];
     {
         let stream = &mut io::OutputStream::new(array);
-        write_string(stream, str!(bytes));
+        write(stream, str!(bytes));
     }
 
     assert!(array == bytes);

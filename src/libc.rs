@@ -1,7 +1,3 @@
-extern "C" {
-    pub fn abort() -> !;
-}
-
 #[cfg(debug_assertions)]
 #[macro_export]
 macro_rules! abort {
@@ -16,7 +12,7 @@ macro_rules! abort {
     ($msg:expr) => ({
         $crate::libc::write_abort_msg(file!(), line!(), $msg);
         unsafe {
-            $crate::libc::abort();
+            ::core::intrinsics::abort();
         }
     });
 }
@@ -65,9 +61,7 @@ pub fn write(fd: i32, buf: *const u8, count: usize) {
             };
 
         if size < 0 {
-            unsafe {
-                abort();
-            }
+            abort!("write error");
         }
 
         written += size as usize;

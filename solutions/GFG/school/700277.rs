@@ -1,3 +1,5 @@
+// http://practice.geeksforgeeks.org/problems/print-the-pattern-set-1/1
+
 #![cfg_attr(not(debug_assertions), no_main)]
 
 extern crate porus;
@@ -6,25 +8,25 @@ use porus::ctype::isspace;
 
 #[cfg_attr(not(debug_assertions), no_mangle)]
 pub fn main() {
-    let stdin = &mut file::input(0, 1024);
-    let stdout = &mut file::output(1, 1024);
+    let stdin = &mut stdin(1024, isspace);
+    let stdout = &mut stdout(1024);
 
-    let t : u32 = read(ignore(stdin, isspace));
+
+    let t : usize = read(stdin);
 
     for _ in 0..t {
-        let n : u32 = read(ignore(stdin, isspace));
+        let n : usize = read(stdin);
 
         for i in (1..n+1).rev() {
             for j in (1..n+1).rev() {
                 for _ in 0..i {
-                    write(stdout, j);
-                    write_char(stdout, b' ');
+                    write(stdout, (j, " "));
                 }
             }
 
-            write_char(stdout, b'$');
+            write(stdout, " ");
         }
 
-        write_char(stdout, b'\n');
+        write(stdout, "\n");
     }
 }

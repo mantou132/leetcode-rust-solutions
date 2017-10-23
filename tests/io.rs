@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate porus;
 
-use porus::io::*;
+use porus::io::{eof, ignore, Read, write};
 use porus::ctype::isspace;
 
 pub mod common;
@@ -21,14 +21,15 @@ fn test_eof() {
 #[test]
 fn test_ignore_space() {
     let stream = &mut io::InputStream::new(b"    ");
-    assert!(eof(ignore(stream, isspace)));
+    ignore(stream, &isspace);
+    assert!(eof(stream));
 }
 
 
 #[test]
 fn test_read_unsigned() {
     let stream = &mut io::InputStream::new(b"123");
-    let u = read_u8(stream);
+    let u : usize = Read::read(stream);
     assert!(u == 123);
 }
 
@@ -36,7 +37,7 @@ fn test_read_unsigned() {
 #[test]
 fn test_read_read_signed() {
     let stream = &mut io::InputStream::new(b"-123");
-    let i = read_i8(stream);
+    let i : isize = Read::read(stream);
     assert!(i == -123);
 }
 
@@ -46,7 +47,7 @@ fn test_write_unsigned() {
     let array = &mut [0;1];
     {
         let stream = &mut io::OutputStream::new(array);
-        write_u8(stream, 0u8);
+        write(stream, 0u8);
     }
 
     assert!(array == b"0");
@@ -54,7 +55,7 @@ fn test_write_unsigned() {
     let array = &mut [0;3];
     {
         let stream = &mut io::OutputStream::new(array);
-        write_u8(stream, 123u8);
+        write(stream, 123u8);
     }
 
     assert!(array == b"123");
@@ -66,7 +67,7 @@ fn test_write_signed() {
     let array = &mut [0;1];
     {
         let stream = &mut io::OutputStream::new(array);
-        write_i8(stream, 0i8);
+        write(stream, 0i8);
     }
 
     assert!(array == b"0");
@@ -74,7 +75,7 @@ fn test_write_signed() {
     let array = &mut [0;3];
     {
         let stream = &mut io::OutputStream::new(array);
-        write_i8(stream, 123i8);
+        write(stream, 123i8);
     }
 
     assert!(array == b"123");
@@ -82,7 +83,7 @@ fn test_write_signed() {
     let array = &mut [0;4];
     {
         let stream = &mut io::OutputStream::new(array);
-        write_i8(stream, -123i8);
+        write(stream, -123i8);
     }
 
     assert!(array == b"-123");

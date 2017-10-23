@@ -1,5 +1,5 @@
 #![feature(specialization)]
-#![feature(stmt_expr_attributes)]
+#![feature(core_intrinsics)]
 #![no_std]
 
 #[macro_use]
@@ -8,6 +8,7 @@ pub mod ctype;
 pub mod traits;
 pub mod storage;
 pub mod iter;
+
 #[macro_use]
 pub mod string;
 pub mod io;

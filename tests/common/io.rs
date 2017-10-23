@@ -19,6 +19,9 @@ impl<'a> traits::PeekingIterator for InputStream<'a> {
     }
 }
 
+impl<'a> traits::InputStream for InputStream<'a> {
+}
+
 impl<'a> InputStream<'a> {
     pub fn new(s: &'a [u8]) -> Self {
         InputStream {
@@ -33,7 +36,7 @@ pub struct OutputStream<'a> {
 }
 
 impl<'a> traits::OutputStream for OutputStream<'a> {
-    fn write(&mut self, c: u8) {
+    fn write_char(&mut self, c: u8) {
         if self.offset == self.s.len() {
             abort!("buffer overflow");
         }

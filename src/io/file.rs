@@ -40,7 +40,7 @@ pub struct OutputStream {
 }
 
 impl traits::OutputStream for OutputStream {
-    fn write(&mut self, c: u8) {
+    fn write_char(&mut self, c: u8) {
         let capacity = self.buffer.capacity();
         if self.offset == capacity {
             write(self.fd, self.buffer.as_ptr(), capacity);
