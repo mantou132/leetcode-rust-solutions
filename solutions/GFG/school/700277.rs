@@ -2,31 +2,32 @@
 
 #![cfg_attr(not(debug_assertions), no_main)]
 
+#[macro_use]
 extern crate porus;
-use porus::io::*;
-use porus::ctype::isspace;
+prelude!(solve);
 
-#[cfg_attr(not(debug_assertions), no_mangle)]
-pub fn main() {
-    let stdin = &mut stdin(1024, isspace);
-    let stdout = &mut stdout(1024);
+fn solve() -> Result<(), Error> {
+    let (stdin, stdout) = (&mut io::stdin()?, &mut io::stdout()?);
 
-
-    let t : usize = read(stdin);
+    let mut t : usize = default();
+    io::scan(stdin, (&mut t,))?;
 
     for _ in 0..t {
-        let n : usize = read(stdin);
+        let mut n : usize = default();
+        io::scan(stdin, (&mut n,))?;
 
         for i in (1..n+1).rev() {
             for j in (1..n+1).rev() {
                 for _ in 0..i {
-                    write(stdout, (j, " "));
+                    io::print(stdout, (j," "))?;
                 }
             }
 
-            write(stdout, " ");
+            io::print(stdout, ("$",))?;
         }
 
-        write(stdout, "\n");
+        io::print(stdout, ("\n",))?;
     }
+
+    Ok(())
 }

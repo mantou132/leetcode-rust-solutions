@@ -1,132 +1,90 @@
-use super::super::traits::OutputStream;
+use super::super::compat::prelude::*;
+use super::Sink;
 use super::num::{write_unsigned, write_signed};
 
-
-pub trait Write {
-    fn write<Stream: OutputStream>(stream: &mut Stream, Self);
+pub trait WriteArg<T> {
+    fn write<S: Sink<Item=T>>(sink: &mut S, Self) -> Result<(), S::Error>;
 }
 
-pub fn write<T: Write, Stream: OutputStream>(stream: &mut Stream, x: T) {
-    Write::write(stream, x)
+pub fn write<T, W: WriteArg<T>, S: Sink<Item=T>>(sink: &mut S, x: W) -> Result<(), S::Error> {
+    WriteArg::write(sink, x)
 }
 
 
-impl Write for u8 {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_unsigned(stream, x)
+impl WriteArg<u8> for u8 {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_unsigned(sink, x)
     }
 }
 
-impl Write for u16 {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_unsigned(stream, x)
+impl WriteArg<u8> for u16 {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_unsigned(sink, x)
     }
 }
 
-impl Write for u32 {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_unsigned(stream, x)
+impl WriteArg<u8> for u32 {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_unsigned(sink, x)
     }
 }
 
-impl Write for u64 {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_unsigned(stream, x)
+impl WriteArg<u8> for u64 {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_unsigned(sink, x)
     }
 }
 
-impl Write for usize {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_unsigned(stream, x)
-    }
-}
-
-impl Write for i8 {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_signed(stream, x)
-    }
-}
-
-impl Write for i16 {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_signed(stream, x)
-    }
-}
-
-impl Write for i32 {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_signed(stream, x)
-    }
-}
-
-impl Write for i64 {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_signed(stream, x)
-    }
-}
-
-impl Write for isize {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write_signed(stream, x)
+impl WriteArg<u8> for usize {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_unsigned(sink, x)
     }
 }
 
 
-impl<'a> Write for &'a[u8] {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
+
+impl WriteArg<u8> for i8 {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_signed(sink, x)
+    }
+}
+
+impl WriteArg<u8> for i16 {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_signed(sink, x)
+    }
+}
+
+impl WriteArg<u8> for i32 {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_signed(sink, x)
+    }
+}
+
+impl WriteArg<u8> for i64 {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_signed(sink, x)
+    }
+}
+
+impl WriteArg<u8> for isize {
+    fn write<S: Sink<Item=u8>>(sink: &mut S, x: Self) -> Result<(), S::Error> {
+        write_signed(sink, x)
+    }
+}
+
+
+impl<'a, T: Copy> WriteArg<T> for &'a[T] {
+    fn write<S: Sink<Item=T>>(s: &mut S, x: Self) -> Result<(), S::Error> {
         for c in x {
-            OutputStream::write_char(stream, *c);
+            Sink::write(s, *c)?;
         }
+        Ok(())
     }
 }
 
-impl<'a> Write for &'a str {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write(stream, x.as_bytes());
-    }
-}
-
-pub use super::super::string::String;
-
-impl<'a> Write for &'a String {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write(stream, x.as_bytes());
-    }
-}
-
-
-impl Write for () {
-    fn write<Stream: OutputStream>(_: &mut Stream, _: Self) {
-    }
-}
-
-impl<A:Write> Write for (A,) {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write(stream, x.0);
-    }
-}
-
-
-impl<A:Write, B:Write> Write for (A,B) {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write(stream, x.0);
-        write(stream, x.1);
-    }
-}
-
-impl<A:Write, B:Write, C:Write> Write for (A,B,C) {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write(stream, x.0);
-        write(stream, x.1);
-        write(stream, x.2);
-    }
-}
-
-impl<A:Write, B:Write, C:Write, D:Write> Write for (A,B,C,D) {
-    fn write<Stream: OutputStream>(stream: &mut Stream, x: Self) {
-        write(stream, x.0);
-        write(stream, x.1);
-        write(stream, x.2);
-        write(stream, x.3);
+impl<'a> WriteArg<u8> for &'a str {
+    fn write<S: Sink<Item=u8>>(s: &mut S, x: Self) -> Result<(), S::Error> {
+        write(s, x.as_bytes())
     }
 }

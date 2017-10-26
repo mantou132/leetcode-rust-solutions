@@ -1,97 +1,73 @@
-use super::super::traits::InputStream;
-use super::ignore;
+use super::super::compat::prelude::*;
+use super::{PeekableSource, ScanError};
 use super::num::{read_unsigned, read_signed};
 
-pub trait Read {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self;
+
+pub trait ReadArg<T> {
+    fn read<S: PeekableSource<Item=T>>(source: &mut S, Self) -> Result<(), ScanError<S::Error>>;
+}
+
+pub fn read<T, R: ReadArg<T>, S: PeekableSource<Item=T>>(source: &mut S, r: R) -> Result<(), ScanError<S::Error>> {
+    ReadArg::read(source, r)
 }
 
 
-impl Read for u8 {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_unsigned(stream)
+impl<'a> ReadArg<u8> for &'a mut u8 {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_unsigned(source, x)
     }
 }
 
-impl Read for u16 {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_unsigned(stream)
+impl<'a> ReadArg<u8> for &'a mut u16 {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_unsigned(source, x)
     }
 }
 
-impl Read for u32 {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_unsigned(stream)
+impl<'a> ReadArg<u8> for &'a mut u32 {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_unsigned(source, x)
     }
 }
 
-impl Read for u64 {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_unsigned(stream)
+impl<'a> ReadArg<u8> for &'a mut u64 {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_unsigned(source, x)
     }
 }
 
-impl Read for usize {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_unsigned(stream)
+impl<'a> ReadArg<u8> for &'a mut usize {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_unsigned(source, x)
     }
 }
 
-
-impl Read for i8 {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_signed(stream)
+impl<'a> ReadArg<u8> for &'a mut i8 {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_signed(source, x)
     }
 }
 
-impl Read for i16 {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_signed(stream)
+impl<'a> ReadArg<u8> for &'a mut i16 {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_signed(source, x)
     }
 }
 
-impl Read for i32 {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_signed(stream)
+impl<'a> ReadArg<u8> for &'a mut i32 {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_signed(source, x)
     }
 }
 
-impl Read for i64 {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_signed(stream)
+impl<'a> ReadArg<u8> for &'a mut i64 {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_signed(source, x)
     }
 }
 
-impl Read for isize {
-    fn read<Stream: InputStream>(stream: &mut Stream) -> Self {
-        read_signed(stream)
+impl<'a> ReadArg<u8> for &'a mut isize {
+    fn read<S: PeekableSource<Item=u8>>(source: &mut S, x: Self) -> Result<(), ScanError<S::Error>> {
+        read_signed(source, x)
     }
-}
-
-pub trait Reader {
-    fn read<T: Read>(&mut self) -> T;
-}
-
-
-pub struct InputStreamReader<Stream: InputStream, Fun: Fn(u8) -> bool> {
-    stream: Stream,
-    ignore: Fun,
-}
-
-impl<Stream: InputStream, Fun: Fn(u8) -> bool> InputStreamReader<Stream, Fun> {
-    pub fn new(stream: Stream, ignore: Fun) -> Self {
-        Self {stream: stream, ignore: ignore}
-    }
-}
-
-
-impl<Stream: InputStream, Fun: Fn(u8) -> bool> Reader for InputStreamReader<Stream, Fun> {
-    fn read<T: Read>(&mut self) -> T {
-        ignore(&mut self.stream, &self.ignore);
-        Read::read(&mut self.stream)
-    }
-}
-
-pub fn read<T: Read, R: Reader>(reader: &mut R) -> T {
-    Reader::read(reader)
 }

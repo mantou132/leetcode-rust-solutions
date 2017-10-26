@@ -1,8 +1,6 @@
-use core::cmp::PartialOrd;
-use core::ops::{Add, Mul, Div, Rem, Neg, Not};
-use core::marker::{Sized, Copy};
-use super::super::traits::{InputStream, OutputStream};
-
+use super::super::compat::prelude::*;
+use std::ops::{Add, Mul, Div, Rem, Neg, Not};
+use super::{PeekableSource, ScanError, Sink};
 
 pub trait FromChar {
     fn from_char(u8) -> Self;
@@ -23,39 +21,6 @@ fn to_char<T : ToChar>(n: T) -> u8 {
 pub trait Unsigned : Sized + Copy + Add<Self,Output=Self> + Mul<Self,Output=Self> + Div<Self,Output=Self> + Rem<Self,Output=Self> + Not<Output=Self> + PartialOrd<Self> + FromChar + ToChar {
 }
 
-pub fn read_unsigned<T: Unsigned, Stream: InputStream>(stream: &mut Stream) -> T {
-    let mut x : T = from_char(0u8);
-
-    loop {
-        match stream.peek() {
-            Some(&c) if (c >= b'0') && (c <= b'9') =>
-                x = x * from_char(10u8) + from_char(c - b'0'),
-            _ =>
-                break,
-        }
-
-        stream.consume()
-    }
-
-    x
-}
-
-fn write_unsigned_aux<T: Unsigned, Stream: OutputStream>(stream: &mut Stream, u: T) {
-    if u != from_char(0u8) {
-        write_unsigned_aux(stream, u / from_char(10u8));
-        OutputStream::write_char(stream, b'0' + to_char(u % from_char(10u8)));
-    }
-}
-
-pub fn write_unsigned<T: Unsigned, Stream: OutputStream>(stream: &mut Stream, u: T) {
-    if u == from_char(0u8) {
-        OutputStream::write_char(stream, b'0');
-    } else {
-        write_unsigned_aux(stream, u);
-    }
-}
-
-
 pub trait Signed : Sized + Copy + Add<Self,Output=Self> + Mul<Self,Output=Self> + Neg<Output=Self> + PartialOrd<Self> + FromChar {
     type Unsigned : Unsigned;
 
@@ -66,49 +31,103 @@ fn to_unsigned<T: Signed>(x: T) -> T::Unsigned {
     Signed::to_unsigned(x)
 }
 
-pub fn read_signed<T: Signed, Stream: InputStream>(stream: &mut Stream) -> T {
-    let mut x : T = from_char(0u8);
+
+pub fn read_unsigned<T: Unsigned, S: PeekableSource<Item=u8>>(source: &mut S, t: &mut T) -> Result<(), ScanError<S::Error>> {
+    match PeekableSource::peek(source) {
+        Some(&c) if (c >= b'0') && (c <= b'9') => {
+            PeekableSource::consume(source)?;
+
+            let mut x : T = from_char(c - b'0');
+            loop {
+                match PeekableSource::peek(source) {
+                    Some(&c) if (c >= b'0') && (c <= b'9') =>
+                        x = x * from_char(10u8) + from_char(c - b'0'),
+                    _ =>
+                        break,
+                }
+
+                PeekableSource::consume(source)?
+            }
+
+            *t = x;
+            Ok(())
+        }
+        None => Err(ScanError::EOF),
+        _ => Err(ScanError::BadInput)
+    }
+}
+
+fn write_unsigned_aux<T: Unsigned, S: Sink<Item=u8>>(sink: &mut S, u: T) -> Result<(),S::Error> {
+    if u != from_char(0u8) {
+        write_unsigned_aux(sink, u / from_char(10u8))?;
+        Sink::write(sink, b'0' + to_char(u % from_char(10u8)))?;
+    }
+    Ok(())
+}
+
+pub fn write_unsigned<T: Unsigned, S: Sink<Item=u8>>(sink: &mut S, u: T) -> Result<(),S::Error> {
+    if u == from_char(0u8) {
+        Sink::write(sink, b'0')?;
+    } else {
+        write_unsigned_aux(sink, u)?;
+    }
+    Ok(())
+}
+
+
+pub fn read_signed<T: Signed, S: PeekableSource<Item=u8>>(source: &mut S, t: &mut T) -> Result<(),ScanError<S::Error>> {
     let mut s : T = from_char(1u8);
 
-    match stream.peek() {
+    match PeekableSource::peek(source) {
         Some(&b'-') => {
             s = -s;
-            stream.consume()
+            PeekableSource::consume(source)?
         },
         _ => {
         },
     }
 
-    loop {
-        match stream.peek() {
-            Some(&c) if (c >= b'0') && (c <= b'9') =>
-                x = x * from_char(10u8) + from_char(c - b'0'),
-            _ =>
-                break,
+    match PeekableSource::peek(source) {
+        Some(&c) if (c >= b'0') && (c <= b'9') => {
+            PeekableSource::consume(source)?;
+
+            let mut x : T = from_char(c - b'0');
+            loop {
+                match PeekableSource::peek(source) {
+                    Some(&c) if (c >= b'0') && (c <= b'9') =>
+                        x = x * from_char(10u8) + from_char(c - b'0'),
+                    _ =>
+                        break,
+                }
+
+                PeekableSource::consume(source)?
+            }
+
+            *t = x*s;
+            Ok(())
         }
-
-        stream.consume()
+        None if (s == from_char(1u8)) => Err(ScanError::EOF),
+        _ => Err(ScanError::BadInput)
     }
-
-    x*s
 }
 
 
-fn write_signed_aux<T: Unsigned, Stream: OutputStream>(stream: &mut Stream, u: T, neg: bool) {
+fn write_signed_aux<T: Unsigned, S: Sink<Item=u8>>(sink: &mut S, u: T, neg: bool) -> Result<(),S::Error> {
     if u == from_char(0u8) {
         if neg {
-            OutputStream::write_char(stream, b'-');
+            Sink::write(sink, b'-')?;
         }
     } else {
-        write_signed_aux(stream, u / from_char(10), neg);
-        OutputStream::write_char(stream, b'0' + to_char(u % from_char(10)));
+        write_signed_aux(sink, u / from_char(10), neg)?;
+        Sink::write(sink, b'0' + to_char(u % from_char(10)))?;
     }
+    Ok(())
 }
 
 
-pub fn write_signed<T: Signed, Stream: OutputStream>(stream: &mut Stream, i: T) {
+pub fn write_signed<T: Signed, S: Sink<Item=u8>>(sink: &mut S, i: T) -> Result<(),S::Error> {
     if i == from_char(0u8) {
-        OutputStream::write_char(stream, b'0');
+        Sink::write(sink, b'0')?;
     } else {
         let neg = i < from_char(0u8);
         let mut u = to_unsigned(i);
@@ -117,8 +136,9 @@ pub fn write_signed<T: Signed, Stream: OutputStream>(stream: &mut Stream, i: T) 
             u = !u + from_char(1u8);
         }
 
-        write_signed_aux(stream, u, neg);
+        write_signed_aux(sink, u, neg)?;
     }
+    Ok(())
 }
 
 
@@ -208,6 +228,36 @@ impl ToChar for u64 {
 }
 
 impl ToChar for usize {
+    fn to_char(self) -> u8 {
+        self as u8
+    }
+}
+
+impl ToChar for i8 {
+    fn to_char(self) -> u8 {
+        self as u8
+    }
+}
+
+impl ToChar for i16 {
+    fn to_char(self) -> u8 {
+        self as u8
+    }
+}
+
+impl ToChar for i32 {
+    fn to_char(self) -> u8 {
+        self as u8
+    }
+}
+
+impl ToChar for i64 {
+    fn to_char(self) -> u8 {
+        self as u8
+    }
+}
+
+impl ToChar for isize {
     fn to_char(self) -> u8 {
         self as u8
     }
