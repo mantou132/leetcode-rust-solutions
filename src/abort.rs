@@ -49,3 +49,12 @@ pub fn write_abort_msg(file: &str, line: u32, msg: &str) -> Result<(),OSError> {
     Ok(())
 }
 
+#[cfg(test)]
+#[cfg(debug_assertions)]
+mod tests {
+    #[test]
+    #[should_panic(expected="message")]
+    fn test_abort() {
+        abort!("message");
+    }
+}

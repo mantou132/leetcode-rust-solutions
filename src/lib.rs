@@ -5,7 +5,7 @@
 #[macro_use]
 pub mod abort;
 
-mod compat;
+pub mod compat;
 pub mod prelude;
 #[macro_use]
 pub mod macros;
