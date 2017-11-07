@@ -1,4 +1,9 @@
 pub use super::compat::prelude::*;
+
+pub use std::cmp::Ordering::Less;
+pub use std::cmp::Ordering::Equal;
+pub use std::cmp::Ordering::Greater;
+
 pub use super::io;
 
 #[cfg(debug_assertions)]
