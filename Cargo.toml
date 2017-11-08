@@ -1,9 +1,5 @@
-[package]
-name = "porus"
-description = "porus library"
-version = "0.0.0"
-authors = ["bhuztez <bhuztez@gmail.com>"]
-license = "MIT"
+[workspace]
+members = ["porus"]
 
 [profile.release]
 panic = "abort"
