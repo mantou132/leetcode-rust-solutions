@@ -1,6 +1,7 @@
 use super::super::compat::prelude::*;
 use std::ops::{Add, Mul, Div, Rem, Neg, Not};
-use super::{PeekableSource, ScanError, Sink};
+use super::Sink;
+use super::scanf::{Converter, CharPattern, SignedPattern, UnsignedPattern};
 
 pub trait FromChar {
     fn from_char(u8) -> Self;
@@ -8,6 +9,16 @@ pub trait FromChar {
 
 fn from_char<T : FromChar>(n: u8) -> T {
     return FromChar::from_char(n)
+}
+
+fn from_digit<T : FromChar>(c: u8) -> T {
+    FromChar::from_char(
+        match c {
+            b'0' ... b'9' => { c - b'0' },
+            b'A' ... b'Z' => { c - b'A' + 10 },
+            b'a' ... b'z' => { c - b'a' + 10 },
+            _ => { abort!() },
+        })
 }
 
 pub trait ToChar {
@@ -32,31 +43,6 @@ fn to_unsigned<T: Signed>(x: T) -> T::Unsigned {
 }
 
 
-pub fn read_unsigned<T: Unsigned, S: PeekableSource<Item=u8>>(source: &mut S, t: &mut T) -> Result<(), ScanError<S::Error>> {
-    match PeekableSource::peek(source) {
-        Some(&c) if (c >= b'0') && (c <= b'9') => {
-            PeekableSource::consume(source)?;
-
-            let mut x : T = from_char(c - b'0');
-            loop {
-                match PeekableSource::peek(source) {
-                    Some(&c) if (c >= b'0') && (c <= b'9') =>
-                        x = x * from_char(10u8) + from_char(c - b'0'),
-                    _ =>
-                        break,
-                }
-
-                PeekableSource::consume(source)?
-            }
-
-            *t = x;
-            Ok(())
-        }
-        None => Err(ScanError::EOF),
-        _ => Err(ScanError::BadInput)
-    }
-}
-
 fn write_unsigned_aux<T: Unsigned, S: Sink<Item=u8>>(sink: &mut S, u: T) -> Result<(),S::Error> {
     if u != from_char(0u8) {
         write_unsigned_aux(sink, u / from_char(10u8))?;
@@ -73,44 +59,6 @@ pub fn write_unsigned<T: Unsigned, S: Sink<Item=u8>>(sink: &mut S, u: T) -> Resu
     }
     Ok(())
 }
-
-
-pub fn read_signed<T: Signed, S: PeekableSource<Item=u8>>(source: &mut S, t: &mut T) -> Result<(),ScanError<S::Error>> {
-    let mut s : T = from_char(1u8);
-
-    match PeekableSource::peek(source) {
-        Some(&b'-') => {
-            s = -s;
-            PeekableSource::consume(source)?
-        },
-        _ => {
-        },
-    }
-
-    match PeekableSource::peek(source) {
-        Some(&c) if (c >= b'0') && (c <= b'9') => {
-            PeekableSource::consume(source)?;
-
-            let mut x : T = from_char(c - b'0');
-            loop {
-                match PeekableSource::peek(source) {
-                    Some(&c) if (c >= b'0') && (c <= b'9') =>
-                        x = x * from_char(10u8) + from_char(c - b'0'),
-                    _ =>
-                        break,
-                }
-
-                PeekableSource::consume(source)?
-            }
-
-            *t = x*s;
-            Ok(())
-        }
-        None if (s == from_char(1u8)) => Err(ScanError::EOF),
-        _ => Err(ScanError::BadInput)
-    }
-}
-
 
 fn write_signed_aux<T: Unsigned, S: Sink<Item=u8>>(sink: &mut S, u: T, neg: bool) -> Result<(),S::Error> {
     if u == from_char(0u8) {
@@ -306,4 +254,84 @@ impl Signed for isize {
     type Unsigned = usize;
 
     fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
+}
+
+
+pub struct CharConverter<T> {
+    data: T,
+}
+
+impl<'a, T: FromChar> Converter for CharConverter<&'a mut T> {
+    fn write(&mut self, c: u8) {
+        *self.data = FromChar::from_char(c);
+    }
+}
+
+impl<'a, T: FromChar> CharPattern for &'a mut T {
+    type Converter = CharConverter<Self>;
+
+    fn converter(self) -> Self::Converter {
+        CharConverter {
+            data: self,
+        }
+    }
+}
+
+
+pub struct UnsignedConverter<'a, T: 'a + Unsigned> {
+    base: T,
+    data: &'a mut T,
+}
+
+impl<'a, T: 'a + Unsigned> Converter for UnsignedConverter<'a, T> {
+    fn write(&mut self, c: u8) {
+        *self.data = *self.data * self.base + from_digit(c);
+    }
+}
+
+impl<'a, T: 'a + Unsigned> UnsignedPattern for &'a mut T {
+    type Converter = UnsignedConverter<'a, T>;
+
+    fn converter(self, base: u8) -> Self::Converter {
+        *self = FromChar::from_char(0);
+        UnsignedConverter {
+            base: FromChar::from_char(base),
+            data: self,
+        }
+    }
+}
+
+pub struct SignedConverter<'a, T: 'a + Signed> {
+    base: T,
+    sign: T,
+    data: &'a mut T,
+}
+
+impl<'a, T: 'a + Signed> Converter for SignedConverter<'a, T> {
+    fn write(&mut self, c: u8) {
+        if let b'-' = c {
+            self.sign = -self.sign;
+        } else {
+            *self.data = *self.data * self.base + from_digit(c);
+        }
+    }
+}
+
+impl<'a, T: 'a + Signed> SignedPattern for &'a mut T {
+    type Converter = SignedConverter<'a, T>;
+
+    fn converter(self, base: u8) -> Self::Converter {
+        *self = FromChar::from_char(0);
+        SignedConverter {
+            base: FromChar::from_char(base),
+            sign: FromChar::from_char(1),
+            data: self,
+        }
+    }
+}
+
+impl<'a, T: 'a + Signed> Drop for SignedConverter<'a, T> {
+    fn drop(&mut self) {
+        *self.data = *self.data * self.sign;
+    }
 }

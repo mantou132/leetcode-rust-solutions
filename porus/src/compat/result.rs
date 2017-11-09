@@ -42,6 +42,13 @@ impl<T,E: fmt::Debug> Result<T,E> {
             Result::Err(_e) => abort!("called `Result::unwrap()` on an `Err` value: {:?}", _e),
         }
     }
+
+    pub fn and_then<U, F: FnOnce(T) -> Result<U, E>>(self, op: F) -> Result<U, E> {
+        match self {
+            Result::Ok(t) => op(t),
+            Result::Err(e) => Result::Err(e),
+        }
+    }
 }
 
 impl<T,E: fmt::Debug> Try for Result<T,E> {

@@ -75,21 +75,18 @@ impl<E: Error> From<E> for ScanError<E> {
 }
 
 mod peek;
-mod delimit;
-
 mod file;
 
 mod num;
 
-mod read;
-mod scan;
 mod write;
 mod print;
 
-pub use self::read::read;
-pub use self::scan::scan;
 pub use self::write::write;
 pub use self::print::print;
+
+#[macro_use]
+pub mod scanf;
 
 mod stdio;
 pub use self::stdio::{stdin, stdout};
@@ -113,11 +110,9 @@ mod tests {
     use super::super::compat::prelude::*;
     use std::error::Error;
     use std::fmt;
-    use super::super::ctype::isspace;
 
-    use super::{Source, PeekableSource, ScanError, Sink, ignore, read, scan, write, print};
+    use super::{Source, PeekableSource, Sink, write, print};
     use super::peek::Peekable;
-    use super::delimit::DelimitedScanner;
 
     #[derive(Debug)]
     pub struct EOF;
@@ -186,37 +181,110 @@ mod tests {
     }
 
     #[test]
-    fn test_ignore() {
-        let source = &mut new_test_source(b"    ");
-        assert!(ignore(source, |c| isspace(*c)).is_ok());
-        assert!(true == PeekableSource::eof(source));
+    fn test_scanf_whitespace() {
+        let source = &mut new_test_source(b"   ");
+        assert!(scanf!(source, " ").is_ok());
+        assert!(PeekableSource::eof(source));
     }
 
     #[test]
-    fn test_read_unsigned() {
-        let source = &mut new_test_source(b"123");
-        let mut x : usize = 0;
-        assert!(read(source, &mut x).is_ok());
-        assert!(x == 123);
+    fn test_scanf_exact_match() {
+        let source = &mut new_test_source(b"a");
+        assert!(scanf!(source, "a").is_ok());
+        assert!(PeekableSource::eof(source));
     }
 
     #[test]
-    fn test_read_signed() {
+    fn test_scanf_exact_mismatch() {
+        let source = &mut new_test_source(b"b");
+        assert!(scanf!(source, "a").is_err());
+        let source = &mut new_test_source(b"");
+        assert!(scanf!(source, "a").is_err());
+    }
+
+    #[test]
+    fn test_scanf_ignore_char_match() {
+        let source = &mut new_test_source(b"a");
+        assert!(scanf!(source, "%*c").is_ok());
+    }
+
+    #[test]
+    fn test_scanf_ignore_char_mismatch() {
+        let source = &mut new_test_source(b"");
+        assert!(scanf!(source, "%*c").is_err());
+    }
+
+    #[test]
+    fn test_scanf_match_char_match() {
+        let source = &mut new_test_source(b"a");
+        let mut c = 0u8;
+        assert!(scanf!(source, "%c", &mut c).is_ok());
+        assert!(c == b'a');
+    }
+
+    #[test]
+    fn test_scanf_match_char_mismatch() {
+        let source = &mut new_test_source(b"");
+        let mut c = 0u8;
+        assert!(scanf!(source, "%c", &mut c).is_err());
+        assert!(c == 0);
+    }
+
+    #[test]
+    fn test_scanf_ignore_unsigned_match() {
+        let source = &mut new_test_source(b"a");
+        assert!(scanf!(source, "%*x").is_ok());
+    }
+
+    #[test]
+    fn test_scanf_ignore_unsigned_mismatch() {
+        let source = &mut new_test_source(b"g");
+        assert!(scanf!(source, "%*x").is_err());
+    }
+
+    #[test]
+    fn test_scanf_match_unsigned_match() {
+        let source = &mut new_test_source(b"a");
+        let mut x = 0usize;
+        assert!(scanf!(source, "%x", &mut x).is_ok());
+        assert!(x == 0xa);
+    }
+
+    #[test]
+    fn test_scanf_match_unsigned_mismatch() {
+        let source = &mut new_test_source(b"g");
+        let mut x = 0usize;
+        assert!(scanf!(source, "%x", &mut x).is_err());
+        assert!(x == 0);
+    }
+
+    #[test]
+    fn test_scanf_match_signed_match() {
         let source = &mut new_test_source(b"-123");
-        let mut x : isize = 0;
-        assert!(read(source, &mut x).is_ok());
+        let mut x = 0isize;
+        assert!(scanf!(source, "%d", &mut x).is_ok());
         assert!(x == -123);
     }
 
-    fn new_test_scanner<'a>(s: &'a [u8]) -> DelimitedScanner<Peekable<TestSource<'a>>, fn(&mut Peekable<TestSource<'a>>) -> Result<(),ScanError<EOF>>> {
-        DelimitedScanner::new(new_test_source(s), |s| ignore(s, |c| isspace(*c)))
+    #[test]
+    fn test_scanf_match_signed_mismatch() {
+        let source = &mut new_test_source(b"-");
+        let mut x = 0isize;
+        assert!(scanf!(source, "%d", &mut x).is_err());
+        assert!(x == 0);
+
+        let source = &mut new_test_source(b"");
+        let mut x = 0isize;
+        assert!(scanf!(source, "%d", &mut x).is_err());
+        assert!(x == 0);
     }
 
     #[test]
-    fn test_scan() {
-        let scanner = &mut new_test_scanner(b"123 456");
-        let (mut x, mut y): (usize, usize) = (0, 0);
-        assert!(scan(scanner, (&mut x, &mut y)).is_ok());
+    fn test_scanf_match() {
+        let source = &mut new_test_source(b"123 456");
+        let mut x = 0isize;
+        let mut y = 0isize;
+        assert!(scanf!(source, " %d %d", &mut x, &mut y).is_ok());
         assert!(x == 123);
         assert!(y == 456);
     }

@@ -1,0 +1,9 @@
+[package]
+name = "porus_macros"
+description = "porus macros"
+version = "0.0.0"
+authors = ["bhuztez <bhuztez@gmail.com>"]
+license = "MIT"
+
+[lib]
+proc-macro = true
