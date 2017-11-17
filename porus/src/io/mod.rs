@@ -79,14 +79,10 @@ mod file;
 
 mod num;
 
-mod write;
-mod print;
-
-pub use self::write::write;
-pub use self::print::print;
-
 #[macro_use]
 pub mod scanf;
+#[macro_use]
+pub mod printf;
 
 mod stdio;
 pub use self::stdio::{stdin, stdout};
@@ -111,7 +107,7 @@ mod tests {
     use std::error::Error;
     use std::fmt;
 
-    use super::{Source, PeekableSource, Sink, write, print};
+    use super::{Source, PeekableSource, Sink};
     use super::peek::Peekable;
 
     #[derive(Debug)]
@@ -340,18 +336,28 @@ mod tests {
     }
 
     #[test]
+    fn test_write_char() {
+        let array = &mut [0;1];
+        {
+            let sink = &mut TestSink::new(array);
+            assert!(printf!(sink, "%c", b'0').is_ok());
+        }
+        assert!(array == b"0");
+    }
+
+    #[test]
     fn test_write_unsigned() {
         let array = &mut [0;1];
         {
             let sink = &mut TestSink::new(array);
-            assert!(write(sink, 0u8).is_ok());
+            assert!(printf!(sink, "%d", 0u8).is_ok());
         }
         assert!(array == b"0");
 
         let array = &mut [0;3];
         {
             let sink = &mut TestSink::new(array);
-            assert!(write(sink, 123u8).is_ok());
+            assert!(printf!(sink, "%d", 123u8).is_ok());
         }
         assert!(array == b"123");
     }
@@ -361,14 +367,21 @@ mod tests {
         let array = &mut [0;1];
         {
             let sink = &mut TestSink::new(array);
-            assert!(write(sink, 0i8).is_ok());
+            assert!(printf!(sink, "%d", 0i8).is_ok());
         }
         assert!(array == b"0");
+
+        let array = &mut [0;3];
+        {
+            let sink = &mut TestSink::new(array);
+            assert!(printf!(sink, "%d", 123i8).is_ok());
+        }
+        assert!(array == b"123");
 
         let array = &mut [0;4];
         {
             let sink = &mut TestSink::new(array);
-            assert!(write(sink, -123i8).is_ok());
+            assert!(printf!(sink, "%d", -123i8).is_ok());
         }
         assert!(array == b"-123");
     }
@@ -378,7 +391,7 @@ mod tests {
         let array = &mut [0;1];
         {
             let sink = &mut TestSink::new(array);
-            assert!(write(sink, 123u8).is_err());
+            assert!(printf!(sink, "%d", 123u8).is_err());
         }
     }
 
@@ -387,7 +400,7 @@ mod tests {
         let array = &mut [0;7];
         {
             let sink = &mut TestSink::new(array);
-            assert!(print(sink, (123," ",456)).is_ok());
+            assert!(printf!(sink, "%d %d", 123usize, 456usize).is_ok());
         }
         assert!(array == b"123 456");
     }

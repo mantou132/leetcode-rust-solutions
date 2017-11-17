@@ -7,6 +7,6 @@ prelude!(solve);
 
 fn solve() -> Result<(), Error> {
     let stdout = &mut io::stdout()?;
-    io::print(stdout, ("Hello World\n",));
+    printf!(stdout, "Hello World\n")?;
     Ok(())
 }

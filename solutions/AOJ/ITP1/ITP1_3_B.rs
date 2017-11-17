@@ -14,7 +14,7 @@ fn solve() -> Result<(), Error> {
         if x == 0 {
             break;
         }
-        io::print(stdout, ("Case ", i, ": ", x, "\n"));
+        printf!(stdout, "Case %d: %d\n", i, x)?;
         i += 1;
     }
     Ok(())

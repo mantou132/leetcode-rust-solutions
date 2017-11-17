@@ -8,7 +8,7 @@ prelude!(solve);
 fn solve() -> Result<(), Error> {
     let stdout = &mut io::stdout()?;
     for _ in 0..1000 {
-        io::print(stdout, ("Hello World\n",));
+        printf!(stdout, "Hello World\n")?;
     }
     Ok(())
 }

@@ -1,92 +1,19 @@
-use super::super::compat::prelude::*;
-use std::ops::{Add, Mul, Div, Rem, Neg, Not};
-use super::Sink;
+use std::ops::{Add, Mul, Div, Rem, Neg};
 use super::scanf::{Converter, CharPattern, SignedPattern, UnsignedPattern};
+use super::printf::IntField;
 
 pub trait FromChar {
     fn from_char(u8) -> Self;
-}
-
-fn from_char<T : FromChar>(n: u8) -> T {
-    return FromChar::from_char(n)
-}
-
-fn from_digit<T : FromChar>(c: u8) -> T {
-    FromChar::from_char(
-        match c {
-            b'0' ... b'9' => { c - b'0' },
-            b'A' ... b'Z' => { c - b'A' + 10 },
-            b'a' ... b'z' => { c - b'a' + 10 },
-            _ => { abort!() },
-        })
 }
 
 pub trait ToChar {
     fn to_char(self) -> u8;
 }
 
-fn to_char<T : ToChar>(n: T) -> u8 {
-    return ToChar::to_char(n)
+pub trait Unsigned : Sized + Copy + Add<Self,Output=Self> + Mul<Self,Output=Self> + Div<Self,Output=Self> + Rem<Self,Output=Self> + Ord + FromChar + ToChar {
 }
 
-pub trait Unsigned : Sized + Copy + Add<Self,Output=Self> + Mul<Self,Output=Self> + Div<Self,Output=Self> + Rem<Self,Output=Self> + Not<Output=Self> + PartialOrd<Self> + FromChar + ToChar {
-}
-
-pub trait Signed : Sized + Copy + Add<Self,Output=Self> + Mul<Self,Output=Self> + Neg<Output=Self> + PartialOrd<Self> + FromChar {
-    type Unsigned : Unsigned;
-
-    fn to_unsigned(x: Self) -> Self::Unsigned;
-}
-
-fn to_unsigned<T: Signed>(x: T) -> T::Unsigned {
-    Signed::to_unsigned(x)
-}
-
-
-fn write_unsigned_aux<T: Unsigned, S: Sink<Item=u8>>(sink: &mut S, u: T) -> Result<(),S::Error> {
-    if u != from_char(0u8) {
-        write_unsigned_aux(sink, u / from_char(10u8))?;
-        Sink::write(sink, b'0' + to_char(u % from_char(10u8)))?;
-    }
-    Ok(())
-}
-
-pub fn write_unsigned<T: Unsigned, S: Sink<Item=u8>>(sink: &mut S, u: T) -> Result<(),S::Error> {
-    if u == from_char(0u8) {
-        Sink::write(sink, b'0')?;
-    } else {
-        write_unsigned_aux(sink, u)?;
-    }
-    Ok(())
-}
-
-fn write_signed_aux<T: Unsigned, S: Sink<Item=u8>>(sink: &mut S, u: T, neg: bool) -> Result<(),S::Error> {
-    if u == from_char(0u8) {
-        if neg {
-            Sink::write(sink, b'-')?;
-        }
-    } else {
-        write_signed_aux(sink, u / from_char(10), neg)?;
-        Sink::write(sink, b'0' + to_char(u % from_char(10)))?;
-    }
-    Ok(())
-}
-
-
-pub fn write_signed<T: Signed, S: Sink<Item=u8>>(sink: &mut S, i: T) -> Result<(),S::Error> {
-    if i == from_char(0u8) {
-        Sink::write(sink, b'0')?;
-    } else {
-        let neg = i < from_char(0u8);
-        let mut u = to_unsigned(i);
-
-        if neg {
-            u = !u + from_char(1u8);
-        }
-
-        write_signed_aux(sink, u, neg)?;
-    }
-    Ok(())
+pub trait Signed : Sized + Copy + Add<Self,Output=Self> + Mul<Self,Output=Self> + Neg<Output=Self> + Div<Self,Output=Self> + Rem<Self,Output=Self> + Ord + FromChar + ToChar {
 }
 
 
@@ -211,49 +138,36 @@ impl ToChar for isize {
     }
 }
 
-impl Unsigned for u8 {
+impl Unsigned for u8 {}
+impl Unsigned for u16 {}
+impl Unsigned for u32 {}
+impl Unsigned for u64 {}
+impl Unsigned for usize {}
+impl Signed for i8 {}
+impl Signed for i16 {}
+impl Signed for i32 {}
+impl Signed for i64 {}
+impl Signed for isize {}
+
+
+fn from_digit<T : FromChar>(c: u8) -> T {
+    FromChar::from_char(
+        match c {
+            b'0' ... b'9' => { c - b'0' },
+            b'A' ... b'Z' => { c - b'A' + 10 },
+            b'a' ... b'z' => { c - b'a' + 10 },
+            _ => { abort!() },
+        })
 }
 
-impl Unsigned for u16 {
-}
 
-impl Unsigned for u32 {
-}
-
-impl Unsigned for u64 {
-}
-
-impl Unsigned for usize {
-}
-
-impl Signed for i8 {
-    type Unsigned = u8;
-
-    fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
-}
-
-impl Signed for i16 {
-    type Unsigned = u16;
-
-    fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
-}
-
-impl Signed for i32 {
-    type Unsigned = u32;
-
-    fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
-}
-
-impl Signed for i64 {
-    type Unsigned = u64;
-
-    fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
-}
-
-impl Signed for isize {
-    type Unsigned = usize;
-
-    fn to_unsigned(x: Self) -> Self::Unsigned { x as Self::Unsigned }
+fn to_digit<T : ToChar>(x: T) -> u8 {
+    let c = ToChar::to_char(x);
+    match c {
+        0 ... 9 => { b'0' + c },
+        10 ... 35 => { b'A' + c - 10 },
+        _ => { abort!() },
+    }
 }
 
 
@@ -333,5 +247,140 @@ impl<'a, T: 'a + Signed> SignedPattern for &'a mut T {
 impl<'a, T: 'a + Signed> Drop for SignedConverter<'a, T> {
     fn drop(&mut self) {
         *self.data = *self.data * self.sign;
+    }
+}
+
+pub struct IntBuffer {
+    offset: u8,
+    buf: [u8;64],
+}
+
+impl AsRef<[u8]> for IntBuffer {
+    fn as_ref(&self) -> &[u8] {
+        unsafe {
+            self.buf.get_unchecked(self.offset as _..64)
+        }
+    }
+}
+
+impl IntBuffer {
+    fn new_unsigned<T: Unsigned>(mut n: T, x: u8) -> Self {
+        let base = FromChar::from_char(x);
+        let zero = FromChar::from_char(0u8);
+        let mut buf = IntBuffer {
+            offset: if n == zero { 63 } else { 64 },
+            buf: [b'0';64],
+        };
+
+        while n != zero {
+            buf.offset -= 1;
+            * unsafe { buf.buf.get_unchecked_mut(buf.offset as usize) } = to_digit(n % base);
+            n = n / base;
+        }
+
+        buf
+    }
+
+    fn new_signed<T: Signed>(mut n: T, x: u8) -> Self {
+        let base = FromChar::from_char(x);
+        let zero = FromChar::from_char(0u8);
+        let neg = n < zero;
+        let mut buf = IntBuffer {
+            offset: if n == zero { 63 } else { 64 },
+            buf: [if neg { b'-' } else { b'0' };64],
+        };
+
+        while n != zero {
+            buf.offset -= 1;
+            let rem = n % base;
+            * unsafe { buf.buf.get_unchecked_mut(buf.offset as usize) } = to_digit(if neg { -rem } else { rem });
+            n = n / base;
+        }
+
+        if neg {
+            buf.offset -= 1;
+        }
+
+        buf
+    }
+}
+
+impl IntField for u8 {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_unsigned(self, base)
+    }
+}
+
+impl IntField for u16 {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_unsigned(self, base)
+    }
+}
+
+impl IntField for u32 {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_unsigned(self, base)
+    }
+}
+
+impl IntField for u64 {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_unsigned(self, base)
+    }
+}
+
+impl IntField for usize {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_unsigned(self, base)
+    }
+}
+
+impl IntField for i8 {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_signed(self, base)
+    }
+}
+
+impl IntField for i16 {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_signed(self, base)
+    }
+}
+
+impl IntField for i32 {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_signed(self, base)
+    }
+}
+
+impl IntField for i64 {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_signed(self, base)
+    }
+}
+
+impl IntField for isize {
+    type Converter = IntBuffer;
+
+    fn converter(self, base: u8) -> IntBuffer {
+        IntBuffer::new_signed(self, base)
     }
 }

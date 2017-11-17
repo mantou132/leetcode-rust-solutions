@@ -9,6 +9,6 @@ fn solve() -> Result<(), Error> {
     let (stdin, stdout) = (&mut io::stdin()?, &mut io::stdout()?);
     let (mut a, mut b) : (int, int) = default();
     scanf!(stdin, " %d %d", &mut a, &mut b)?;
-    io::print(stdout, (a+b, "\n"))?;
+    printf!(stdout, "%d\n", a+b)?;
     Ok(())
 }

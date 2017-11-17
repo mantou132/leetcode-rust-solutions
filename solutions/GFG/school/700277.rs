@@ -20,14 +20,14 @@ fn solve() -> Result<(), Error> {
         for i in (1..n+1).rev() {
             for j in (1..n+1).rev() {
                 for _ in 0..i {
-                    io::print(stdout, (j," "))?;
+                    printf!(stdout, "%d ", j)?;
                 }
             }
 
-            io::print(stdout, ("$",))?;
+            printf!(stdout, "$")?;
         }
 
-        io::print(stdout, ("\n",))?;
+        printf!(stdout, "\n")?;
     }
 
     Ok(())

@@ -13,6 +13,6 @@ fn solve() -> Result<(), Error> {
     let mut m = t / 60;
     let h = m / 60;
     m = m % 60;
-    io::print(stdout, (h,":",m,":",s,"\n"))?;
+    printf!(stdout, "%d:%d:%d\n", h, m, s)?;
     Ok(())
 }
