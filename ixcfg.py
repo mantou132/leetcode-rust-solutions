@@ -1,5 +1,6 @@
 import os
 import os.path
+import re
 from ix import has_to_recompile as ix_has_to_recompile, compile_file
 from ix.utils import index_of, replace_ext
 import subprocess
@@ -115,6 +116,13 @@ class SubmissionContext:
 
         return target
 
+LABEL = re.compile(rb'^([^:\s]+):$', re.M)
+CHARS = b'_.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+def encode_int(n):
+    while n > 0:
+        yield CHARS[n % 64]
+        n //= 64
 
 def prepare_submission(envs, filename):
     env = pick_env(envs)
@@ -134,5 +142,15 @@ def prepare_submission(envs, filename):
 
     with open(asm,'rb') as f:
         code = f.read()
+
+    labels = set(LABEL.findall(code))
+    labels.discard(b"main")
+    labels.discard(b"_main")
+    pattern = b"|".join(map(re.escape, labels))
+    labels = {l: b"L"+bytes(encode_int(n))
+              for n,l in enumerate(labels)}
+    def repl(m):
+        return labels[m.group(0)]
+    code = re.sub(pattern, repl, code)
 
     return env, code
