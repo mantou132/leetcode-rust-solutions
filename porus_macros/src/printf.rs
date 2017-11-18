@@ -10,6 +10,7 @@ enum Directive {
     Literal(char),
     Char,
     Int(u8),
+    String,
 }
 
 fn parse_printf_conversion(node: &TokenTree, fmt: &mut Peekable<Chars>) -> Result<Directive,()> {
@@ -20,6 +21,7 @@ fn parse_printf_conversion(node: &TokenTree, fmt: &mut Peekable<Chars>) -> Resul
         },
         Some('c') => Ok(Directive::Char),
         Some('d') => Ok(Directive::Int(10)),
+        Some('s') => Ok(Directive::String),
 
         Some(c) => {
             node.span.error(format!("unknown conversion type character `{}`", c)).emit();
@@ -89,7 +91,13 @@ pub fn parse_printf(span: Span, iter: &mut TokenTreeIter) -> Result<TokenStream,
                 params += 1;
                 let base = TokenNode::Literal(Literal::u8(x));
                 stream = quote!( $stream.and_then(|s| $crate_::io::printf::write_string(s, $crate_::io::printf::IntField::converter($param,$base) )) );
-            }
+            },
+            Directive::String => {
+                skip_comma(span.error(format!("printf! takes {} parameters, but {} parameters supplied", n, params)), iter)?;
+                let param = read_group(span.error("unexpected end of macro invocation"), iter.next().as_ref())?;
+                params += 1;
+                stream = quote!( $stream.and_then(|s| $crate_::io::printf::write_string(s, $param)) );
+            },
         }
     }
 

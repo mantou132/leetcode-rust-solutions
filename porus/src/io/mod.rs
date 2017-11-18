@@ -336,7 +336,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_char() {
+    fn test_print_char() {
         let array = &mut [0;1];
         {
             let sink = &mut TestSink::new(array);
@@ -346,7 +346,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_unsigned() {
+    fn test_print_unsigned() {
         let array = &mut [0;1];
         {
             let sink = &mut TestSink::new(array);
@@ -363,7 +363,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_signed() {
+    fn test_print_signed() {
         let array = &mut [0;1];
         {
             let sink = &mut TestSink::new(array);
@@ -387,7 +387,17 @@ mod tests {
     }
 
     #[test]
-    fn test_write_overflow() {
+    fn test_print_string() {
+        let array = &mut [0;5];
+        {
+            let sink = &mut TestSink::new(array);
+            assert!(printf!(sink, "%s", "hello").is_ok());
+        }
+        assert!(array == b"hello");
+    }
+
+    #[test]
+    fn test_print_overflow() {
         let array = &mut [0;1];
         {
             let sink = &mut TestSink::new(array);

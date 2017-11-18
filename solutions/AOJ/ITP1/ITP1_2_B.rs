@@ -9,11 +9,12 @@ fn solve() -> Result<(), Error> {
     let (stdin, stdout) = (&mut io::stdin()?, &mut io::stdout()?);
     let (mut a, mut b, mut c): (int, int, int) = default();
     scanf!(stdin, " %d %d %d", &mut a, &mut b, &mut c)?;
-    io::print(stdout,
-              (if (a < b) && (b < c) {
-                  "Yes"
-               } else {
-                  "No"
-              },"\n"))?;
+    printf!(stdout,
+            "%s\n",
+            if (a < b) && (b < c) {
+                "Yes"
+            } else {
+                "No"
+            })?;
     Ok(())
 }
