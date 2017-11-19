@@ -1,47 +1,30 @@
 use super::super::compat::prelude::*;
-use std::error::Error;
-use std::fmt;
 use std::mem::size_of;
 use std::ptr::{read, write};
 
 use super::super::os::{OSError, malloc, realloc, free};
 
-#[derive(Debug)]
-pub struct IndexOutOfRange;
-
-impl fmt::Display for IndexOutOfRange {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "IndexOutOfRange")
-    }
-}
-
-impl Error for IndexOutOfRange {
-    fn description(&self) -> &str {
-        "IndexOutOfRange"
-    }
-
-    fn cause(&self) -> Option<&Error> {
-        None
-    }
-}
-
 
 pub struct Chunk<T> {
-    capacity: usize,
+    capacity: isize,
     data: *mut T,
 }
 
 impl<T> Chunk<T> {
 
-    pub fn new(capacity: usize) -> Result<Self, OSError> {
-        let size = size_of::<T>() * capacity;
+    pub fn new(mut capacity: isize) -> Result<Self, OSError> {
+        if capacity < 0 {
+            capacity = 0;
+        }
+
+        let size = size_of::<T>() * (capacity as usize);
         Ok(Chunk {
             capacity: capacity,
             data: malloc(size)? as *mut _,
         })
     }
 
-    pub fn capacity(&self) -> usize {
+    pub fn capacity(&self) -> isize {
         self.capacity
     }
 
@@ -53,43 +36,49 @@ impl<T> Chunk<T> {
         self.data
     }
 
-    pub fn resize(&mut self, capacity: usize) -> Result<(),OSError> {
-        let size = size_of::<T>() * capacity;
+    pub fn resize(&mut self, mut capacity: isize) -> Result<(),OSError> {
+        if capacity < 0 {
+            capacity = 0;
+        }
+
+        let size = size_of::<T>() * (capacity as usize);
         self.data = realloc(self.data as *mut _, size)? as *mut _;
         self.capacity = capacity;
         Ok(())
     }
 
-    pub fn get_ptr(&self, index: usize) -> Result<*const T, IndexOutOfRange> {
-        if index >= self.capacity {
-            Err(IndexOutOfRange)
-        } else {
-            Ok(unsafe { self.data.offset(index as isize) })
+    fn get_ptr(&self, index: isize) -> Option<*const T> {
+       if (0 <= index) && (index < self.capacity) {
+           Some(unsafe {self.data.offset(index)})
+       } else {
+           None
         }
     }
 
-    pub fn get_ptr_mut(&mut self, index: usize) -> Result<*mut T, IndexOutOfRange> {
-        if index >= self.capacity {
-            Err(IndexOutOfRange)
+    fn get_mut_ptr(&self, index: isize) -> Option<*mut T> {
+        if (0 <= index) && (index < self.capacity) {
+            Some(unsafe {self.data.offset(index)})
         } else {
-            Ok(unsafe { self.data.offset(index as isize) })
+            None
         }
     }
 
-    pub fn read(&mut self, index: usize) -> Result<T, IndexOutOfRange> {
-        Ok(unsafe { read(self.get_ptr(index)?) })
+    pub fn read(&mut self, index: isize) -> Option<T> {
+        self.get_ptr(index).map(|p| unsafe { read(p) })
     }
 
-    pub fn write(&mut self, index: usize, item: T) -> Result<(), IndexOutOfRange> {
-        Ok(unsafe { write(self.get_ptr_mut(index)?, item) })
+    pub fn write(&mut self, index: isize, item: T) {
+        if let Some(p) = self.get_mut_ptr(index) {
+            unsafe { write(p, item) };
+        }
     }
 
-    pub fn get(&self, index: usize) -> Result<&T, IndexOutOfRange> {
-        Ok(unsafe { &*self.get_ptr(index)? })
+    pub fn get(&mut self, index: isize) -> Option<&T> {
+        self.get_ptr(index).map(|p| unsafe{&*p})
     }
 
-    pub fn get_mut(&mut self, index: usize) -> Result<&mut T, IndexOutOfRange> {
-        Ok(unsafe { &mut *self.get_ptr_mut(index)? })
+    pub fn get_mut(&mut self, index: isize) -> Option<&mut T> {
+        self.get_mut_ptr(index).map(|p| unsafe{&mut *p})
     }
 }
 

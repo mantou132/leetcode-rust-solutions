@@ -88,19 +88,6 @@ mod stdio;
 pub use self::stdio::{stdin, stdout};
 
 
-pub fn ignore<S: PeekableSource, Fun: Fn(&S::Item) -> bool>(s: &mut S, ignore: Fun) -> Result<(), ScanError<S::Error>> {
-    loop {
-        match PeekableSource::peek(s) {
-            Some(c) if ignore(c) => (),
-            _ => break,
-        }
-
-        PeekableSource::consume(s)?
-    }
-    Ok(())
-}
-
-
 #[cfg(test)]
 mod tests {
     use super::super::compat::prelude::*;
@@ -410,7 +397,7 @@ mod tests {
         let array = &mut [0;7];
         {
             let sink = &mut TestSink::new(array);
-            assert!(printf!(sink, "%d %d", 123usize, 456usize).is_ok());
+            assert!(printf!(sink, "%d %d", 123, 456).is_ok());
         }
         assert!(array == b"123 456");
     }
