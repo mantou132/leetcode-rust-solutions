@@ -3,10 +3,10 @@
 extern crate porus_macros;
 #[macro_use]
 extern crate porus;
-prelude!(solve);
+use porus::prelude::*;
 
-fn solve() -> Result<(), Error> {
-    let stdout = &mut io::stdout()?;
-    printf!(stdout, "Hello World\n")?;
-    Ok(())
+#[cfg_attr(not(debug_assertions), no_mangle)]
+pub fn main() {
+    let stdout = &mut io::stdout();
+    printf!(stdout, "Hello World\n");
 }

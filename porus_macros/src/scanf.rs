@@ -91,47 +91,47 @@ pub fn parse_scanf(span: Span, iter: &mut TokenTreeIter) -> Result<TokenStream,(
     let n = fmt.iter().filter(|x| match **x { Directive::Match(_) => true, _ => false }).count() + 2;
     let mut params = 2;
 
-    let mut stream = quote!( $crate_::io::scanf::ok($file) );
+    let mut stream = quote!( $file );
 
     for d in fmt.into_iter() {
         match d {
             Directive::Whitespace => {
-                stream = quote!( $stream.and_then($crate_::io::scanf::whitespace) );
+                stream = quote!( $crate_::io::scanf::whitespace($stream) );
             },
             Directive::Exact(c) => {
                 let c = TokenNode::Literal(Literal::integer(c as _));
-                stream = quote!( $stream.and_then(|s| $crate_::io::scanf::exact(s,$c)) );
+                stream = quote!( $crate_::io::scanf::exact($stream,$c) );
             },
             Directive::Ignore(Pattern::Char) => {
-                stream = quote!( $stream.and_then(|s| $crate_::io::scanf::character(s,&mut $crate_::io::scanf::Ignore)) );
+                stream = quote!( $crate_::io::scanf::character($stream,&mut $crate_::io::scanf::Ignore) );
             },
             Directive::Ignore(Pattern::Unsigned(x)) => {
                 let base = TokenNode::Literal(Literal::u8(x));
-                stream = quote!( $stream.and_then(|s| $crate_::io::scanf::unsigned(s,&mut $crate_::io::scanf::Ignore,$base)) );
+                stream = quote!( $crate_::io::scanf::unsigned($stream,&mut $crate_::io::scanf::Ignore,$base) );
             },
             Directive::Ignore(Pattern::Signed(x)) => {
                 let base = TokenNode::Literal(Literal::u8(x));
-                stream = quote!( $stream.and_then(|s| $crate_::io::scanf::signed(s,&mut $crate_::io::scanf::Ignore,$base)) );
+                stream = quote!( $crate_::io::scanf::signed($stream,&mut $crate_::io::scanf::Ignore,$base) );
             },
             Directive::Match(Pattern::Char) => {
                 skip_comma(span.error(format!("scanf! takes {} parameters, but {} parameters supplied", n, params)), iter)?;
                 let param = read_group(span.error("unexpected end of macro invocation"), iter.next().as_ref())?;
                 params += 1;
-                stream = quote!( $stream.and_then(|s| $crate_::io::scanf::character(s,&mut $crate_::io::scanf::CharPattern::converter($param))) );
+                stream = quote!( $crate_::io::scanf::character($stream,&mut $crate_::io::scanf::CharPattern::converter($param)) );
             },
             Directive::Match(Pattern::Unsigned(x)) => {
                 skip_comma(span.error(format!("scanf! takes {} parameters, but {} parameters supplied", n, params)), iter)?;
                 let param = read_group(span.error("unexpected end of macro invocation"), iter.next().as_ref())?;
                 params += 1;
                 let base = TokenNode::Literal(Literal::u8(x));
-                stream = quote!( $stream.and_then(|s| $crate_::io::scanf::unsigned(s,&mut $crate_::io::scanf::UnsignedPattern::converter($param, $base),$base)) );
+                stream = quote!( $crate_::io::scanf::unsigned($stream,&mut $crate_::io::scanf::UnsignedPattern::converter($param, $base),$base) );
             },
             Directive::Match(Pattern::Signed(x)) => {
                 skip_comma(span.error(format!("scanf! takes {} parameters, but {} parameters supplied", n, params)), iter)?;
                 let param = read_group(span.error("unexpected end of macro invocation"), iter.next().as_ref())?;
                 params += 1;
                 let base = TokenNode::Literal(Literal::u8(x));
-                stream = quote!( $stream.and_then(|s| $crate_::io::scanf::signed(s,&mut $crate_::io::scanf::SignedPattern::converter($param, $base),$base)) );
+                stream = quote!( $crate_::io::scanf::signed($stream,&mut $crate_::io::scanf::SignedPattern::converter($param, $base),$base) );
             },
         }
     }

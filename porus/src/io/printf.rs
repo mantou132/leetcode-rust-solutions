@@ -1,4 +1,3 @@
-use super::super::compat::prelude::*;
 use super::Sink;
 pub use porus_macros::printf_impl;
 
@@ -9,20 +8,16 @@ macro_rules! printf {
     )
 }
 
-pub fn ok<S: Sink<Item=u8>>(s: &mut S) -> Result<&mut S, S::Error> {
-    Ok(s)
+pub fn write_char<S: Sink<Item=u8>>(s: &mut S, c: u8) -> &mut S {
+    Sink::write(s, c);
+    s
 }
 
-pub fn write_char<S: Sink<Item=u8>>(s: &mut S, c: u8) -> Result<&mut S, S::Error> {
-    Sink::write(s, c)?;
-    Ok(s)
-}
-
-pub fn write_string<S: Sink<Item=u8>, T: AsRef<[u8]>>(s: &mut S, t: T) -> Result<&mut S, S::Error> {
+pub fn write_string<S: Sink<Item=u8>, T: AsRef<[u8]>>(s: &mut S, t: T) -> &mut S {
     for c in AsRef::<[u8]>::as_ref(&t) {
-        Sink::write(s, *c)?;
+        Sink::write(s, *c);
     }
-    Ok(s)
+    s
 }
 
 pub trait IntField : Sized {

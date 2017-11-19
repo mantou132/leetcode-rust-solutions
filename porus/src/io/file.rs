@@ -1,6 +1,5 @@
-use super::super::compat::prelude::*;
 use super::{Source, Sink};
-use super::super::os::{OSError, read, write};
+use super::super::os::{read, write};
 use super::super::storage::Chunk;
 
 
@@ -12,33 +11,32 @@ pub struct FileSource {
 }
 
 impl FileSource {
-    pub fn new(fd: i32, buffer_size: isize) -> Result<Self, OSError> {
-        Ok(FileSource{
+    pub fn new(fd: i32, buffer_size: isize) -> Self {
+        FileSource {
             fd: fd,
             size: buffer_size,
             offset: buffer_size,
-            buffer: Chunk::new(buffer_size)?
-        })
+            buffer: Chunk::new(buffer_size)
+        }
     }
 }
 
 impl Source for FileSource {
     type Item = u8;
-    type Error = OSError;
 
-    fn read(&mut self) -> Result<Option<u8>, OSError> {
+    fn read(&mut self) -> Option<u8> {
         let capacity = self.buffer.capacity();
 
         if (self.offset == self.size) && (self.size == capacity) {
             self.offset = 0;
-            self.size = read(self.fd, self.buffer.as_mut_ptr(), capacity as usize)? as isize;
+            self.size = read(self.fd, self.buffer.as_mut_ptr(), capacity as usize).unwrap() as isize;
         }
 
         let c = self.buffer.read(self.offset);
         if self.offset < self.size {
             self.offset += 1;
         }
-        Ok(c)
+        c
     }
 }
 
@@ -50,29 +48,27 @@ pub struct FileSink {
 }
 
 impl FileSink {
-    pub fn new(fd: i32, buffer_size: isize) -> Result<Self, OSError> {
-        Ok(FileSink{
+    pub fn new(fd: i32, buffer_size: isize) -> Self {
+        FileSink{
             fd: fd,
             offset: 0,
-            buffer: Chunk::new(buffer_size)?
-        })
+            buffer: Chunk::new(buffer_size)
+        }
     }
 }
 
 impl Sink for FileSink {
     type Item = u8;
-    type Error = OSError;
 
-    fn write(&mut self, c: u8) -> Result<(),OSError> {
+    fn write(&mut self, c: u8) {
         let capacity = self.buffer.capacity();
         if self.offset == capacity {
-            write(self.fd, self.buffer.as_ptr(), capacity as usize)?;
+            write(self.fd, self.buffer.as_ptr(), capacity as usize).unwrap();
             self.offset = 0;
         }
 
         self.buffer.write(self.offset, c);
         self.offset += 1;
-        Ok(())
     }
 }
 

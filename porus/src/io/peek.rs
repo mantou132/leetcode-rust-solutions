@@ -1,4 +1,3 @@
-use super::super::compat::prelude::*;
 use super::{Source, PeekableSource};
 
 pub struct Peekable<S: Source> {
@@ -7,25 +6,23 @@ pub struct Peekable<S: Source> {
 }
 
 impl<S: Source> Peekable<S> {
-    pub fn new(mut s: S) -> Result<Self, S::Error> {
-        let item = Source::read(&mut s)?;
-        Ok(Peekable {
+    pub fn new(mut s: S) -> Self {
+        let item = Source::read(&mut s);
+        Peekable {
             source: s,
             item: item,
-        })
+        }
     }
 }
 
 impl<S: Source> PeekableSource for Peekable<S> {
     type Item = S::Item;
-    type Error = S::Error;
 
     fn peek<'a>(&'a mut self) -> Option<&'a Self::Item> {
         self.item.as_ref()
     }
 
-    fn consume(&mut self) -> Result<(), Self::Error> {
-        self.item = Source::read(&mut self.source)?;
-        Ok(())
+    fn consume(&mut self) {
+        self.item = Source::read(&mut self.source);
     }
 }

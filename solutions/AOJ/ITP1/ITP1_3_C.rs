@@ -3,18 +3,18 @@
 extern crate porus_macros;
 #[macro_use]
 extern crate porus;
-prelude!(solve);
+use porus::prelude::*;
 
-fn solve() -> Result<(), Error> {
-    let (stdin, stdout) = (&mut io::stdin()?, &mut io::stdout()?);
+#[cfg_attr(not(debug_assertions), no_mangle)]
+pub fn main() {
+    let (stdin, stdout) = (&mut io::stdin(), &mut io::stdout());
 
     loop {
         let (mut x, mut y) : (int, int) = default();
-        scanf!(stdin, " %d %d", &mut x, &mut y)?;
+        scanf!(stdin, " %d %d", &mut x, &mut y);
         if (x == 0) && (y == 0) {
             break;
         }
-        printf!(stdout, "%d %d\n", Ord::min(x,y), Ord::max(x,y))?;
+        printf!(stdout, "%d %d\n", Ord::min(x,y), Ord::max(x,y));
     }
-    Ok(())
 }

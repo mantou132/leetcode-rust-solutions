@@ -1,8 +1,7 @@
-use super::super::compat::prelude::*;
 use std::mem::size_of;
 use std::ptr::{read, write};
 
-use super::super::os::{OSError, malloc, realloc, free};
+use super::super::os::{malloc, realloc, free};
 
 
 pub struct Chunk<T> {
@@ -12,16 +11,16 @@ pub struct Chunk<T> {
 
 impl<T> Chunk<T> {
 
-    pub fn new(mut capacity: isize) -> Result<Self, OSError> {
+    pub fn new(mut capacity: isize) -> Self {
         if capacity < 0 {
             capacity = 0;
         }
 
         let size = size_of::<T>() * (capacity as usize);
-        Ok(Chunk {
+        Chunk {
             capacity: capacity,
-            data: malloc(size)? as *mut _,
-        })
+            data: malloc(size).unwrap() as *mut _,
+        }
     }
 
     pub fn capacity(&self) -> isize {
@@ -36,15 +35,14 @@ impl<T> Chunk<T> {
         self.data
     }
 
-    pub fn resize(&mut self, mut capacity: isize) -> Result<(),OSError> {
+    pub fn resize(&mut self, mut capacity: isize) {
         if capacity < 0 {
             capacity = 0;
         }
 
         let size = size_of::<T>() * (capacity as usize);
-        self.data = realloc(self.data as *mut _, size)? as *mut _;
+        self.data = realloc(self.data as *mut _, size).unwrap() as *mut _;
         self.capacity = capacity;
-        Ok(())
     }
 
     fn get_ptr(&self, index: isize) -> Option<*const T> {

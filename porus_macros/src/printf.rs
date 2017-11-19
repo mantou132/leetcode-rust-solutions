@@ -71,32 +71,32 @@ pub fn parse_printf(span: Span, iter: &mut TokenTreeIter) -> Result<TokenStream,
     let n = fmt.iter().filter(|x| match **x { Directive::Literal(_) => false, _ => true }).count() + 2;
     let mut params = 2;
 
-    let mut stream = quote!( $crate_::io::printf::ok($file) );
+    let mut stream = quote!( $file );
 
     for d in fmt.into_iter() {
         match d {
             Directive::Literal(c) => {
                 let c = TokenNode::Literal(Literal::integer(c as _));
-                stream = quote!( $stream.and_then(|s| $crate_::io::printf::write_char(s,$c)) );
+                stream = quote!( $crate_::io::printf::write_char($stream,$c) );
             },
             Directive::Char => {
                 skip_comma(span.error(format!("printf! takes {} parameters, but {} parameters supplied", n, params)), iter)?;
                 let param = read_group(span.error("unexpected end of macro invocation"), iter.next().as_ref())?;
                 params += 1;
-                stream = quote!( $stream.and_then(|s| $crate_::io::printf::write_char(s,$param)) );
+                stream = quote!( $crate_::io::printf::write_char($stream,$param) );
             },
             Directive::Int(x) => {
                 skip_comma(span.error(format!("printf! takes {} parameters, but {} parameters supplied", n, params)), iter)?;
                 let param = read_group(span.error("unexpected end of macro invocation"), iter.next().as_ref())?;
                 params += 1;
                 let base = TokenNode::Literal(Literal::u8(x));
-                stream = quote!( $stream.and_then(|s| $crate_::io::printf::write_string(s, $crate_::io::printf::IntField::converter($param,$base) )) );
+                stream = quote!( $crate_::io::printf::write_string($stream, $crate_::io::printf::IntField::converter($param,$base)) );
             },
             Directive::String => {
                 skip_comma(span.error(format!("printf! takes {} parameters, but {} parameters supplied", n, params)), iter)?;
                 let param = read_group(span.error("unexpected end of macro invocation"), iter.next().as_ref())?;
                 params += 1;
-                stream = quote!( $stream.and_then(|s| $crate_::io::printf::write_string(s, $param)) );
+                stream = quote!( $crate_::io::printf::write_string($stream, $param) );
             },
         }
     }

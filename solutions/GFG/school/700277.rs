@@ -5,10 +5,11 @@
 extern crate porus_macros;
 #[macro_use]
 extern crate porus;
-prelude!(solve);
+use porus::prelude::*;
 
-fn solve() -> Result<(), Error> {
-    let (stdin, stdout) = (&mut io::stdin()?, &mut io::stdout()?);
+#[cfg_attr(not(debug_assertions), no_mangle)]
+pub fn main() {
+    let (stdin, stdout) = (&mut io::stdin(), &mut io::stdout());
 
     let mut t : int = default();
     scanf!(stdin, " %d", &mut t);
@@ -20,15 +21,13 @@ fn solve() -> Result<(), Error> {
         for i in (1..n+1).rev() {
             for j in (1..n+1).rev() {
                 for _ in 0..i {
-                    printf!(stdout, "%d ", j)?;
+                    printf!(stdout, "%d ", j);
                 }
             }
 
-            printf!(stdout, "$")?;
+            printf!(stdout, "$");
         }
 
-        printf!(stdout, "\n")?;
+        printf!(stdout, "\n");
     }
-
-    Ok(())
 }

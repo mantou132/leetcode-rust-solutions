@@ -1,12 +1,10 @@
-use super::super::compat::prelude::*;
-use super::super::os::OSError;
 use super::peek::Peekable;
 use super::file::{FileSource, FileSink};
 
-pub fn stdin() -> Result<Peekable<FileSource>, OSError> {
-    Ok(Peekable::new(FileSource::new(0, 1024)?)?)
+pub fn stdin() -> Peekable<FileSource> {
+    Peekable::new(FileSource::new(0, 1024))
 }
 
-pub fn stdout() -> Result<FileSink, OSError> {
+pub fn stdout() -> FileSink {
     FileSink::new(1, 1024)
 }
