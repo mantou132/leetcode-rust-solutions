@@ -113,3 +113,161 @@ pub trait SignedPattern {
 
     fn converter(self, base: u8) -> Self::Converter;
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::super::PeekableSource;
+    use super::super::tests::new_test_source;
+
+    #[test]
+    fn test_whitespace() {
+        let source = &mut new_test_source(b"   ");
+        scanf!(source, " ");
+        assert!(PeekableSource::eof(source));
+    }
+
+    #[test]
+    fn test_exact_match() {
+        let source = &mut new_test_source(b"a");
+        scanf!(source, "a");
+        assert!(PeekableSource::eof(source));
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_exact_mismatch() {
+        let source = &mut new_test_source(b"b");
+        scanf!(source, "a");
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_exact_mismatch_empty() {
+        let source = &mut new_test_source(b"");
+        scanf!(source, "a");
+    }
+
+    #[test]
+    fn test_ignore_char_match() {
+        let source = &mut new_test_source(b"a");
+        scanf!(source, "%*c");
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_ignore_char_mismatch() {
+        let source = &mut new_test_source(b"");
+        scanf!(source, "%*c");
+    }
+
+    #[test]
+    fn test_match_char_match() {
+        let source = &mut new_test_source(b"a");
+        let mut c = 0u8;
+        scanf!(source, "%c", &mut c);
+        assert!(c == b'a');
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_match_char_mismatch() {
+        let source = &mut new_test_source(b"");
+        let mut c = 0u8;
+        scanf!(source, "%c", &mut c);
+    }
+
+    #[test]
+    fn test_ignore_unsigned_match() {
+        let source = &mut new_test_source(b"a");
+        scanf!(source, "%*x");
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_ignore_unsigned_mismatch() {
+        let source = &mut new_test_source(b"g");
+        scanf!(source, "%*x");
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_ignore_unsigned_mismatch_empty() {
+        let source = &mut new_test_source(b"");
+        scanf!(source, "%*x");
+    }
+
+    #[test]
+    fn test_match_unsigned_match() {
+        let source = &mut new_test_source(b"a");
+        let mut x = 0usize;
+        scanf!(source, "%x", &mut x);
+        assert!(x == 0xa);
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_match_unsigned_mismatch() {
+        let source = &mut new_test_source(b"g");
+        let mut x = 0usize;
+        scanf!(source, "%x", &mut x);
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_match_unsigned_mismatch_empty() {
+        let source = &mut new_test_source(b"");
+        let mut x = 0usize;
+        scanf!(source, "%x", &mut x);
+    }
+
+    #[test]
+    fn test_match_signed_match() {
+        let source = &mut new_test_source(b"-123");
+        let mut x = 0isize;
+        scanf!(source, "%d", &mut x);
+        assert!(x == -123);
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_match_signed_mismatch() {
+        let source = &mut new_test_source(b"g");
+        let mut x = 0isize;
+        scanf!(source, "%d", &mut x);
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_match_signed_mismatch_empty() {
+        let source = &mut new_test_source(b"");
+        let mut x = 0isize;
+        scanf!(source, "%d", &mut x);
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_match_signed_mismatch_sign() {
+        let source = &mut new_test_source(b"-g");
+        let mut x = 0isize;
+        scanf!(source, "%d", &mut x);
+    }
+
+    #[test]
+    #[should_panic(expected="scan error")]
+    fn test_match_signed_mismatch_sign_empty() {
+        let source = &mut new_test_source(b"-");
+        let mut x = 0isize;
+        scanf!(source, "%d", &mut x);
+    }
+
+    #[test]
+    fn test_match() {
+        let source = &mut new_test_source(b"123 456");
+        let mut x = 0isize;
+        let mut y = 0isize;
+        scanf!(source, " %d %d", &mut x, &mut y);
+        assert!(x == 123);
+        assert!(y == 456);
+    }
+}

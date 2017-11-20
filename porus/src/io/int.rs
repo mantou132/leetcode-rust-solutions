@@ -17,139 +17,6 @@ pub trait Signed : Sized + Copy + Add<Self,Output=Self> + Mul<Self,Output=Self> 
 }
 
 
-impl FromChar for u8 {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-impl FromChar for u16 {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-impl FromChar for u32 {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-impl FromChar for u64 {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-impl FromChar for usize {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-impl FromChar for i8 {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-impl FromChar for i16 {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-impl FromChar for i32 {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-impl FromChar for i64 {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-impl FromChar for isize {
-    fn from_char(x : u8) -> Self {
-        x as Self
-    }
-}
-
-
-impl ToChar for u8 {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl ToChar for u16 {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl ToChar for u32 {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl ToChar for u64 {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl ToChar for usize {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl ToChar for i8 {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl ToChar for i16 {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl ToChar for i32 {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl ToChar for i64 {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl ToChar for isize {
-    fn to_char(self) -> u8 {
-        self as u8
-    }
-}
-
-impl Unsigned for u8 {}
-impl Unsigned for u16 {}
-impl Unsigned for u32 {}
-impl Unsigned for u64 {}
-impl Unsigned for usize {}
-impl Signed for i8 {}
-impl Signed for i16 {}
-impl Signed for i32 {}
-impl Signed for i64 {}
-impl Signed for isize {}
-
-
 fn from_digit<T : FromChar>(c: u8) -> T {
     FromChar::from_char(
         match c {
@@ -305,82 +172,61 @@ impl IntBuffer {
     }
 }
 
-impl IntField for u8 {
-    type Converter = IntBuffer;
 
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_unsigned(self, base)
-    }
+macro_rules! int {
+    ($t:ty) => (
+        impl FromChar for $t {
+            fn from_char(x : u8) -> Self {
+                x as Self
+            }
+        }
+
+        impl ToChar for $t {
+            fn to_char(self) -> u8 {
+                self as u8
+            }
+        }
+    )
 }
 
-impl IntField for u16 {
-    type Converter = IntBuffer;
+macro_rules! unsigned {
+    ($t:ty) => (
+        int!($t);
+        impl Unsigned for $t {}
 
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_unsigned(self, base)
-    }
+        impl IntField for $t {
+            type Converter = IntBuffer;
+
+            fn converter(self, base: u8) -> IntBuffer {
+                IntBuffer::new_unsigned(self, base)
+            }
+        }
+    )
 }
 
-impl IntField for u32 {
-    type Converter = IntBuffer;
+macro_rules! signed {
+    ($t:ty) => (
+        int!($t);
+        impl Signed for $t {}
 
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_unsigned(self, base)
-    }
+        impl IntField for $t {
+            type Converter = IntBuffer;
+
+            fn converter(self, base: u8) -> IntBuffer {
+                IntBuffer::new_signed(self, base)
+            }
+        }
+    )
 }
 
-impl IntField for u64 {
-    type Converter = IntBuffer;
+unsigned!(u8);
+unsigned!(u16);
+unsigned!(u32);
+unsigned!(u64);
+unsigned!(usize);
 
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_unsigned(self, base)
-    }
-}
-
-impl IntField for usize {
-    type Converter = IntBuffer;
-
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_unsigned(self, base)
-    }
-}
-
-impl IntField for i8 {
-    type Converter = IntBuffer;
-
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_signed(self, base)
-    }
-}
-
-impl IntField for i16 {
-    type Converter = IntBuffer;
-
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_signed(self, base)
-    }
-}
-
-impl IntField for i32 {
-    type Converter = IntBuffer;
-
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_signed(self, base)
-    }
-}
-
-impl IntField for i64 {
-    type Converter = IntBuffer;
-
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_signed(self, base)
-    }
-}
-
-impl IntField for isize {
-    type Converter = IntBuffer;
-
-    fn converter(self, base: u8) -> IntBuffer {
-        IntBuffer::new_signed(self, base)
-    }
-}
+signed!(i8);
+signed!(i16);
+signed!(i32);
+signed!(i64);
+signed!(isize);
