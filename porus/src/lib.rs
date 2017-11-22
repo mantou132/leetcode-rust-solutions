@@ -11,10 +11,9 @@ pub mod abort;
 pub mod compat;
 pub mod prelude;
 
-pub mod os;
-
 pub mod ctype;
-pub mod storage;
+pub mod os;
+pub mod chunk;
 #[macro_use]
 pub mod io;
 
