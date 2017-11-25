@@ -17,6 +17,12 @@ pub mod chunk;
 #[macro_use]
 pub mod io;
 
+pub mod capacity;
+pub mod list;
+
+#[macro_use]
+pub mod array;
+
 // #[macro_use]
 // pub mod string;
 // pub mod collections;

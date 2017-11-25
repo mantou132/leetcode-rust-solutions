@@ -1,5 +1,9 @@
 use std::ops::Try;
 use std::fmt;
+use super::option::Option;
+use super::option::Option::Some;
+use super::option::Option::None;
+
 
 #[derive(Debug)]
 pub enum Result<T, E: fmt::Debug> {

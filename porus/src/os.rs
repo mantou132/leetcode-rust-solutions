@@ -1,5 +1,4 @@
 use super::compat::prelude::*;
-use std::error::Error;
 use std::fmt;
 use std::ptr::null_mut;
 
@@ -32,16 +31,6 @@ impl fmt::Display for OSError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let OSError(n) = *self;
         write!(f, "OSError({})", n)
-    }
-}
-
-impl Error for OSError {
-    fn description(&self) -> &str {
-        "OSError"
-    }
-
-    fn cause(&self) -> Option<&Error> {
-        None
     }
 }
 

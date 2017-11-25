@@ -1,3 +1,5 @@
+use super::super::compat::prelude::*;
+use std::option;
 use super::{Source, Sink};
 use super::peek::Peekable;
 
@@ -10,11 +12,11 @@ impl<'a> Source for TestSource<'a> {
 
     fn read(&mut self) -> Option<u8> {
         match self.s.split_first() {
-            Some((i,s)) => {
+            option::Option::Some((i,s)) => {
                 self.s = s;
                 Some(*i)
             },
-            None => {
+            option::Option::None => {
                 None
             },
         }

@@ -9,6 +9,9 @@ pub use std::cmp::Ordering::Greater;
 
 pub use super::io;
 
+pub use super::list;
+pub use super::list::{List, ListMut};
+
 pub fn default<T: Default>() -> T {
     Default::default()
 }

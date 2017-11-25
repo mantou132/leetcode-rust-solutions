@@ -1,3 +1,5 @@
+use super::compat::prelude::*;
+
 pub trait Source {
     type Item;
 

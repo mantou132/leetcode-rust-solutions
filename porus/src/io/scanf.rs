@@ -1,3 +1,4 @@
+use super::super::compat::prelude::*;
 use super::PeekableSource;
 pub use porus_macros::scanf_impl;
 

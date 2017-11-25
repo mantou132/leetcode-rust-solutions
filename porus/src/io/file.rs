@@ -1,3 +1,4 @@
+use super::super::compat::prelude::*;
 use super::{Source, Sink};
 use super::super::os::{read, write};
 use super::super::chunk::Chunk;
@@ -25,15 +26,15 @@ impl Source for FileSource {
     type Item = u8;
 
     fn read(&mut self) -> Option<u8> {
-        let capacity = self.buffer.capacity();
+        let capacity = Chunk::capacity(&self.buffer);
 
         if (self.offset == self.size) && (self.size == capacity) {
             self.offset = 0;
-            self.size = read(self.fd, self.buffer.as_mut_ptr(), capacity as usize).unwrap() as isize;
+            self.size = read(self.fd, Chunk::as_mut_ptr(&mut self.buffer), capacity as usize).unwrap() as isize;
         }
 
         if self.offset < self.size {
-            let c = self.buffer.read(self.offset);
+            let c = Chunk::read(&mut self.buffer, self.offset);
             self.offset += 1;
             Some(c)
         } else {
@@ -65,17 +66,17 @@ impl Sink for FileSink {
     fn write(&mut self, c: u8) {
         let capacity = self.buffer.capacity();
         if self.offset == capacity {
-            write(self.fd, self.buffer.as_ptr(), capacity as usize).unwrap();
+            write(self.fd, Chunk::as_ptr(&self.buffer), capacity as usize).unwrap();
             self.offset = 0;
         }
 
-        self.buffer.write(self.offset, c);
+        Chunk::write(&mut self.buffer, self.offset, c);
         self.offset += 1;
     }
 }
 
 impl Drop for FileSink {
     fn drop(&mut self) {
-        write(self.fd, self.buffer.as_ptr(), self.offset as usize).unwrap();
+        write(self.fd, Chunk::as_ptr(&self.buffer), self.offset as usize).unwrap();
     }
 }
