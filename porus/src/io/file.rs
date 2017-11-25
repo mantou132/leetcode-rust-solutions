@@ -1,13 +1,13 @@
 use super::{Source, Sink};
 use super::super::os::{read, write};
-use super::super::chunk::RawSystemChunk;
+use super::super::chunk::Chunk;
 
 
 pub struct FileSource {
     fd: i32,
     size: isize,
     offset: isize,
-    buffer: RawSystemChunk,
+    buffer: Chunk<u8>,
 }
 
 impl FileSource {
@@ -16,7 +16,7 @@ impl FileSource {
             fd: fd,
             size: buffer_size,
             offset: buffer_size,
-            buffer: RawSystemChunk::new(buffer_size)
+            buffer: Chunk::new(buffer_size)
         }
     }
 }
@@ -46,7 +46,7 @@ impl Source for FileSource {
 pub struct FileSink {
     fd: i32,
     offset: isize,
-    buffer: RawSystemChunk,
+    buffer: Chunk<u8>,
 }
 
 impl FileSink {
@@ -54,7 +54,7 @@ impl FileSink {
         FileSink{
             fd: fd,
             offset: 0,
-            buffer: RawSystemChunk::new(buffer_size)
+            buffer: Chunk::new(buffer_size)
         }
     }
 }
