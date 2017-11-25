@@ -32,11 +32,13 @@ impl Source for FileSource {
             self.size = read(self.fd, self.buffer.as_mut_ptr(), capacity as usize).unwrap() as isize;
         }
 
-        let c = self.buffer.read(self.offset);
         if self.offset < self.size {
+            let c = self.buffer.read(self.offset);
             self.offset += 1;
+            Some(c)
+        } else {
+            None
         }
-        c
     }
 }
 
