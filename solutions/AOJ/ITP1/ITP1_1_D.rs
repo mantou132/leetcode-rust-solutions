@@ -1,14 +1,12 @@
-#![cfg_attr(not(debug_assertions), no_main)]
 #![feature(proc_macro)]
 extern crate porus_macros;
 #[macro_use]
 extern crate porus;
-use porus::prelude::*;
+prelude!();
 
-#[cfg_attr(not(debug_assertions), no_mangle)]
-pub fn main() {
+fn solve() {
     let (stdin, stdout) = (&mut io::stdin(), &mut io::stdout());
-    let mut t: int = default();
+    let mut t: isize = default();
     scanf!(stdin, "%d", &mut t);
     let s = t % 60;
     let mut m = t / 60;

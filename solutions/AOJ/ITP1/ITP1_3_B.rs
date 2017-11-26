@@ -1,16 +1,14 @@
-#![cfg_attr(not(debug_assertions), no_main)]
 #![feature(proc_macro)]
 extern crate porus_macros;
 #[macro_use]
 extern crate porus;
-use porus::prelude::*;
+prelude!();
 
-#[cfg_attr(not(debug_assertions), no_mangle)]
-pub fn main() {
+fn solve() {
     let (stdin, stdout) = (&mut io::stdin(), &mut io::stdout());
-    let mut i : int = 1;
+    let mut i : isize = 1;
     loop {
-        let mut x : int = default();
+        let mut x : isize = default();
         scanf!(stdin, " %d", &mut x);
         if x == 0 {
             break;

@@ -1,12 +1,10 @@
-#![cfg_attr(not(debug_assertions), no_main)]
 #![feature(proc_macro)]
 extern crate porus_macros;
 #[macro_use]
 extern crate porus;
-use porus::prelude::*;
+prelude!();
 
-#[cfg_attr(not(debug_assertions), no_mangle)]
-pub fn main() {
+fn solve() {
     let stdout = &mut io::stdout();
     printf!(stdout, "Hello World\n");
 }

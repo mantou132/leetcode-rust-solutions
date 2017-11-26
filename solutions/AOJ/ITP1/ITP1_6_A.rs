@@ -1,19 +1,17 @@
-#![cfg_attr(not(debug_assertions), no_main)]
 #![feature(proc_macro)]
 extern crate porus_macros;
 #[macro_use]
 extern crate porus;
-use porus::prelude::*;
+prelude!();
 
-#[cfg_attr(not(debug_assertions), no_mangle)]
-pub fn main() -> isize {
+fn solve() {
     let (stdin, stdout) = (&mut io::stdin(), &mut io::stdout());
     let mut n : isize = default();
 
     scanf!(stdin, " %d", &mut n);
 
     if n <= 0 {
-        return 0;
+        return;
     }
 
     let a = array![0isize; n];
@@ -27,5 +25,4 @@ pub fn main() -> isize {
         printf!(stdout, " %d", a[n-1-i]);
     }
     printf!(stdout, "\n");
-    0
 }

@@ -2,7 +2,7 @@ use super::compat::prelude::*;
 use super::os::{write, OSError};
 
 
-#[cfg(debug_assertions)]
+#[cfg(any(test, debug_assertions))]
 #[macro_export]
 macro_rules! abort {
     () => ({ panic!() });
@@ -10,7 +10,7 @@ macro_rules! abort {
     ($fmt:expr, $($arg:tt)+) => { panic!($fmt, $($arg)+) };
 }
 
-#[cfg(not(debug_assertions))]
+#[cfg(not(any(test, debug_assertions)))]
 #[macro_export]
 macro_rules! abort {
     () => ({ unsafe { ::std::intrinsics::abort(); }});
@@ -50,7 +50,6 @@ pub fn write_abort_msg(file: &str, line: u32, msg: &str) -> Result<(),OSError> {
 }
 
 #[cfg(test)]
-#[cfg(debug_assertions)]
 mod tests {
     #[test]
     #[should_panic(expected="message")]

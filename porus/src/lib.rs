@@ -10,6 +10,8 @@ pub mod abort;
 
 pub mod compat;
 pub mod prelude;
+#[macro_use]
+pub mod macros;
 
 pub mod ctype;
 pub mod os;

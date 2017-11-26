@@ -93,7 +93,6 @@ mod tests {
         error();
     }
 
-    #[cfg(debug_assertions)]
     #[test]
     #[should_panic]
     fn test_unwrap() {

@@ -88,6 +88,7 @@ class SubmissionContext:
 
     def get_submit_argv(self, source, target):
         return ['rustc',
+                "--crate-type", "cdylib",
                 "--emit", "llvm-bc",
                 "-C", "opt-level=s",
                 "-C", "panic=abort",
@@ -152,5 +153,6 @@ def prepare_submission(envs, filename):
     def repl(m):
         return labels[m.group(0)]
     code = re.sub(pattern, repl, code)
+    print(code.decode())
 
     return env, code
