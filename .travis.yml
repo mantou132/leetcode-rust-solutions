@@ -3,6 +3,16 @@ python:
   - "3.5"
   - "3.6"
   - "3.7-dev"
+addons:
+  apt:
+    packages:
+      - libcurl4-openssl-dev
+      - libelf-dev
+      - libdw-dev
+      - binutils-dev
+      - cmake
+    sources:
+      - kalakris-cmake
 env:
   global:
   - PATH=${PATH}:${HOME}/.cargo/bin
@@ -12,6 +22,7 @@ env:
 install:
   - curl -sSf https://build.travis-ci.org/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
   - pip install -r requirements.txt
+  - cargo install --force cargo-travis
 script:
   - cargo test --verbose
   - cargo test --release --verbose
@@ -20,3 +31,5 @@ matrix:
   allow_failures:
   - env: TRAVIS_RUST_VERSION=nightly
   - python: "3.7-dev"
+after_success:
+  - cargo coveralls
