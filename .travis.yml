@@ -1,3 +1,22 @@
-language: rust
-rust:
-  - nightly-2017-12-02
+language: python
+python:
+  - "3.5"
+  - "3.6"
+  - "3.7-dev"
+env:
+  global:
+  - PATH=${PATH}:${HOME}/.cargo/bin
+  matrix:
+  - TRAVIS_RUST_VERSION=nightly-2017-12-02
+  - TRAVIS_RUST_VERSION=nightly
+install:
+  - curl -sSf https://build.travis-ci.org/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
+  - pip install -r requirements.txt
+script:
+  - cargo test --verbose
+  - cargo test --release --verbose
+  - python3 -mix -v test solutions/AOJ
+matrix:
+  allow_failures:
+  - env: TRAVIS_RUST_VERSION=nightly
+  - python: "3.7-dev"
