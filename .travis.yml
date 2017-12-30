@@ -11,8 +11,6 @@ addons:
       - libdw-dev
       - binutils-dev
       - cmake
-    sources:
-      - kalakris-cmake
 env:
   global:
   - PATH=${PATH}:${HOME}/.cargo/bin
@@ -22,7 +20,7 @@ env:
 install:
   - curl -sSf https://build.travis-ci.org/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
   - pip install -r requirements.txt
-  - cargo install --force cargo-travis
+  - cargo install -v --vers "0.0.7" cargo-travis || which cargo-coveralls
 script:
   - cargo test --verbose
   - cargo test --release --verbose
@@ -34,6 +32,7 @@ matrix:
 after_success:
   - cargo coveralls
 cache:
-  - apt
-  - cargo
-  - pip
+  pip: true
+  directories:
+  - $HOME/.cargo
+  - $TRAVIS_BUILD_DIR/target
