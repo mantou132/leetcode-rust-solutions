@@ -1,4 +1,5 @@
 language: python
+sudo: required
 python:
   - "3.5"
   - "3.6"
@@ -20,7 +21,7 @@ env:
 install:
   - curl -sSf https://build.travis-ci.org/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
   - pip install -r requirements.txt
-  - cargo install -v --vers "0.0.7" cargo-travis || which cargo-coveralls
+  - cargo install -v --vers "0.0.9" cargo-travis || which cargo-coveralls
 script:
   - cargo test --verbose
   - cargo test --release --verbose
