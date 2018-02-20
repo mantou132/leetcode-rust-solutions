@@ -153,6 +153,5 @@ def prepare_submission(envs, filename):
     def repl(m):
         return labels[m.group(0)]
     code = re.sub(pattern, repl, code)
-    print(code.decode())
 
     return env, code

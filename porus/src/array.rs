@@ -3,6 +3,7 @@ use std::marker::PhantomData;
 use std::ops::{Index, IndexMut};
 use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use super::chunk::Chunk;
+use super::collection::Collection;
 use super::list::{List, ListMut};
 
 
@@ -26,6 +27,12 @@ impl<T : Clone, P : CapacityPolicy> Array<T,P> {
             data: data,
             _policy: PhantomData,
         }
+    }
+}
+
+impl<T, P : CapacityPolicy> Collection for Array<T,P> {
+    fn size(&self) -> isize {
+        self.size
     }
 }
 

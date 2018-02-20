@@ -19,6 +19,10 @@ pub mod chunk;
 #[macro_use]
 pub mod io;
 
+#[macro_use]
+pub mod range;
+
+pub mod collection;
 pub mod capacity;
 pub mod list;
 

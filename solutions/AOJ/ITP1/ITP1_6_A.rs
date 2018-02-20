@@ -20,9 +20,11 @@ fn solve() {
         scanf!(stdin, " %d", &mut a[i]);
     }
 
-    printf!(stdout, "%d", a[n-1]);
+    let b = &list::slice(a, range!(,,-1));
+
+    printf!(stdout, "%d", b[0]);
     for i in 1..n {
-        printf!(stdout, " %d", a[n-1-i]);
+        printf!(stdout, " %d", b[i]);
     }
     printf!(stdout, "\n");
 }
