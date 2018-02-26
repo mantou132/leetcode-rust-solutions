@@ -7,3 +7,4 @@ license = "MIT"
 
 [dependencies]
 porus_macros = { path = "../porus_macros" }
+porus_derive = { path = "../porus_derive" }

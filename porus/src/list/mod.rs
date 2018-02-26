@@ -2,23 +2,29 @@ use super::compat::prelude::*;
 use super::collection::Collection;
 use std::ops::{Index, IndexMut};
 
+pub trait ListBase : Collection {
+    type Element: ?Sized;
 
-pub trait List : Collection + Index<isize> {
-    fn get(&self, index: isize) -> Option<&Self::Output>;
+    fn get(&self, index: isize) -> Option<&Self::Element>;
+}
+
+pub trait ListMutBase : ListBase {
+    fn get_mut(&mut self, index: isize) -> Option<&mut Self::Element>;
+}
+
+pub trait List : ListBase + Index<isize, Output=<Self as ListBase>::Element> {
+}
+
+pub trait ListMut : ListMutBase + IndexMut<isize, Output=<Self as ListBase>::Element> {
 }
 
 
-pub trait ListMut : List + IndexMut<isize> {
-    fn get_mut(&mut self, index: isize) -> Option<&mut Self::Output>;
+pub fn get<T: List>(list: &T, index: isize) -> Option<&T::Element> {
+    ListBase::get(list, index)
 }
 
-
-pub fn get<T: List>(list: &T, index: isize) -> Option<&T::Output> {
-    List::get(list, index)
-}
-
-pub fn get_mut<T: ListMut>(list: &mut T, index: isize) -> Option<&mut T::Output> {
-    ListMut::get_mut(list, index)
+pub fn get_mut<T: ListMut>(list: &mut T, index: isize) -> Option<&mut T::Element> {
+    ListMutBase::get_mut(list, index)
 }
 
 

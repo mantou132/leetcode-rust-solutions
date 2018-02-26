@@ -4,9 +4,10 @@ use std::ops::{Index, IndexMut};
 use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use super::chunk::Chunk;
 use super::collection::Collection;
-use super::list::{List, ListMut};
+use super::list::{ListBase, ListMutBase, List, ListMut};
 
 
+#[derive(List, ListMut)]
 pub struct Array<T, P : CapacityPolicy = DefaultCapacityPolicy> {
     size: isize,
     data: Chunk<T>,
@@ -36,23 +37,9 @@ impl<T, P : CapacityPolicy> Collection for Array<T,P> {
     }
 }
 
+impl<T, P : CapacityPolicy> ListBase for Array<T,P> {
+    type Element = T;
 
-impl<T, P : CapacityPolicy> Index<isize> for Array<T,P> {
-    type Output = T;
-
-    fn index(&self, index: isize) -> &T {
-        List::get(self, index).unwrap()
-    }
-}
-
-impl<T, P : CapacityPolicy> IndexMut<isize> for Array<T,P> {
-
-    fn index_mut(&mut self, index: isize) -> &mut T {
-        ListMut::get_mut(self, index).unwrap()
-    }
-}
-
-impl<T, P : CapacityPolicy> List for Array<T,P> {
     fn get(&self, index: isize) -> Option<&T> {
         if (0 <= index) && (index < self.size) {
             Some(Chunk::get(&self.data, index))
@@ -62,7 +49,7 @@ impl<T, P : CapacityPolicy> List for Array<T,P> {
     }
 }
 
-impl<T, P : CapacityPolicy> ListMut for Array<T,P> {
+impl<T, P : CapacityPolicy> ListMutBase for Array<T,P> {
     fn get_mut(&mut self, index: isize) -> Option<&mut T> {
         if (0 <= index) && (index < self.size) {
             Some(Chunk::get_mut(&mut self.data, index))
@@ -71,7 +58,6 @@ impl<T, P : CapacityPolicy> ListMut for Array<T,P> {
         }
     }
 }
-
 
 impl<T, P : CapacityPolicy> Drop for Array<T,P>{
     fn drop(&mut self){

@@ -1,5 +1,5 @@
 [workspace]
-members = ["porus_macros", "porus"]
+members = ["porus_macros", "porus_derive", "porus"]
 
 [profile.release]
 panic = "abort"

@@ -4,6 +4,8 @@
 #![feature(proc_macro)]
 
 extern crate porus_macros;
+#[macro_use]
+extern crate porus_derive;
 
 #[macro_use]
 pub mod abort;
@@ -18,6 +20,8 @@ pub mod os;
 pub mod chunk;
 #[macro_use]
 pub mod io;
+
+pub mod iter;
 
 #[macro_use]
 pub mod range;

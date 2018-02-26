@@ -2,9 +2,10 @@ use super::super::compat::prelude::*;
 use std::ops::Index;
 use super::super::range::Range;
 use super::super::collection::Collection;
-use super::List;
+use super::{ListBase, List};
 
 
+#[derive(List)]
 pub struct ListView<'a, T: 'a + List> {
     list: &'a T,
     offset: isize,
@@ -18,20 +19,13 @@ impl<'a, T : List> Collection for ListView<'a, T> {
     }
 }
 
-impl<'a, T : List> Index<isize> for ListView<'a, T> {
-    type Output = T::Output;
+impl<'a, T : List> ListBase for ListView<'a, T> {
+    type Element = T::Element;
 
-    fn index(&self, index: isize) -> &Self::Output {
-        List::get(self, index).unwrap()
+    fn get(&self, index: isize) -> Option<&Self::Element> {
+        ListBase::get(self.list, self.offset + self.step * index)
     }
 }
-
-impl<'a, T : List> List for ListView<'a, T> {
-    fn get(&self, index: isize) -> Option<&Self::Output> {
-        self.list.get(self.offset + self.step * index)
-    }
-}
-
 
 pub fn slice<'a, T: List>(list: &'a T, range: &Range) -> ListView<'a, T>  {
     let size = Collection::size(list);
