@@ -21,6 +21,7 @@ pub mod chunk;
 #[macro_use]
 pub mod io;
 
+#[macro_use]
 pub mod iter;
 
 #[macro_use]

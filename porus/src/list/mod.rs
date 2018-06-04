@@ -3,7 +3,7 @@ use super::collection::Collection;
 use std::ops::{Index, IndexMut};
 
 pub trait ListBase : Collection {
-    type Element: ?Sized;
+    type Element;
 
     fn get(&self, index: isize) -> Option<&Self::Element>;
 }
@@ -30,3 +30,6 @@ pub fn get_mut<T: ListMut>(list: &mut T, index: isize) -> Option<&mut T::Element
 
 mod slice;
 pub use self::slice::slice;
+
+mod iter_mut;
+pub use self::iter_mut::iter_mut;

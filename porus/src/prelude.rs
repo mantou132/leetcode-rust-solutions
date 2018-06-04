@@ -5,6 +5,7 @@ pub use std::cmp::Ordering::Equal;
 pub use std::cmp::Ordering::Greater;
 
 pub use super::io;
+pub use super::iter::IterMut;
 pub use super::collection;
 pub use super::list;
 
