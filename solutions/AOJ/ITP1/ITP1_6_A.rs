@@ -20,7 +20,7 @@ fn solve() {
         scanf!(stdin, " %d", e);
     }
 
-    let b = &list::slice(a, range!(,,-1));
+    let b = slice!(a, [,,-1]);
 
     printf!(stdout, "%d", b[0]);
     for i in 1..n {

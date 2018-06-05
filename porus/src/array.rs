@@ -21,7 +21,7 @@ impl<T : Clone, P : CapacityPolicy> Array<T,P> {
         let mut data = Chunk::new(P::initial(size));
 
         for i in 0..size {
-            Chunk::write(&mut data, i, Clone::clone(&x));
+            data.write(i, Clone::clone(&x));
         }
 
         Array {
@@ -43,7 +43,7 @@ impl<T, P : CapacityPolicy> ListBase for Array<T,P> {
 
     fn get(&self, index: isize) -> Option<&T> {
         if (0 <= index) && (index < self.size) {
-            Some(Chunk::get(&self.data, index))
+            Some(self.data.get(index))
         } else {
             None
         }
@@ -53,7 +53,7 @@ impl<T, P : CapacityPolicy> ListBase for Array<T,P> {
 impl<T, P : CapacityPolicy> ListMutBase for Array<T,P> {
     fn get_mut(&mut self, index: isize) -> Option<&mut T> {
         if (0 <= index) && (index < self.size) {
-            Some(Chunk::get_mut(&mut self.data, index))
+            Some(self.data.get_mut(index))
         } else {
             None
         }
@@ -98,7 +98,7 @@ impl<T, P : CapacityPolicy> Stack for Array<T,P> {
 impl<T, P : CapacityPolicy> Drop for Array<T,P>{
     fn drop(&mut self){
         for i in 0..self.size {
-            Chunk::read(&mut self.data, i);
+            self.data.read(i);
         }
     }
 }

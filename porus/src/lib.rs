@@ -29,6 +29,7 @@ pub mod range;
 
 pub mod collection;
 pub mod capacity;
+#[macro_use]
 pub mod list;
 pub mod stack;
 pub mod deque;

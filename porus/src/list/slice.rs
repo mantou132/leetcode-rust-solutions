@@ -67,3 +67,10 @@ pub fn slice<'a, T: List>(list: &'a T, range: &Range) -> ListView<'a, T>  {
         unreachable!();
     }
 }
+
+#[macro_export]
+macro_rules! slice {
+    ($list:expr, [ $($arg:tt)+ ] ) => (
+        &$crate::list::slice($list, range!($($arg)+))
+    );
+}

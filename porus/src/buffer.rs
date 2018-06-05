@@ -29,6 +29,7 @@ impl<T, P : CapacityPolicy> Buffer<T, P> {
         }
     }
 
+
     fn increase_index(&self, index: isize) -> isize {
         if index + 1 == self.data.capacity() {
             0
@@ -61,7 +62,7 @@ impl<T, P : CapacityPolicy> Buffer<T, P> {
             let shrink = capacity - new_capacity;
             self.data.copy(self.front, self.front-shrink, capacity-self.front);
             self.front -= shrink;
-        } else if self.back >= new_capacity {
+        } else if self.back > new_capacity {
             let size = self.back - self.front;
             self.data.copy(self.front, 0, size);
             self.front = 0;
@@ -110,16 +111,16 @@ impl<T, P : CapacityPolicy> ListBase for Buffer<T,P> {
             if self.front + index >= self.back {
                 None
             } else {
-                Some(Chunk::get(&self.data, self.front + index))
+                Some(self.data.get(self.front + index))
             }
         } else {
             let capacity = self.data.capacity();
             if self.front + index >= self.back + capacity {
                 None
             } else if self.front + index >= capacity {
-                Some(Chunk::get(&self.data, self.front + index - capacity))
+                Some(self.data.get(self.front + index - capacity))
             } else {
-                Some(Chunk::get(&self.data, self.front + index))
+                Some(self.data.get(self.front + index))
             }
         }
     }
@@ -131,16 +132,16 @@ impl<T, P : CapacityPolicy> ListMutBase for Buffer<T,P> {
             if self.front + index >= self.back {
                 None
             } else {
-                Some(Chunk::get_mut(&mut self.data, self.front + index))
+                Some(self.data.get_mut(self.front + index))
             }
         } else {
             let capacity = self.data.capacity();
             if self.front + index >= self.back + capacity {
                 None
             } else if self.front + index >= capacity {
-                Some(Chunk::get_mut(&mut self.data, self.front + index - capacity))
+                Some(self.data.get_mut(self.front + index - capacity))
             } else {
-                Some(Chunk::get_mut(&mut self.data, self.front + index))
+                Some(self.data.get_mut(self.front + index))
             }
         }
     }
@@ -198,15 +199,15 @@ impl<T, P : CapacityPolicy> Drop for Buffer<T,P>{
     fn drop(&mut self){
         if self.back < self.front {
             for i in 0..self.back {
-                Chunk::read(&mut self.data, i);
+                self.data.read(i);
             }
 
             for i in self.front..self.data.capacity() {
-                Chunk::read(&mut self.data, i);
+                self.data.read(i);
             }
         } else {
             for i in self.front..self.back {
-                Chunk::read(&mut self.data, i);
+                self.data.read(i);
             }
         }
     }
