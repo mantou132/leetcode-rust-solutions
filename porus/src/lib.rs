@@ -31,9 +31,12 @@ pub mod collection;
 pub mod capacity;
 pub mod list;
 pub mod stack;
+pub mod deque;
 
 #[macro_use]
 pub mod array;
+#[macro_use]
+pub mod buffer;
 
 // #[macro_use]
 // pub mod string;

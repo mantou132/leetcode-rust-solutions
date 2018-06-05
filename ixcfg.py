@@ -33,7 +33,7 @@ def get_compile_argv(filename):
 
     deps = ['-L', 'dependency='+os.path.join(ROOTDIR, "target/debug/deps")]
     target = replace_ext(filename,"elf")
-    return ['rustc', VERBOSE_FLAG] + deps + extern(DEBUG_EXTERNS) + ['-o', target, filename], target
+    return ['rustc'] + deps + extern(DEBUG_EXTERNS) + ['-o', target, filename], target
 
 
 def list_generated_files(filename):
@@ -73,7 +73,7 @@ class SubmissionContext:
 
     def get_submit_argv(self, source, target):
         deps = ['-L', 'dependency='+os.path.join(ROOTDIR, "target/release/deps")]
-        return ['rustc', self.verbose,
+        return ['rustc',
                 "--crate-type", "cdylib",
                 "--emit", "asm",
                 "-C", "llvm-args=-disable-debug-info-print",

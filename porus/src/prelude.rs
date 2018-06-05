@@ -12,6 +12,8 @@ pub use super::iter::foreach;
 pub use super::collection;
 pub use super::list;
 pub use super::stack::Stack;
+pub use super::deque::Deque;
+
 
 pub fn default<T: Default>() -> T {
     Default::default()

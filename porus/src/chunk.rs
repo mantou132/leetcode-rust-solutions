@@ -1,5 +1,5 @@
 use std::mem::size_of;
-use std::ptr::{read, write};
+use std::ptr::{read, write, copy};
 use super::os::{malloc, realloc, free};
 
 
@@ -46,6 +46,12 @@ impl<T> Chunk<T> {
         self.capacity = capacity;
     }
 
+    pub fn copy(&mut self, src: isize, dst: isize, count: isize) {
+        unsafe {
+            copy(self.data.offset(src), self.data.offset(dst), count as usize);
+        }
+    }
+
     pub fn read(&mut self, index: isize) -> T {
         unsafe { read(self.data.offset(index)) }
     }
@@ -61,7 +67,6 @@ impl<T> Chunk<T> {
     pub fn get_mut(&mut self, index: isize) -> &mut T {
         unsafe { &mut *self.data.offset(index) }
     }
-
 }
 
 

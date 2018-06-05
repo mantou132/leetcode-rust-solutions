@@ -15,22 +15,16 @@ fn solve() {
     for _ in 0..n {
         let mut op : isize = default();
         scanf!(stdin, " %d", &mut op);
-        match op {
-            0 => {
-                let mut x : isize = default();
-                scanf!(stdin, " %d", &mut x);
-                Stack::push(vec, x);
-            },
-            1 => {
-                let mut p : isize = default();
-                scanf!(stdin, " %d", &mut p);
-                printf!(stdout, "%d\n", vec[p]);
-            },
-            2 => {
-                Stack::pop(vec);
-            },
-            _ => {
-            },
+        if op == 0 {
+            let mut x : isize = default();
+            scanf!(stdin, " %d", &mut x);
+            Stack::push(vec, x);
+        } else if op == 1 {
+            let mut p : isize = default();
+            scanf!(stdin, " %d", &mut p);
+            printf!(stdout, "%d\n", vec[p]);
+        } else if op == 2 {
+            Stack::pop(vec);
         }
     }
 }
