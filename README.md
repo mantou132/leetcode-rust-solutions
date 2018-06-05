@@ -10,7 +10,7 @@ don't have to copy and paste library code into your solution.
 
 ## Requirements
 
-* Rust nightly-2017-12-02
+* Rust nightly
   * i686-pc-windows-gnu
   * i686-unknown-linux-gnu
   * x86_64-pc-windows-gnu

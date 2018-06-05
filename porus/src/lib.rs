@@ -6,9 +6,8 @@
 #![feature(proc_macro)]
 #![feature(proc_macro_non_items)]
 
-extern crate porus_macros;
 #[macro_use]
-extern crate porus_derive;
+extern crate porus_macros;
 
 #[macro_use]
 pub mod abort;
