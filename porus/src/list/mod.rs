@@ -27,7 +27,6 @@ pub fn get_mut<T: ListMut>(list: &mut T, index: isize) -> Option<&mut T::Elem> {
     ListMutBase::get_mut(list, index)
 }
 
-#[macro_use]
 mod slice;
 pub use self::slice::slice;
 

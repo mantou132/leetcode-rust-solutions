@@ -8,6 +8,7 @@ pub trait CapacityPolicy {
 pub struct DefaultCapacityPolicy {
 }
 
+
 impl CapacityPolicy for DefaultCapacityPolicy {
     fn initial(size: isize) -> isize {
         if size < 10 {

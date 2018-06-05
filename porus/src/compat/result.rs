@@ -1,3 +1,5 @@
+//! replacement to [`std::result`]
+
 use std::ops::Try;
 use std::fmt;
 use super::option::Option;

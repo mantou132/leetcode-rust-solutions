@@ -1,3 +1,5 @@
+//! replacement to [`std::option`]
+
 #[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Debug, Hash)]
 pub enum Option<T> {
     None,
