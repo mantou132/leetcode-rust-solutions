@@ -25,15 +25,12 @@ don't have to copy and paste library code into your solution.
 $ git clone git://github.com/bhuztez/porus.git
 $ cd porus
 $ pip3 install -r requirements.txt
-$ python3 -mix submit -w solutions/HR/solve-me-first.rs
-[SUBMIT] solutions/HR/solve-me-first.rs
+$ python3 -mix submit -w solutions/AOJ/ITP1/ITP1_1_A.rs
+[SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs
 [COMPILE] target/x86_64-unknown-linux-gnu/release/libporus.rlib
-[COMPILE] src/bin/linkbc.rs
-[COMPILE] solutions/HR/solve-me-first.rs
-[COMPILE] solutions/HR/solve-me-first.bc
-HR (hackerrank.com)
-Username: your_username
-Password:
-[SUBMIT] solutions/HR/solve-me-first.rs: Accepted
-$
+AOJ (judge.u-aizu.ac.jp)
+User ID: your_username
+Password: 
+[SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs: Accepted (Memory: 2000, Time: 0, Length: 1380)
+$ 
 ```
