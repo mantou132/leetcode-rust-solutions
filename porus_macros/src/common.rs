@@ -1,96 +1,104 @@
-use proc_macro::{TokenStream, TokenTree, TokenTreeIter, TokenNode, Delimiter, Diagnostic};
-use syntax::parse::token::{Token, Lit};
-use syntax_pos::symbol::InternedString;
+use proc_macro::{TokenStream, TokenTree, Diagnostic, Span, Group};
+use proc_macro::token_stream::IntoIter;
+use syntax::parse::token::Lit;
+use syntax::ast::Name;
+use syntax_pos::symbol::LocalInternedString;
 
 use std::mem::transmute;
 use std::str::Chars;
 use std::iter::Peekable;
+use std::iter::FromIterator;
 
 
-pub fn read_group(error: Diagnostic, node: Option<&TokenTree>) -> Result<TokenStream, ()> {
+pub struct Literal {
+    lit: Lit,
+    suffix: Option<Name>,
+    span: Span,
+}
+
+
+pub fn read_group(error: Diagnostic, node: Option<&TokenTree>) -> TokenTree {
     match node {
         None => {
             error.emit();
-            Err(())
+            panic!();
         },
-        Some(&TokenTree{span: _, kind: TokenNode::Group(Delimiter::None, ref stream)}) => {
-            Ok(stream.clone())
-        },
-        Some(ref tree) => {
-            tree.span.error(format!("expected TokenNode::Group, found `{}`", tree)).emit();
-            Err(())
+        Some(tree) => {
+            tree.clone()
         }
     }
 }
 
-pub fn skip_comma(error: Diagnostic, iter: &mut TokenTreeIter) -> Result<(), ()> {
+pub fn skip_comma(error: Diagnostic, iter: &mut IntoIter) {
     match iter.next() {
         None => {
             error.emit();
-            Err(())
+            panic!();
         },
-        Some(TokenTree{span: _, kind: TokenNode::Op(',', _)}) => {
-            Ok(())
+        Some(TokenTree::Punct(p)) => {
+            match p.as_char() {
+                ',' => {
+                    return
+                },
+                c => {
+                    p.span().error(format!("unexpected punctuation `{}`", c)).emit();
+                    panic!();
+                }
+            }
         },
         Some(tree) => {
-            tree.span.error(format!("expected `,`, found `{}`", tree)).emit();
-            Err(())
+            tree.span().error(format!("expected `,`, found `{}`", tree)).emit();
+            panic!();
         }
     }
 }
 
-pub fn read_string_literal(node: &TokenTree, stream: TokenStream) -> Result<InternedString, ()> {
-    let iter = &mut stream.clone().into_iter();
-    let first = iter.next();
-    if let None = iter.next() {
-        if let Some(TokenTree{span: _, kind: TokenNode::Literal(x)}) = first {
-            if let Token::Literal(Lit::Str_(s), None) = unsafe { transmute(x) } {
-                return Ok(s.as_str());
-            }
+pub fn read_string_literal(node: &TokenTree, tree: TokenTree) -> LocalInternedString {
+    if let TokenTree::Literal(x) = tree {
+        if let Literal{lit: Lit::Str_(s), suffix: _, span: _} = unsafe { transmute(x) } {
+            return s.as_str();
         }
     }
 
-    node.span.error(format!("expected string literal, found `{}`", node)).emit();
-    Err(())
+    node.span().error(format!("expected string literal, found `{}`", node)).emit();
+    panic!();
 }
 
-
-pub fn read_term(error: Diagnostic, node: Option<&TokenTree>) -> Result<TokenTree, ()> {
-    match node {
-        None => {
-            error.emit();
-            Err(())
-        },
-        Some(&TokenTree{span: _, kind: TokenNode::Term(_)}) => {
-            Ok(node.unwrap().clone())
-        },
-        Some(ref tree) => {
-            tree.span.error(format!("expected TokenNode::Term, found `{}`", tree)).emit();
-            Err(())
-        }
-    }
-}
-
-pub fn parse_escape_sequence(node: &TokenTree, fmt: &mut Peekable<Chars>) -> Result<char, ()> {
+pub fn parse_escape_sequence(node: &TokenTree, fmt: &mut Peekable<Chars>) -> char {
     match fmt.next() {
         None => {
-            node.span.error("`\\` at end of string").emit();
-            Err(())
+            node.span().error("`\\` at end of string").emit();
+            panic!();
         },
         Some(c) if (c == '\'') || (c == '"') || (c == '\\') => {
-            Ok(c)
+            c
         },
-        Some('?') => Ok(char::from(0x3f)),
-        Some('a') => Ok(char::from(0x07)),
-        Some('b') => Ok(char::from(0x08)),
-        Some('t') => Ok(char::from(0x09)),
-        Some('n') => Ok(char::from(0x0a)),
-        Some('v') => Ok(char::from(0x0b)),
-        Some('f') => Ok(char::from(0x0c)),
-        Some('r') => Ok(char::from(0x0d)),
+        Some('?') => char::from(0x3f),
+        Some('a') => char::from(0x07),
+        Some('b') => char::from(0x08),
+        Some('t') => char::from(0x09),
+        Some('n') => char::from(0x0a),
+        Some('v') => char::from(0x0b),
+        Some('f') => char::from(0x0c),
+        Some('r') => char::from(0x0d),
         Some(c) => {
-            node.span.error(format!("unknown escape sequence `\\{}`", c)).emit();
-            Err(())
+            node.span().error(format!("unknown escape sequence `\\{}`", c)).emit();
+            panic!();
         }
     }
+}
+
+pub fn set_span(span: Span, stream: TokenStream) -> TokenStream {
+    let iter = stream.into_iter().map(|mut tree| {
+        match tree {
+            TokenTree::Group(g) => {
+                TokenTree::Group(Group::new(g.delimiter(), set_span(span, g.stream())))
+            }
+            _ => {
+                tree.set_span(span);
+                tree
+            }
+        }
+    });
+    TokenStream::from_iter(iter)
 }

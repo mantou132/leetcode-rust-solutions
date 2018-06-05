@@ -1,13 +1,5 @@
 use super::super::compat::prelude::*;
 use super::PeekableSource;
-pub use porus_macros::scanf_impl;
-
-#[macro_export]
-macro_rules! scanf {
-    ($f:expr, $fmt:expr $(, $arg:expr)*) => (
-        $crate::io::scanf::scanf_impl!($crate, $f, $fmt $(, $arg)*)
-    )
-}
 
 pub trait Converter {
     fn write(&mut self, c: u8);
@@ -118,6 +110,7 @@ pub trait SignedPattern {
 
 #[cfg(test)]
 mod tests {
+    use porus_macros::scanf;
     use super::super::PeekableSource;
     use super::super::tests::new_test_source;
 

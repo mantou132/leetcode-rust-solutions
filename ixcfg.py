@@ -8,6 +8,7 @@ import subprocess
 DEBUG_EXTERNS = {
     "porus": os.path.join(ROOTDIR, "target/debug/libporus.rlib"),
     "porus_macros": os.path.join(ROOTDIR, "target/debug/libporus_macros.so"),
+    "porus_derive": os.path.join(ROOTDIR, "target/debug/libporus_derive.so"),
 }
 SOLUTION_PATTERN = r'^(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs$'
 
@@ -31,8 +32,9 @@ def get_compile_argv(filename):
     if compile_file(ROOTDIR, ['cargo', 'build', VERBOSE_FLAG, '--lib'], 'DEBUG LIB', DEBUG_EXTERNS["porus"]) is None:
         raise Exception("failed to build library")
 
+    deps = ['-L', 'dependency='+os.path.join(ROOTDIR, "target/debug/deps")]
     target = replace_ext(filename,"elf")
-    return ['rustc'] + extern(DEBUG_EXTERNS) + ['-o', target, filename], target
+    return ['rustc', VERBOSE_FLAG] + deps + extern(DEBUG_EXTERNS) + ['-o', target, filename], target
 
 
 def list_generated_files(filename):
@@ -61,58 +63,33 @@ class SubmissionContext:
         self.externs = {
             "porus": os.path.join(ROOTDIR, "target", llvm_target, "release/libporus.rlib"),
             "porus_macros": os.path.join(ROOTDIR, "target/release/libporus_macros.so"),
+            "porus_derive": os.path.join(ROOTDIR, "target/release/libporus_derive.so"),
         }
         self.verbose = '-v' if VERBOSE else '-q'
 
-
     def check(self):
-        argv = ['cargo', 'rustc', self.verbose, '-p', 'porus', '--lib', '--release', '--target', self.llvm_target, '--', '--emit', 'llvm-bc']
+        argv = ['cargo', 'build', self.verbose, '--lib', '--release', '--target', self.llvm_target]
         if compile_file(ROOTDIR, argv, self.externs["porus"]) is None:
             return False
-
-        argv = ['ar', 't', self.externs["porus"]]
-        members = subprocess.run(argv, stdout=subprocess.PIPE, check=True).stdout.splitlines()
-        if not members:
-            return False
-
-        member = [m.split(b'.',1)[0] for m in members if m.endswith(b'.bytecode.encoded')][0]
-        self.bc_path = os.path.join(ROOTDIR, "target", self.llvm_target, "release/deps", member.decode()+'.bc')
-
-        src = 'porus/src/bin/linkbc.rs'
-        argv = ['cargo', 'build', self.verbose, '-p', 'porus', '--bin=linkbc']
-        if compile_file(ROOTDIR, argv, src) is None:
-            return False
-
         return True
 
-
     def get_submit_argv(self, source, target):
-        return ['rustc',
+        deps = ['-L', 'dependency='+os.path.join(ROOTDIR, "target/release/deps")]
+        return ['rustc', self.verbose,
                 "--crate-type", "cdylib",
-                "--emit", "llvm-bc",
+                "--emit", "asm",
+                "-C", "llvm-args=-disable-debug-info-print",
+                "-C", "lto=fat",
                 "-C", "opt-level=s",
                 "-C", "panic=abort",
-                "--target", self.llvm_target] + extern(self.externs) + ["-o", target, source]
-
-
-    def get_linkbc_argv(self, source, target):
-        argv = self.get_submit_argv(source, target)
-        return ['cargo', 'run', self.verbose, '-p', 'porus', '--bin', 'linkbc', '--'] + argv[1:] + ["--", target, self.bc_path, source]
-
+                "--target", self.llvm_target] + deps + extern(self.externs) + ["-o", target, source]
 
     def compile(self, source):
-        bc = replace_ext(source, "bc")
-
-        if has_to_recompile(source, bc, self.externs):
-            argv = self.get_submit_argv(source, bc)
-            if compile_file(ROOTDIR, argv, source, bc) is None:
-                return None
-
         target = replace_ext(source, "s")
 
         if has_to_recompile(source, target, self.externs):
-            argv = self.get_linkbc_argv(bc, target)
-            if compile_file(ROOTDIR, argv, bc, target) is None:
+            argv = self.get_submit_argv(source, target)
+            if compile_file(ROOTDIR, argv, source, target) is None:
                 return None
 
         return target

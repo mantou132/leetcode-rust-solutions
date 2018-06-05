@@ -5,6 +5,9 @@ pub use std::cmp::Ordering::Equal;
 pub use std::cmp::Ordering::Greater;
 
 pub use super::io;
+pub use porus_macros::scanf;
+pub use porus_macros::printf;
+
 pub use super::iter::IterMut;
 pub use super::collection;
 pub use super::list;

@@ -1,12 +1,4 @@
 use super::Sink;
-pub use porus_macros::printf_impl;
-
-#[macro_export]
-macro_rules! printf {
-    ($f:expr, $fmt:expr $(, $arg:expr)*) => (
-        $crate::io::printf::printf_impl!($crate, $f, $fmt $(, $arg)*)
-    )
-}
 
 pub fn write_char<S: Sink<Item=u8>>(s: &mut S, c: u8) -> &mut S {
     Sink::write(s, c);
@@ -28,6 +20,7 @@ pub trait IntField : Sized {
 
 #[cfg(test)]
 mod tests {
+    use porus_macros::printf;
     use super::super::tests::new_test_sink;
 
     #[test]

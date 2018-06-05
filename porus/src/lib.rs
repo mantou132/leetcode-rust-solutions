@@ -1,7 +1,10 @@
 // #![feature(specialization)]
+#![feature(rustc_private)]
 #![feature(core_intrinsics)]
 #![feature(try_trait)]
+#![feature(decl_macro)]
 #![feature(proc_macro)]
+#![feature(proc_macro_non_items)]
 
 extern crate porus_macros;
 #[macro_use]
@@ -18,7 +21,6 @@ pub mod macros;
 pub mod ctype;
 pub mod os;
 pub mod chunk;
-#[macro_use]
 pub mod io;
 
 #[macro_use]

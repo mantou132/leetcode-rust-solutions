@@ -31,9 +31,7 @@ mod file;
 
 mod int;
 
-#[macro_use]
 pub mod scanf;
-#[macro_use]
 pub mod printf;
 
 mod stdio;

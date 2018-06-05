@@ -12,11 +12,12 @@ addons:
       - libdw-dev
       - binutils-dev
       - cmake
+    sources:
+      - kalakris-cmake
 env:
   global:
   - PATH=${PATH}:${HOME}/.cargo/bin
   matrix:
-  - TRAVIS_RUST_VERSION=nightly-2017-12-02
   - TRAVIS_RUST_VERSION=nightly
 install:
   - curl -sSf https://build.travis-ci.org/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
@@ -28,7 +29,6 @@ script:
   - python3 -mix -v test solutions/AOJ
 matrix:
   allow_failures:
-  - env: TRAVIS_RUST_VERSION=nightly
   - python: "3.7-dev"
 after_success:
   - cargo coveralls
