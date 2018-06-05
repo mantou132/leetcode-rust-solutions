@@ -3,27 +3,27 @@ use super::collection::Collection;
 use std::ops::{Index, IndexMut};
 
 pub trait ListBase : Collection {
-    type Element;
+    type Elem;
 
-    fn get(&self, index: isize) -> Option<&Self::Element>;
+    fn get(&self, index: isize) -> Option<&Self::Elem>;
 }
 
 pub trait ListMutBase : ListBase {
-    fn get_mut(&mut self, index: isize) -> Option<&mut Self::Element>;
+    fn get_mut(&mut self, index: isize) -> Option<&mut Self::Elem>;
 }
 
-pub trait List : ListBase + Index<isize, Output=<Self as ListBase>::Element> {
+pub trait List : ListBase + Index<isize, Output=<Self as ListBase>::Elem> {
 }
 
-pub trait ListMut : ListMutBase + IndexMut<isize, Output=<Self as ListBase>::Element> {
+pub trait ListMut : ListMutBase + IndexMut<isize, Output=<Self as ListBase>::Elem> {
 }
 
 
-pub fn get<T: List>(list: &T, index: isize) -> Option<&T::Element> {
+pub fn get<T: List>(list: &T, index: isize) -> Option<&T::Elem> {
     ListBase::get(list, index)
 }
 
-pub fn get_mut<T: ListMut>(list: &mut T, index: isize) -> Option<&mut T::Element> {
+pub fn get_mut<T: ListMut>(list: &mut T, index: isize) -> Option<&mut T::Elem> {
     ListMutBase::get_mut(list, index)
 }
 

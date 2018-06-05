@@ -11,6 +11,7 @@ pub use porus_macros::printf;
 pub use super::iter::foreach;
 pub use super::collection;
 pub use super::list;
+pub use super::stack::Stack;
 
 pub fn default<T: Default>() -> T {
     Default::default()

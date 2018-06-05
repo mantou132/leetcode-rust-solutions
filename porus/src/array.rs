@@ -5,6 +5,7 @@ use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use super::chunk::Chunk;
 use super::collection::Collection;
 use super::list::{ListBase, ListMutBase, List, ListMut};
+use super::stack::Stack;
 
 
 #[derive(List, ListMut)]
@@ -38,7 +39,7 @@ impl<T, P : CapacityPolicy> Collection for Array<T,P> {
 }
 
 impl<T, P : CapacityPolicy> ListBase for Array<T,P> {
-    type Element = T;
+    type Elem = T;
 
     fn get(&self, index: isize) -> Option<&T> {
         if (0 <= index) && (index < self.size) {
@@ -56,6 +57,41 @@ impl<T, P : CapacityPolicy> ListMutBase for Array<T,P> {
         } else {
             None
         }
+    }
+}
+
+impl<T, P : CapacityPolicy> Stack for Array<T,P> {
+    type Elem = T;
+
+    fn is_empty(&self) -> bool {
+        self.size == 0
+    }
+
+    fn push(&mut self, elem: T) {
+        if self.size == self.data.capacity() {
+            self.data.resize(P::grow(self.size))
+        }
+
+        self.data.write(self.size, elem);
+        self.size += 1;
+    }
+
+    fn pop(&mut self) -> T {
+        if self.is_empty() {
+            abort!("empty");
+        }
+
+        self.size -= 1;
+        let item = self.data.read(self.size);
+
+        let capacity = self.data.capacity();
+        let new_capacity = P::shrink(self.size, capacity);
+
+        if new_capacity < capacity {
+            self.data.resize(new_capacity);
+        }
+
+        item
     }
 }
 

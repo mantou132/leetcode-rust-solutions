@@ -30,6 +30,7 @@ pub mod range;
 pub mod collection;
 pub mod capacity;
 pub mod list;
+pub mod stack;
 
 #[macro_use]
 pub mod array;

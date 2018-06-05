@@ -33,7 +33,7 @@ pub fn derive_list(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl #impl_generics Index<isize> for #name #ty_generics #where_clause {
-            type Output = <Self as ListBase>::Element;
+            type Output = <Self as ListBase>::Elem;
 
             fn index(&self, index: isize) -> &Self::Output {
                 ListBase::get(self, index).unwrap()

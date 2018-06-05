@@ -20,9 +20,9 @@ impl<'a, T : List> Collection for ListView<'a, T> {
 }
 
 impl<'a, T : List> ListBase for ListView<'a, T> {
-    type Element = T::Element;
+    type Elem = T::Elem;
 
-    fn get(&self, index: isize) -> Option<&Self::Element> {
+    fn get(&self, index: isize) -> Option<&Self::Elem> {
         ListBase::get(self.list, self.offset + self.step * index)
     }
 }

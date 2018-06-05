@@ -8,7 +8,7 @@ pub struct ListIterMut<'a, T: 'a + ListMut> {
 }
 
 impl<'a, T: 'a + ListMut> IterMut for ListIterMut<'a, T> {
-    type Item = T::Element;
+    type Item = T::Elem;
 
     fn next(&mut self) -> Option<&mut Self::Item> {
         let index = self.index;

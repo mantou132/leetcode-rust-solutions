@@ -8,7 +8,6 @@ import subprocess
 DEBUG_EXTERNS = {
     "porus": os.path.join(ROOTDIR, "target/debug/libporus.rlib"),
     "porus_macros": os.path.join(ROOTDIR, "target/debug/libporus_macros.so"),
-    "porus_derive": os.path.join(ROOTDIR, "target/debug/libporus_derive.so"),
 }
 SOLUTION_PATTERN = r'^(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs$'
 
@@ -63,7 +62,6 @@ class SubmissionContext:
         self.externs = {
             "porus": os.path.join(ROOTDIR, "target", llvm_target, "release/libporus.rlib"),
             "porus_macros": os.path.join(ROOTDIR, "target/release/libporus_macros.so"),
-            "porus_derive": os.path.join(ROOTDIR, "target/release/libporus_derive.so"),
         }
         self.verbose = '-v' if VERBOSE else '-q'
 
