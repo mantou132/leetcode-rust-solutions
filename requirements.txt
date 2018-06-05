@@ -1,1 +1,1 @@
-git+git://github.com/bhuztez/ix@eb88a3015772b8790107ace70b2e76d82059f922#egg=ix
+git+git://github.com/bhuztez/ix@124471e24023d12c4ce3edce62029e087b33eec4#egg=ix
