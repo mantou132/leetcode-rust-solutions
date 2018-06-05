@@ -7,3 +7,11 @@ license = "MIT"
 
 [lib]
 proc-macro = true
+
+[dependencies]
+proc-macro2 = "0.4.6"
+quote = "0.6.3"
+
+[dependencies.syn]
+version = "0.14.2"
+features = ["full"]

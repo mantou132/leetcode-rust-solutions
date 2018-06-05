@@ -111,6 +111,7 @@ pub trait SignedPattern {
 #[cfg(test)]
 mod tests {
     use porus_macros::scanf;
+    use super::super::super::io;
     use super::super::PeekableSource;
     use super::super::tests::new_test_source;
 

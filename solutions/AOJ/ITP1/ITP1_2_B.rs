@@ -1,5 +1,6 @@
 #![feature(proc_macro)]
-extern crate porus_macros;
+#![feature(proc_macro_non_items)]
+
 #[macro_use]
 extern crate porus;
 prelude!();

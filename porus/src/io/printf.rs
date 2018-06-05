@@ -21,6 +21,7 @@ pub trait IntField : Sized {
 #[cfg(test)]
 mod tests {
     use porus_macros::printf;
+    use super::super::super::io;
     use super::super::tests::new_test_sink;
 
     #[test]

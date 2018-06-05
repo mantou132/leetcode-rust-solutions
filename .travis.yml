@@ -26,7 +26,7 @@ install:
 script:
   - cargo test --verbose
   - cargo test --release --verbose
-  - python3 -mix -v test solutions/AOJ
+  - python3 -mix -v test solutions/
 matrix:
   allow_failures:
   - python: "3.7-dev"
