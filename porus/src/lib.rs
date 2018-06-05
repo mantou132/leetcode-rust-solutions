@@ -3,7 +3,6 @@
 #![feature(core_intrinsics)]
 #![feature(try_trait)]
 #![feature(decl_macro)]
-#![feature(proc_macro)]
 #![feature(proc_macro_non_items)]
 
 #[macro_use]

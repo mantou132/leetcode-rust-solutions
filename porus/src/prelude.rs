@@ -8,7 +8,7 @@ pub use super::io;
 pub use porus_macros::scanf;
 pub use porus_macros::printf;
 
-pub use super::iter::IterMut;
+pub use super::iter::foreach;
 pub use super::collection;
 pub use super::list;
 
