@@ -5,6 +5,24 @@ pub trait CapacityPolicy {
 }
 
 
+pub struct FixedCapacityPolicy {
+}
+
+impl CapacityPolicy for FixedCapacityPolicy {
+    fn initial(size: isize) -> isize {
+        size
+    }
+
+    fn grow(capacity: isize) -> isize {
+        capacity
+    }
+
+    fn shrink(_size: isize, capacity: isize) -> isize {
+        capacity
+    }
+}
+
+
 pub struct DefaultCapacityPolicy {
 }
 

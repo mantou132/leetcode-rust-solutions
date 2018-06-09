@@ -1,9 +1,7 @@
-use super::collection::Collection;
-
-pub trait Stack : Collection {
+pub trait Stack {
     type Elem;
 
     fn is_empty(&self) -> bool;
-    fn push(&mut self, item: Self::Elem);
+    fn push(&mut self, elem: Self::Elem);
     fn pop(&mut self) -> Self::Elem;
 }

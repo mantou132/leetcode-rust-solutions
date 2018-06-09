@@ -1,8 +1,7 @@
 use super::compat::prelude::*;
-use super::collection::Collection;
 use std::ops::{Index, IndexMut};
 
-pub trait ListBase : Collection {
+pub trait ListBase {
     type Elem;
 
     fn get(&self, index: isize) -> Option<&Self::Elem>;

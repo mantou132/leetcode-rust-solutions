@@ -1,6 +1,6 @@
 use super::super::compat::prelude::*;
 use super::{Source, Sink};
-use super::super::os::{read, write};
+use super::super::libc::{read, write};
 use super::super::chunk::Chunk;
 
 

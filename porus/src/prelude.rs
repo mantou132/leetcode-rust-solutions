@@ -4,16 +4,19 @@ pub use std::cmp::Ordering::Less;
 pub use std::cmp::Ordering::Equal;
 pub use std::cmp::Ordering::Greater;
 
-pub use super::io;
-pub use porus_macros::scanf;
-pub use porus_macros::printf;
-
 pub use super::iter::foreach;
+
 pub use super::collection;
 pub use super::list;
 pub use super::list::slice;
 pub use super::stack::Stack;
 pub use super::deque::Deque;
+
+pub use super::dlist::DoublyLinkedList;
+
+pub use super::io;
+pub use porus_macros::scanf;
+pub use porus_macros::printf;
 
 pub fn default<T: Default>() -> T {
     Default::default()

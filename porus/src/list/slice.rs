@@ -27,7 +27,7 @@ impl<'a, T : List> ListBase for ListView<'a, T> {
     }
 }
 
-impl<'a, T : 'a + List> ListView<'a, T> {
+impl<'a, T : 'a + List + Collection> ListView<'a, T> {
     pub fn new(list: &'a T, range: &Range) -> Self {
         let size = Collection::size(list);
         let start = range.start(size);

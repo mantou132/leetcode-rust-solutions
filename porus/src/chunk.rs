@@ -1,6 +1,6 @@
 use std::mem::size_of;
 use std::ptr::{read, write, copy};
-use super::os::{malloc, realloc, free};
+use super::libc::{malloc, realloc, free};
 
 
 pub struct Chunk<T> {
