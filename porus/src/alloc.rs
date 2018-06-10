@@ -1,11 +1,31 @@
+use super::compat::prelude::*;
+use std::fmt::Debug;
 use std::mem::size_of;
 use std::ptr::{read, write, null_mut};
-use super::libc::{malloc, free};
 use super::pool::{Pool, Handle as PoolHandle};
 
+pub trait Allocator {
+    type Error : Debug;
 
-pub struct OSAllocator {
+    fn reallocate(&mut self, ptr: *mut u8, capacity: usize) -> Result<*mut u8, Self::Error>;
 }
+
+pub fn reallocate<T, A: Allocator>(allocator: &mut A, ptr: *mut T, mut capacity: isize) -> *mut T {
+    if capacity < 0 {
+        capacity = 0
+    }
+    let size = size_of::<T>();
+    Allocator::reallocate(allocator, ptr as *mut _, size * (capacity as usize)).unwrap() as *mut _
+}
+
+pub fn allocate<T, A: Allocator>(allocator: &mut A, capacity: isize) -> *mut T {
+    reallocate(allocator, null_mut(), capacity)
+}
+
+pub fn deallocate<T, A: Allocator>(allocator: &mut A, ptr: *mut T) {
+    reallocate(allocator, ptr, 0);
+}
+
 
 #[derive(Copy, Clone, Eq)]
 pub struct Handle (*mut u8);
@@ -25,7 +45,7 @@ impl Default for Handle {
 impl PoolHandle for Handle {
 }
 
-impl<T> Pool<T> for OSAllocator {
+impl<T, A : Allocator> Pool<T> for A {
     type Handle = Handle;
 
     fn get(&self, handle: Self::Handle) -> &T {
@@ -41,26 +61,18 @@ impl<T> Pool<T> for OSAllocator {
     }
 
     fn add(&mut self, item: T) -> Self::Handle {
-        let size = size_of::<T>();
         unsafe {
-            let ptr = malloc(size).unwrap();
+            let ptr = allocate(self, 1);
             write(ptr as *mut T, item);
-            Handle(ptr)
+            Handle(ptr as *mut _)
         }
     }
 
     fn remove(&mut self, handle: Self::Handle) -> T {
         unsafe {
             let item = read(handle.0 as *mut T);
-            free(handle.0);
+            deallocate(self, handle.0 as *mut T);
             item
-        }
-    }
-}
-
-impl OSAllocator {
-    pub fn new() -> Self {
-        OSAllocator {
         }
     }
 }

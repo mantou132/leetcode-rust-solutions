@@ -27,6 +27,7 @@
 
 //! ## Abstract Data Types
 //! * [`Pool`](pool)
+//! * [`Allocator`](alloc)
 //! * [`Collection`](collection)
 //! * [`List`](list)
 //! * [`Stack`](stack)
@@ -36,7 +37,7 @@
 //! ## Data Structures
 //! * [`Array`](type@array) : [`List`](list) + [`Stack`](stack)
 //! * [`Buffer`](type@buffer) : [`List`](list) + [`Deque`](deque)
-//! * [`DoublyLinkedList`](dlist) : [`Deque`](deque)
+//! * [`DoublyLinkedList`](type@dlist) : [`Deque`](deque)
 //!
 
 #[macro_use]
@@ -44,16 +45,14 @@ extern crate porus_macros;
 
 #[macro_use]
 pub mod compat;
-pub mod libc;
+pub mod ptr;
 
 #[macro_use]
 pub mod range;
 
 pub mod capacity;
-
 pub mod pool;
-
-pub mod chunk;
+pub mod alloc;
 
 #[macro_use]
 pub mod iter;
@@ -69,7 +68,6 @@ pub mod buffer;
 pub mod dlist;
 
 pub mod io;
+pub mod os;
 #[macro_use]
 pub mod prelude;
-
-pub mod os;

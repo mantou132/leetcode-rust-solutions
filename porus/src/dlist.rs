@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 use super::pool::{Pool, Handle};
-use super::os::{Handle as OSHandle, OSAllocator};
+use super::os::OSAllocator;
+use super::alloc::{Handle as OSHandle};
 use super::deque::Deque;
 
 pub struct Link<H : Handle> {

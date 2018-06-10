@@ -27,7 +27,6 @@ pub trait Sink {
 }
 
 mod peek;
-mod file;
 
 mod int;
 
