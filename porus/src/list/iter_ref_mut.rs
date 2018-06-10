@@ -1,13 +1,13 @@
 use super::super::compat::prelude::*;
-use super::super::iter::IterMut;
+use super::super::iter::IterRefMut;
 use super::{ListMutBase, ListMut};
 
-pub struct ListIterMut<'a, T: 'a + ListMut> {
+pub struct ListIterRefMut<'a, T: 'a + ListMut> {
     list: &'a mut T,
     index: isize,
 }
 
-impl<'a, T: 'a + ListMut> IterMut for ListIterMut<'a, T> {
+impl<'a, T: 'a + ListMut> IterRefMut for ListIterRefMut<'a, T> {
     type Item = T::Elem;
 
     fn next(&mut self) -> Option<&mut Self::Item> {
@@ -18,8 +18,8 @@ impl<'a, T: 'a + ListMut> IterMut for ListIterMut<'a, T> {
     }
 }
 
-pub fn iter_mut<T: ListMut>(list: &mut T) -> ListIterMut<T> {
-    ListIterMut {
+pub fn iter_ref_mut<T: ListMut>(list: &mut T) -> ListIterRefMut<T> {
+    ListIterRefMut {
         list: list,
         index: 0,
     }

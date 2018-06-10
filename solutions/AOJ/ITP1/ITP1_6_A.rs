@@ -16,9 +16,7 @@ fn solve() {
 
     let a = array![0isize; n];
 
-    foreach! { e in list::iter_mut(a) =>
-        scanf!(stdin, " %d", e);
-    }
+    list::iter_ref_mut(a).foreach(|e| { scanf!(stdin, " %d", e); });
 
     let b = slice!(a, [,,-1]);
 

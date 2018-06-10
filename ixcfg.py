@@ -36,6 +36,10 @@ def get_compile_argv(filename):
     return ['rustc'] + deps + extern(DEBUG_EXTERNS) + ['-o', target, filename], target
 
 
+def list_generated_files(filename):
+    return [replace_ext(filename, ext) for ext in ["elf","bc","ll","s"]]
+
+
 def pick_env(envs):
     envs = [c for c in envs if c.lang == "C" and c.name in ("GCC", "MinGW")]
     envs.sort(key=lambda c: (index_of(['Linux','Windows'], c.os), index_of(['x86_64','x86'], c.arch)))

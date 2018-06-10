@@ -28,7 +28,8 @@ install:
 script:
   - cargo test --verbose
   - cargo test --release --verbose
-  - python3 -mix -v test solutions/
+  - python3 -mix -v test
+  - python3 -mix -v clean
 matrix:
   allow_failures:
   - python: "3.7-dev"

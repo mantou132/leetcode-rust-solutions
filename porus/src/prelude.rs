@@ -4,7 +4,7 @@ pub use std::cmp::Ordering::Less;
 pub use std::cmp::Ordering::Equal;
 pub use std::cmp::Ordering::Greater;
 
-pub use super::iter::foreach;
+pub use super::iter::{Iter, IterRef, IterRefMut};
 
 pub use super::collection;
 pub use super::list;
