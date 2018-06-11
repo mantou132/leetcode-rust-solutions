@@ -33,7 +33,9 @@ def get_compile_argv(filename):
 
     deps = ['-L', 'dependency='+os.path.join(ROOTDIR, "target/debug/deps")]
     target = replace_ext(filename,"elf")
-    return ['rustc'] + deps + extern(DEBUG_EXTERNS) + ['-o', target, filename], target
+    return ['rustc',
+            "-Z", "borrowck=mir",
+            "-Z", "polonius" ] + deps + extern(DEBUG_EXTERNS) + ['-o', target, filename], target
 
 
 def list_generated_files(filename):
@@ -80,6 +82,8 @@ class SubmissionContext:
                 "-C", "lto=fat",
                 "-C", "opt-level=s",
                 "-C", "panic=abort",
+                "-Z", "borrowck=mir",
+                "-Z", "polonius",
                 "--target", self.llvm_target] + deps + extern(self.externs) + ["-o", target, source]
 
     def compile(self, source):

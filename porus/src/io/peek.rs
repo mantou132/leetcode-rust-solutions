@@ -1,4 +1,3 @@
-use super::super::compat::prelude::*;
 use super::{Source, PeekableSource};
 
 pub struct Peekable<S: Source> {
@@ -30,7 +29,6 @@ impl<S: Source> PeekableSource for Peekable<S> {
 
 #[cfg(test)]
 mod tests {
-    use super::super::super::compat::prelude::*;
     use super::super::PeekableSource;
     use super::super::tests::new_test_source;
 

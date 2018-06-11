@@ -1,6 +1,4 @@
-use super::compat::prelude::*;
-use std::marker::PhantomData;
-use std::ops::{Index, IndexMut};
+use core::marker::PhantomData;
 use super::ptr::{read, write, get, get_mut};
 use super::alloc::{Allocator, allocate, deallocate, reallocate};
 use super::os::OSAllocator;

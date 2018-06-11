@@ -32,7 +32,7 @@ pub fn derive_list(input: TokenStream) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
 
     let expanded = quote! {
-        impl #impl_generics Index<isize> for #name #ty_generics #where_clause {
+        impl #impl_generics ::core::ops::Index<isize> for #name #ty_generics #where_clause {
             type Output = <Self as ListBase>::Elem;
 
             fn index(&self, index: isize) -> &Self::Output {
@@ -54,7 +54,7 @@ pub fn derive_listmut(input: TokenStream) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
 
     let expanded = quote! {
-        impl #impl_generics IndexMut<isize> for #name #ty_generics #where_clause {
+        impl #impl_generics ::core::ops::IndexMut<isize> for #name #ty_generics #where_clause {
             fn index_mut(&mut self, index: isize) -> &mut Self::Output {
                 ListMutBase::get_mut(self, index).unwrap()
             }

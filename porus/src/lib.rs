@@ -3,6 +3,9 @@
 #![feature(decl_macro)]
 #![feature(proc_macro_non_items)]
 #![feature(extern_prelude)]
+#![cfg_attr(not(any(test, debug_assertions)), feature(lang_items))]
+#![cfg_attr(not(any(test, debug_assertions)), feature(panic_implementation))]
+#![no_std]
 
 //! [`porus`](self) is a library for competitive programming. It is at
 //! a very early stage of development. USE AT YOUR OWN RISK.
@@ -19,6 +22,8 @@
 //!
 //! ```ignore
 //! #![feature(proc_macro_non_items)]
+//! #![cfg_attr(not(debug_assertions), no_std)]
+//!
 //! #[macro_use]
 //! extern crate porus;
 //! prelude!();

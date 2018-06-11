@@ -1,4 +1,3 @@
-use super::super::compat::prelude::*;
 use super::{Iter, IterRef, IterRefMut};
 
 pub struct Map<I : Iter, T, F : FnMut(I::Item) -> T> {

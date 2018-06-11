@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Div, Rem, Neg};
+use core::ops::{Add, Mul, Div, Rem, Neg};
 use super::scanf::{Converter, CharPattern, SignedPattern, UnsignedPattern};
 use super::printf::IntField;
 

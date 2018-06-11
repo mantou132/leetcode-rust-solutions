@@ -11,9 +11,21 @@ macro_rules! abort {
 #[cfg(not(any(test, debug_assertions)))]
 #[macro_export]
 macro_rules! abort {
-    () => ({ unsafe { ::std::intrinsics::abort(); }});
-    ($msg:expr) => ({ unsafe { ::std::intrinsics::abort(); }});
-    ($msg:expr, $($arg:tt)+) => ({ unsafe { ::std::intrinsics::abort(); }});
+    () => ({ unsafe { ::core::intrinsics::abort(); }});
+    ($msg:expr) => ({ unsafe { ::core::intrinsics::abort(); }});
+    ($msg:expr, $($arg:tt)+) => ({ unsafe { ::core::intrinsics::abort(); }});
+}
+
+#[cfg(not(any(test, debug_assertions)))]
+#[lang = "eh_personality"]
+#[no_mangle]
+pub extern fn eh_personality() {}
+
+#[cfg(not(any(test, debug_assertions)))]
+#[panic_implementation]
+#[no_mangle]
+pub fn panic(_info: &::core::panic::PanicInfo) -> ! {
+    unsafe { ::core::intrinsics::abort() }
 }
 
 #[cfg(test)]

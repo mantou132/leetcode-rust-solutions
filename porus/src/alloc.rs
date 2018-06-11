@@ -1,7 +1,6 @@
-use super::compat::prelude::*;
-use std::fmt::Debug;
-use std::mem::size_of;
-use std::ptr::{read, write, null_mut};
+use core::fmt::Debug;
+use core::mem::size_of;
+use core::ptr::{read, write, null_mut};
 use super::pool::{Pool, Handle as PoolHandle};
 
 pub trait Allocator {

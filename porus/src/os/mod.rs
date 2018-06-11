@@ -1,4 +1,4 @@
-use std::fmt::{Display, Formatter, Result};
+use core::fmt::{Display, Formatter, Result};
 
 #[derive(Debug)]
 pub struct OSError(i32);

@@ -1,0 +1,4 @@
+[build]
+rustflags = [
+  "-Z", "borrowck=mir",
+  "-Z", "polonius"]

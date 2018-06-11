@@ -1,4 +1,3 @@
-use super::super::compat::prelude::*;
 use super::PeekableSource;
 
 pub trait Converter {

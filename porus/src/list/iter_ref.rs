@@ -1,4 +1,3 @@
-use super::super::compat::prelude::*;
 use super::super::iter::IterRef;
 use super::{ListBase, List};
 

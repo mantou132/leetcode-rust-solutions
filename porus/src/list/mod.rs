@@ -1,5 +1,4 @@
-use super::compat::prelude::*;
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 pub trait ListBase {
     type Elem;

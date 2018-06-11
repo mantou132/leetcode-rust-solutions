@@ -7,13 +7,9 @@ prelude!();
 
 fn solve() {
     let (stdin, stdout) = (&mut io::stdin(), &mut io::stdout());
-    let (mut a, mut b, mut c): (isize, isize, isize) = default();
+
+    let (mut a, mut b, mut c) : (isize, isize, isize) = default();
     scanf!(stdin, " %d %d %d", &mut a, &mut b, &mut c);
-    printf!(stdout,
-            "%s\n",
-            if (a < b) && (b < c) {
-                "Yes"
-            } else {
-                "No"
-            });
+
+    printf!(stdout, "%d\n", into_iter(a..=b).filter(|x| {(&c) % x == 0}).count());
 }

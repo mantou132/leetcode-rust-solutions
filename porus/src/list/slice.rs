@@ -1,5 +1,3 @@
-use super::super::compat::prelude::*;
-use std::ops::Index;
 use super::super::range::Range;
 use super::super::collection::Collection;
 use super::{ListBase, List};

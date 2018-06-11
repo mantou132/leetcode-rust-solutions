@@ -1,4 +1,4 @@
-use std::marker::PhantomData;
+use core::marker::PhantomData;
 use super::pool::{Pool, Handle};
 use super::os::OSAllocator;
 use super::alloc::{Handle as OSHandle};
@@ -17,7 +17,7 @@ pub struct Node<H : Handle, T> {
 pub struct DoublyLinkedList<T, H : Handle, P : Pool<Node<H, T>, Handle=H> = OSAllocator> {
     pool: P,
     sentinel: Link<H>,
-    _data: std::marker::PhantomData<T>,
+    _data: PhantomData<T>,
 }
 
 impl <T> DoublyLinkedList<T, OSHandle, OSAllocator> {

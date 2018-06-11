@@ -1,4 +1,3 @@
-use super::super::compat::prelude::*;
 use super::super::ptr;
 use super::super::io::{Source, Sink};
 use super::libc;

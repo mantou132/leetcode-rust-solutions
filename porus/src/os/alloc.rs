@@ -1,5 +1,4 @@
-use super::super::compat::prelude::*;
-use std::ptr::null_mut;
+use core::ptr::null_mut;
 use super::OSError;
 use super::libc::{malloc, free, realloc, get_error};
 use super::super::alloc::Allocator;

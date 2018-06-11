@@ -1,4 +1,4 @@
-use std::ptr;
+use core::ptr;
 
 pub fn copy<T>(p: *mut T, src: isize, dst: isize, count: isize) {
     unsafe {

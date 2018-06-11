@@ -1,4 +1,3 @@
-use super::super::compat::prelude::*;
 use super::super::iter::IterRefMut;
 use super::{ListMutBase, ListMut};
 

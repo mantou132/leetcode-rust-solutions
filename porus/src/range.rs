@@ -1,5 +1,3 @@
-use super::compat::prelude::*;
-
 pub struct Range {
     start: Option<isize>,
     stop: Option<isize>,
@@ -57,8 +55,6 @@ macro_rules! range {
 
 #[cfg(test)]
 mod tests {
-    use super::super::compat::prelude::*;
-
     #[test]
     fn test_range_start() {
         assert!(range!().start(2) == 0);
