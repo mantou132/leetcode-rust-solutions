@@ -85,7 +85,7 @@ impl<T, P : CapacityPolicy, A : Allocator> Stack for Array<T,P,A> {
 
     fn pop(&mut self) -> T {
         if self.is_empty() {
-            abort!("empty");
+            panic!("empty");
         }
 
         self.size -= 1;

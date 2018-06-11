@@ -23,7 +23,7 @@ fn from_digit<T : FromChar>(c: u8) -> T {
             b'0' ... b'9' => { c - b'0' },
             b'A' ... b'Z' => { c - b'A' + 10 },
             b'a' ... b'z' => { c - b'a' + 10 },
-            _ => { abort!() },
+            _ => { panic!() },
         })
 }
 
@@ -33,7 +33,7 @@ fn to_digit<T : ToChar>(x: T) -> u8 {
     match c {
         0 ... 9 => { b'0' + c },
         10 ... 35 => { b'A' + c - 10 },
-        _ => { abort!() },
+        _ => { panic!() },
     }
 }
 

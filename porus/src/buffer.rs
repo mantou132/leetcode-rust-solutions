@@ -173,7 +173,7 @@ impl<T, P : CapacityPolicy, A : Allocator> Deque for Buffer<T,P,A> {
 
     fn pop_front(&mut self) -> T {
         if self.is_empty() {
-            abort!("empty");
+            panic!("empty");
         }
 
         let elem = read(self.data, self.front);
@@ -193,7 +193,7 @@ impl<T, P : CapacityPolicy, A : Allocator> Deque for Buffer<T,P,A> {
 
     fn pop_back(&mut self) -> T {
         if self.is_empty() {
-            abort!("empty");
+            panic!("empty");
         }
 
         self.back = self.decrease_index(self.back);

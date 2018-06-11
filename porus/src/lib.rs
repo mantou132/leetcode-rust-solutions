@@ -48,8 +48,6 @@
 #[macro_use]
 extern crate porus_macros;
 
-#[macro_use]
-pub mod compat;
 pub mod ptr;
 
 #[macro_use]
@@ -76,3 +74,15 @@ pub mod io;
 pub mod os;
 #[macro_use]
 pub mod prelude;
+
+#[cfg(not(any(test, debug_assertions)))]
+#[lang = "eh_personality"]
+#[no_mangle]
+pub extern fn eh_personality() {}
+
+#[cfg(not(any(test, debug_assertions)))]
+#[panic_implementation]
+#[no_mangle]
+pub fn panic(_info: &::core::panic::PanicInfo) -> ! {
+    unsafe { ::core::intrinsics::abort() }
+}

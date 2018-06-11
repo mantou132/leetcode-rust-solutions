@@ -7,7 +7,7 @@ pub struct Range {
 impl Range {
     pub fn new(start: Option<isize>, stop: Option<isize>, step: isize) -> Self {
         if step == 0 {
-            abort!("step cannot be zero")
+            panic!("step must not be zero")
         }
 
         Range {

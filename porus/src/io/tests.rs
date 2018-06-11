@@ -46,7 +46,7 @@ impl<'a> Sink for TestSink<'a> {
 
     fn write(&mut self, c: u8) {
         if self.offset == self.s.len() {
-            abort!("buffer overflow");
+            panic!("buffer overflow");
         }
         self.s[self.offset] = c;
         self.offset += 1;

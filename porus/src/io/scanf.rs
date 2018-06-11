@@ -24,7 +24,7 @@ pub fn exact<S: PeekableSource<Item=u8>>(s: &mut S, c: u8) -> &mut S  {
         }
     }
 
-    abort!("scan error");
+    panic!("scan error");
 }
 
 pub fn character<'a, S: PeekableSource<Item=u8>, C: Converter>(s: &'a mut S, cv: &mut C) -> &'a mut S {
@@ -33,7 +33,7 @@ pub fn character<'a, S: PeekableSource<Item=u8>, C: Converter>(s: &'a mut S, cv:
         PeekableSource::consume(s);
         return s;
     }
-    abort!("scan error");
+    panic!("scan error");
 }
 
 fn is_digit(c: u8, base: u8) -> bool {
@@ -64,7 +64,7 @@ pub fn unsigned<'a, S: PeekableSource<Item=u8>, C: Converter>(s: &'a mut S, cv: 
 
             s
         },
-        _ => abort!("scan error"),
+        _ => panic!("scan error"),
     }
 }
 

@@ -34,11 +34,11 @@ impl<'a, T : 'a + List + Collection> ListView<'a, T> {
 
         if step > 0 {
             if !((start >= 0) && (start <= size)) {
-                abort!("start must in [0,size]");
+                panic!("start must in [0,size]");
         }
 
             if !((stop >= 0) && (stop <= size)) {
-                abort!("stop must in [0,size]");
+                panic!("stop must in [0,size]");
             }
 
             ListView {
@@ -49,11 +49,11 @@ impl<'a, T : 'a + List + Collection> ListView<'a, T> {
             }
         } else if step < 0 {
             if !((start >= -1) && (start < size)) {
-                abort!("start must in [-1,size)");
+                panic!("start must in [-1,size)");
             }
 
             if !((stop >= -1) && (stop < size)) {
-                abort!("stop must in [-1,size)");
+                panic!("stop must in [-1,size)");
             }
 
             ListView {
