@@ -1,6 +1,7 @@
 # porus
 
 [![Build Status](https://travis-ci.org/bhuztez/porus.svg?branch=master)](https://travis-ci.org/bhuztez/porus)
+[![Coverage Status](https://coveralls.io/repos/github/bhuztez/porus/badge.svg?branch=master)](https://coveralls.io/github/bhuztez/porus?branch=master)
 
 porus is Rust library designed for competitive programming, especially
 for being used by solutions submitted to online judges. So that you

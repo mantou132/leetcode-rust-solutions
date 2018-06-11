@@ -1,21 +1,30 @@
 language: python
+dist: trusty
+sudo: required
 python:
-  - "3.5"
-  - "3.6"
-  - "3.7-dev"
+- "3.5"
+- "3.6"
+- "3.7-dev"
+addons:
+  apt:
+    packages:
+    - libssl-dev
 env:
   global:
   - PATH=${PATH}:${HOME}/.cargo/bin
   matrix:
   - TRAVIS_RUST_VERSION=nightly
 install:
-  - curl -sSf https://build.travis-ci.org/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
-  - pip install -r requirements.txt
+- curl -sSf https://build.travis-ci.org/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
+- pip install -r requirements.txt
 script:
-  - cargo test --verbose
-  - cargo test --release --verbose
-  - python3 -mix -v test
-  - python3 -mix -v clean
+- cargo test --verbose
+- cargo test --release --verbose
+- python3 -mix -v test
+- python3 -mix -v clean
+after_success:
+- RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin --git https://github.com/xd009642/tarpaulin --branch develop
+- RUSTFLAGS="-Z borrowck=mir -Z polonius" cargo tarpaulin --verbose --no-count --ciserver travis-ci --coveralls "$TRAVIS_JOB_ID"
 matrix:
   allow_failures:
   - python: "3.7-dev"
@@ -25,4 +34,3 @@ cache:
   - $HOME/.cargo
   - $TRAVIS_BUILD_DIR/target
   - $TRAVIS_BUILD_DIR/testcases
-
