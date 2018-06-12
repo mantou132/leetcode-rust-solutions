@@ -9,7 +9,7 @@ DEBUG_EXTERNS = {
     "porus": os.path.join(ROOTDIR, "target/debug/libporus.rlib"),
     "porus_macros": os.path.join(ROOTDIR, "target/debug/libporus_macros.so"),
 }
-SOLUTION_PATTERN = r'^(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs$'
+SOLUTION_PATTERN = r'^(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs(?:\.c)?$'
 
 
 def extern(externs):
@@ -48,16 +48,20 @@ def get_rustc_argv(mode='debug', target=None):
 
 
 def get_compile_argv(filename):
+    target = replace_ext(filename,"elf")
+
+    if filename.endswith(".c"):
+        return ['gcc', '-o', target, filename], target
+
     argv, externs = get_rustc_argv()
     if argv is None:
         raise Exception("failed to build library")
 
-    target = replace_ext(filename,"elf")
     return argv + extern(externs) + ['-o', target, filename], target
 
 
 def list_generated_files(filename):
-    return [replace_ext(filename, ext) for ext in ["elf","bc","ll","s"]]
+    return [replace_ext(filename, ext) for ext in ["elf","bc","ll","s","rs.c","rs.elf"]]
 
 
 def pick_env(envs):
@@ -108,6 +112,10 @@ def prepare_submission(envs, filename):
 
     llvm_target = get_llvm_target(env)
 
+    if filename.endswith(".c"):
+        llvm_target = None
+        filename = filename[:-2]
+
     asm = generate_submission(filename, llvm_target)
     if asm is None:
         return None
@@ -124,5 +132,11 @@ def prepare_submission(envs, filename):
     def repl(m):
         return labels[m.group(0)]
     code = re.sub(pattern, repl, code)
+
+    if llvm_target is None:
+        from ix.escape import escape_source
+        code1 = escape_source(code)
+        with open(filename+".c",'wb') as f:
+            f.write(code1)
 
     return env, code

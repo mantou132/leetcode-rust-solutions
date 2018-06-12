@@ -20,6 +20,7 @@ install:
 script:
 - cargo test --verbose
 - cargo test --release --verbose
+- find solutions -name '*.rs' | xargs -I {} python3 -mix generate {}.c
 - python3 -mix -v test
 - python3 -mix -v clean
 after_success:
