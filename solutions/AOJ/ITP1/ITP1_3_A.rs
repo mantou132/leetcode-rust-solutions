@@ -6,7 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let stdout = &mut io::stdout();
+    let stdout = unsafe { &mut STDOUT };
     for _ in 0..1000 {
         printf!(stdout, "Hello World\n");
     }

@@ -2,15 +2,14 @@ use super::{Source, PeekableSource};
 
 pub struct Peekable<S: Source> {
     source: S,
-    item: Option<S::Item>,
+    item: Option<Option<S::Item>>,
 }
 
 impl<S: Source> Peekable<S> {
-    pub fn new(mut s: S) -> Self {
-        let item = Source::read(&mut s);
+    pub const fn new(s: S) -> Self {
         Peekable {
             source: s,
-            item: item,
+            item: None,
         }
     }
 }
@@ -19,11 +18,19 @@ impl<S: Source> PeekableSource for Peekable<S> {
     type Item = S::Item;
 
     fn peek<'a>(&'a mut self) -> Option<&'a Self::Item> {
-        self.item.as_ref()
+        if let None = self.item {
+            PeekableSource::consume(self);
+        }
+
+        if let Some(ref x) = self.item {
+            return x.as_ref();
+        }
+
+        unreachable!();
     }
 
     fn consume(&mut self) {
-        self.item = Source::read(&mut self.source);
+        self.item = Some(Source::read(&mut self.source));
     }
 }
 

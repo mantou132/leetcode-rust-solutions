@@ -31,7 +31,7 @@ mod int;
 pub mod scanf;
 pub mod printf;
 
-mod stdio;
+pub mod stdio;
 pub use self::stdio::{stdin, stdout};
 
 #[cfg(test)]

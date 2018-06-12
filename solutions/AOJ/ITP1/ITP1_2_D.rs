@@ -6,7 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (stdin, stdout) = (&mut io::stdin(), &mut io::stdout());
+    let (stdin, stdout) = unsafe { (&mut STDIN, &mut STDOUT) };
     let (mut w, mut h, mut x, mut y, mut r): (isize, isize, isize, isize ,isize) = default();
     scanf!(stdin, " %d %d %d %d %d", &mut w, &mut h, &mut x, &mut y, &mut r);
     printf!(stdout,

@@ -63,7 +63,7 @@ pub struct FileSource {
 }
 
 impl FileSource {
-    pub fn new(fd: i32, size: isize, buffer: *mut u8) -> Self {
+    pub const fn new(fd: i32, size: isize, buffer: *mut u8) -> Self {
         FileSource {
             fd: fd,
             size: size,
@@ -102,7 +102,7 @@ pub struct FileSink {
 }
 
 impl FileSink {
-    pub fn new(fd: i32, size: isize, buffer: *mut u8) -> Self {
+    pub const fn new(fd: i32, size: isize, buffer: *mut u8) -> Self {
         FileSink{
             fd: fd,
             offset: 0,
