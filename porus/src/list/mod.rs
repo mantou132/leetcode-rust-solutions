@@ -28,8 +28,5 @@ pub fn get_mut<T: ListMut>(list: &mut T, index: isize) -> Option<&mut T::Elem> {
 mod slice;
 pub use self::slice::slice;
 
-mod iter_ref;
-pub use self::iter_ref::iter_ref;
-
-mod iter_ref_mut;
-pub use self::iter_ref_mut::iter_ref_mut;
+mod iter;
+pub use self::iter::{iter, iter_ref, iter_ref_mut};
