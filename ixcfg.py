@@ -11,6 +11,7 @@ DEBUG_EXTERNS = {
 }
 SOLUTION_PATTERN = r'^(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs$'
 
+
 def extern(externs):
     return sum([['--extern', '{}={}'.format(k,v)] for k,v in externs.items()], [])
 
@@ -26,16 +27,33 @@ def has_to_recompile(source, target, rlibs=DEBUG_EXTERNS):
     return False
 
 
-def get_compile_argv(filename):
-    VERBOSE_FLAG = '-v' if VERBOSE else '-q'
-    if compile_file(ROOTDIR, ['cargo', 'build', VERBOSE_FLAG, '--lib'], 'DEBUG LIB', DEBUG_EXTERNS["porus"]) is None:
-        raise Exception("failed to build library")
+def get_rustc_argv(mode='debug', target=None):
+    EXTERNS = {
+        "porus": os.path.join(ROOTDIR, "target/{}{}/libporus.rlib".format("" if target is None else target+"/", mode)),
+        "porus_macros": os.path.join(ROOTDIR, "target/{}/libporus_macros.so".format(mode)),
+    }
+    DEPS = ['-L', 'dependency='+os.path.join(ROOTDIR, "target/{}/deps".format(mode))]
 
-    deps = ['-L', 'dependency='+os.path.join(ROOTDIR, "target/debug/deps")]
-    target = replace_ext(filename,"elf")
+    VERBOSE_FLAG = '-v' if VERBOSE else '-q'
+    MODE = [] if mode == 'debug' else ['--'+mode]
+    TARGET = [] if target is None else ['--target', target]
+
+    ARGV = ['cargo', 'build', VERBOSE_FLAG, '--lib'] + MODE + TARGET
+    if compile_file(ROOTDIR, ARGV, 'PORUS LIB', EXTERNS["porus"]) is None:
+        return
+
     return ['rustc',
             "-Z", "borrowck=mir",
-            "-Z", "polonius" ] + deps + extern(DEBUG_EXTERNS) + ['-o', target, filename], target
+            "-Z", "polonius" ] + DEPS, EXTERNS
+
+
+def get_compile_argv(filename):
+    argv, externs = get_rustc_argv()
+    if argv is None:
+        raise Exception("failed to build library")
+
+    target = replace_ext(filename,"elf")
+    return argv + extern(externs) + ['-o', target, filename], target
 
 
 def list_generated_files(filename):
@@ -55,46 +73,24 @@ def get_llvm_target(env):
              ({"Windows": "pc-windows", "Linux": "unknown-linux"}[env.os]) + "-gnu")
 
 
+def generate_submission(source, llvm_target):
+    argv, externs = get_rustc_argv('release', llvm_target)
+    target = replace_ext(source, "s")
 
-class SubmissionContext:
+    argv = argv + extern(externs) + [
+        "--crate-type", "cdylib",
+        "--emit", "asm",
+        "-C", "llvm-args=-disable-debug-info-print",
+        "-C", "lto=fat",
+        "-C", "opt-level=s",
+        "-C", "panic=abort",
+        "-o", target, source]
 
+    if has_to_recompile(source, target, externs):
+        if compile_file(ROOTDIR, argv, source, target) is None:
+            return None
 
-    def __init__(self, llvm_target):
-        self.llvm_target = llvm_target
-        self.externs = {
-            "porus": os.path.join(ROOTDIR, "target", llvm_target, "release/libporus.rlib"),
-            "porus_macros": os.path.join(ROOTDIR, "target/release/libporus_macros.so"),
-        }
-        self.verbose = '-v' if VERBOSE else '-q'
-
-    def check(self):
-        argv = ['cargo', 'build', self.verbose, '--lib', '--release', '--target', self.llvm_target]
-        if compile_file(ROOTDIR, argv, self.externs["porus"]) is None:
-            return False
-        return True
-
-    def get_submit_argv(self, source, target):
-        deps = ['-L', 'dependency='+os.path.join(ROOTDIR, "target/release/deps")]
-        return ['rustc',
-                "--crate-type", "cdylib",
-                "--emit", "asm",
-                "-C", "llvm-args=-disable-debug-info-print",
-                "-C", "lto=fat",
-                "-C", "opt-level=s",
-                "-C", "panic=abort",
-                "-Z", "borrowck=mir",
-                "-Z", "polonius",
-                "--target", self.llvm_target] + deps + extern(self.externs) + ["-o", target, source]
-
-    def compile(self, source):
-        target = replace_ext(source, "s")
-
-        if has_to_recompile(source, target, self.externs):
-            argv = self.get_submit_argv(source, target)
-            if compile_file(ROOTDIR, argv, source, target) is None:
-                return None
-
-        return target
+    return target
 
 
 LABEL = re.compile(rb'^([^:\s]+):$', re.M)
@@ -112,12 +108,7 @@ def prepare_submission(envs, filename):
 
     llvm_target = get_llvm_target(env)
 
-    context = SubmissionContext(llvm_target)
-
-    if not context.check():
-        return None
-
-    asm = context.compile(filename)
+    asm = generate_submission(filename, llvm_target)
     if asm is None:
         return None
 
