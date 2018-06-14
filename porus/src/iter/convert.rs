@@ -41,3 +41,34 @@ impl IntoIter for RangeInclusive<isize> {
         }
     }
 }
+
+
+pub struct SliceIter<'a, T : 'a + Copy> {
+    s: &'a [T],
+}
+
+impl<'a, T : 'a + Copy> Iter for SliceIter<'a, T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<T> {
+        match self.s.split_first() {
+            Some((i,s)) => {
+                self.s = s;
+                Some(*i)
+            },
+            None => {
+                None
+            },
+        }
+    }
+}
+
+impl<'a, T : 'a + Copy> IntoIter for &'a[T] {
+    type Iter = SliceIter<'a,T>;
+
+    fn into(self) -> Self::Iter {
+        SliceIter {
+            s: self,
+        }
+    }
+}

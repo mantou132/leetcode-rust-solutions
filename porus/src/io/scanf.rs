@@ -1,3 +1,4 @@
+use super::super::iter::Iter;
 use super::PeekableSource;
 
 pub trait Converter {
@@ -5,33 +6,30 @@ pub trait Converter {
 }
 
 
-pub fn whitespace<S: PeekableSource<Item=u8>>(s: &mut S) -> &mut S {
-    while let Some(&c) = PeekableSource::peek(s) {
+pub fn whitespace<I : Iter<Item=u8>>(s: &mut PeekableSource<I>) {
+    while let Some(&c) = s.peek() {
         match c {
-            b' ' | b'\t' ... b'\r' => { PeekableSource::consume(s); },
+            b' ' | b'\t' ... b'\r' => { s.consume(); },
             _ => { break; },
         }
     }
-
-    s
 }
 
-pub fn exact<S: PeekableSource<Item=u8>>(s: &mut S, c: u8) -> &mut S  {
-    if let Some(&ch) = PeekableSource::peek(s) {
+pub fn exact<I : Iter<Item=u8>>(s: &mut PeekableSource<I>, c: u8) {
+    if let Some(&ch) = s.peek() {
         if c == ch {
-            PeekableSource::consume(s);
-            return s;
+            s.consume();
+            return;
         }
     }
-
     panic!("scan error");
 }
 
-pub fn character<'a, S: PeekableSource<Item=u8>, C: Converter>(s: &'a mut S, cv: &mut C) -> &'a mut S {
-    if let Some(&c) = PeekableSource::peek(s) {
+pub fn character<I : Iter<Item=u8>, C : Converter>(s: &mut PeekableSource<I>, cv: &mut C) {
+    if let Some(&c) = s.peek() {
         Converter::write(cv, c);
-        PeekableSource::consume(s);
-        return s;
+        s.consume();
+        return;
     }
     panic!("scan error");
 }
@@ -47,32 +45,32 @@ fn is_digit(c: u8, base: u8) -> bool {
     d < base
 }
 
-pub fn unsigned<'a, S: PeekableSource<Item=u8>, C: Converter>(s: &'a mut S, cv: &mut C, base: u8) -> &'a mut S {
-    match PeekableSource::peek(s) {
+pub fn unsigned<I : Iter<Item=u8>, C: Converter>(s: &mut PeekableSource<I>, cv: &mut C, base: u8) {
+    match s.peek() {
         Some(&c) if is_digit(c, base) => {
             Converter::write(cv, c);
-            PeekableSource::consume(s);
+            s.consume();
 
-            while let Some(&c) = PeekableSource::peek(s) {
+            while let Some(&c) = s.peek() {
                 if is_digit(c, base) {
                     Converter::write(cv, c);
-                    PeekableSource::consume(s);
+                    s.consume();
                 } else {
                     break;
                 }
             }
 
-            s
+            return;
         },
         _ => panic!("scan error"),
     }
 }
 
-pub fn signed<'a, S: PeekableSource<Item=u8>, C: Converter>(s: &'a mut S, cv: &mut C, base: u8) -> &'a mut S {
-    match PeekableSource::peek(s) {
+pub fn signed<I : Iter<Item=u8>, C : Converter>(s: &mut PeekableSource<I>, cv: &mut C, base: u8) {
+    match s.peek() {
         Some(&b'-')  => {
             Converter::write(cv, b'-');
-            PeekableSource::consume(s);
+            s.consume();
         },
         _ => {},
     }
@@ -111,21 +109,21 @@ pub trait SignedPattern {
 mod tests {
     use porus_macros::scanf;
     use super::super::super::io;
-    use super::super::PeekableSource;
+    use super::super::eof;
     use super::super::tests::new_test_source;
 
     #[test]
     fn test_whitespace() {
         let source = &mut new_test_source(b"   ");
         scanf!(source, " ");
-        assert!(PeekableSource::eof(source));
+        assert!(eof(source));
     }
 
     #[test]
     fn test_exact_match() {
         let source = &mut new_test_source(b"a");
         scanf!(source, "a");
-        assert!(PeekableSource::eof(source));
+        assert!(eof(source));
     }
 
     #[test]

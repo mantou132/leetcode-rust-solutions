@@ -84,44 +84,44 @@ pub fn parse_scanf(tokens: TokenStream) -> Result<TokenStream, ParseError> {
     let s : LitStr = cur.parse()?;
     let fmt = parse_scanf_fmt(&mut s.value().chars().peekable());
 
-    let mut stream = quote!{ #file };
+    let mut stream = quote!{ };
 
     for d in fmt.into_iter() {
         match d {
             Directive::Whitespace => {
-                stream = quote!{ io::scanf::whitespace(#stream) };
+                stream = quote!{ #stream io::scanf::whitespace(#file); };
             },
             Directive::Exact(c) => {
                 let c = Literal::u8_suffixed(c as _);
-                stream = quote!{ io::scanf::exact(#stream, #c) };
+                stream = quote!{ #stream io::scanf::exact(#file, #c); };
             },
             Directive::Ignore(Pattern::Char) => {
-                stream = quote!{ io::scanf::character(#stream, &mut io::scanf::Ignore) };
+                stream = quote!{ #stream io::scanf::character(#file, &mut io::scanf::Ignore); };
             },
             Directive::Ignore(Pattern::Unsigned(x)) => {
                 let base = Literal::u8_suffixed(x);
-                stream = quote!{ io::scanf::unsigned(#stream, &mut io::scanf::Ignore, #base) };
+                stream = quote!{ #stream io::scanf::unsigned(#file, &mut io::scanf::Ignore, #base); };
             },
             Directive::Ignore(Pattern::Signed(x)) => {
                 let base = Literal::u8_suffixed(x);
-                stream = quote!{ io::scanf::signed(#stream, &mut io::scanf::Ignore, #base) };
+                stream = quote!{ #stream io::scanf::signed(#file, &mut io::scanf::Ignore, #base); };
             },
             Directive::Match(Pattern::Char) => {
                 let _ : Comma = cur.parse()?;
                 let param : Expr = cur.parse()?;
-                stream = quote!{ io::scanf::character(#stream, &mut io::scanf::CharPattern::converter(#param)) };
+                stream = quote!{ #stream io::scanf::character(#file, &mut io::scanf::CharPattern::converter(#param)); };
             },
             Directive::Match(Pattern::Unsigned(x)) => {
                 let _ : Comma = cur.parse()?;
                 let param : Expr = cur.parse()?;
                 let base = Literal::u8_suffixed(x);
-                stream = quote!{ io::scanf::unsigned(#stream, &mut io::scanf::UnsignedPattern::converter(#param, #base), #base) };
+                stream = quote!{ #stream io::scanf::unsigned(#file, &mut io::scanf::UnsignedPattern::converter(#param, #base), #base); };
             },
             Directive::Match(Pattern::Signed(x)) => {
                 let _ : Comma = cur.parse()?;
                 let param : Expr = cur.parse()?;
                 let base = Literal::u8_suffixed(x);
-                stream = quote!{ io::scanf::signed(#stream, &mut io::scanf::SignedPattern::converter(#param, #base), #base) };
+                stream = quote!{ #stream io::scanf::signed(#file, &mut io::scanf::SignedPattern::converter(#param, #base), #base); };
             },
         }
     }

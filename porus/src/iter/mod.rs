@@ -4,6 +4,8 @@ use self::map::{Map, MapRef, MapRefMut};
 mod filter;
 use self::filter::{Filter, FilterRef, FilterRefMut};
 
+mod peek;
+pub use self::peek::Peekable;
 
 pub trait Iter {
     type Item;
@@ -38,6 +40,11 @@ pub trait Iter {
             count += 1;
         }
         count
+    }
+
+    fn peek(self) -> Peekable<Self>
+        where Self : Sized {
+        Peekable::new(self)
     }
 }
 
@@ -114,4 +121,4 @@ pub trait IterRefMut {
 }
 
 mod convert;
-pub use self::convert::into_iter;
+pub use self::convert::{into_iter, SliceIter};

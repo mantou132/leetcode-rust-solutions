@@ -1,5 +1,6 @@
 use super::super::ptr;
-use super::super::io::{Source, Sink};
+use super::super::iter::Iter;
+use super::super::io::Sink;
 use super::libc;
 use super::OSError;
 
@@ -74,10 +75,10 @@ impl FileSource {
     }
 }
 
-impl Source for FileSource {
+impl Iter for FileSource {
     type Item = u8;
 
-    fn read(&mut self) -> Option<u8> {
+    fn next(&mut self) -> Option<u8> {
         if (self.offset == self.size) && (self.size == self.capacity) {
             self.offset = 0;
             self.size = read(self.fd, self.buffer, self.capacity as usize).unwrap() as isize;

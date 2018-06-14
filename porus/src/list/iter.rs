@@ -1,13 +1,13 @@
 use super::super::iter::{Iter, IterRef, IterRefMut};
-use super::{ListBase, ListMutBase, List, ListMut};
+use super::{ListBase, ListMutBase};
 
-pub struct ListIter<'a, T: 'a + List>
+pub struct ListIter<'a, T: 'a + ListBase>
     where T::Elem : Copy {
     list: &'a T,
     index: isize,
 }
 
-impl<'a, T: 'a + List> Iter for ListIter<'a, T>
+impl<'a, T: 'a + ListBase> Iter for ListIter<'a, T>
     where T::Elem : Copy {
     type Item = T::Elem;
 
@@ -22,7 +22,7 @@ impl<'a, T: 'a + List> Iter for ListIter<'a, T>
     }
 }
 
-pub fn iter<T: List>(list: &T) -> ListIter<T> 
+pub fn iter<T: ListBase>(list: &T) -> ListIter<T>
     where T::Elem : Copy {
     ListIter {
         list: list,
@@ -31,12 +31,12 @@ pub fn iter<T: List>(list: &T) -> ListIter<T>
 }
 
 
-pub struct ListIterRef<'a, T: 'a + List> {
+pub struct ListIterRef<'a, T: 'a + ListBase> {
     list: &'a T,
     index: isize,
 }
 
-impl<'a, T: 'a + List> IterRef for ListIterRef<'a, T> {
+impl<'a, T: 'a + ListBase> IterRef for ListIterRef<'a, T> {
     type Item = T::Elem;
 
     fn next(&mut self) -> Option<&Self::Item> {
@@ -47,7 +47,7 @@ impl<'a, T: 'a + List> IterRef for ListIterRef<'a, T> {
     }
 }
 
-pub fn iter_ref<T: List>(list: &T) -> ListIterRef<T> {
+pub fn iter_ref<T: ListBase>(list: &T) -> ListIterRef<T> {
     ListIterRef {
         list: list,
         index: 0,
@@ -55,12 +55,12 @@ pub fn iter_ref<T: List>(list: &T) -> ListIterRef<T> {
 }
 
 
-pub struct ListIterRefMut<'a, T: 'a + ListMut> {
+pub struct ListIterRefMut<'a, T: 'a + ListMutBase> {
     list: &'a mut T,
     index: isize,
 }
 
-impl<'a, T: 'a + ListMut> IterRefMut for ListIterRefMut<'a, T> {
+impl<'a, T: 'a + ListMutBase> IterRefMut for ListIterRefMut<'a, T> {
     type Item = T::Elem;
 
     fn next(&mut self) -> Option<&mut Self::Item> {
@@ -71,7 +71,7 @@ impl<'a, T: 'a + ListMut> IterRefMut for ListIterRefMut<'a, T> {
     }
 }
 
-pub fn iter_ref_mut<T: ListMut>(list: &mut T) -> ListIterRefMut<T> {
+pub fn iter_ref_mut<T: ListMutBase>(list: &mut T) -> ListIterRefMut<T> {
     ListIterRefMut {
         list: list,
         index: 0,

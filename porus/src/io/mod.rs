@@ -1,20 +1,15 @@
-pub trait Source {
-    type Item;
+use super::iter::{Iter, Peekable};
 
-    fn read(&mut self) -> Option<Self::Item>;
-}
+pub trait Source : Iter<Item=u8> {}
 
-pub trait PeekableSource {
-    type Item;
+impl<T : Iter<Item=u8>> Source for T {}
 
-    fn peek(&mut self) -> Option<&Self::Item>;
-    fn consume(&mut self);
+pub type PeekableSource<I> = Peekable<I>;
 
-    fn eof(&mut self) -> bool {
-        match self.peek() {
-            None => true,
-            _ => false,
-        }
+pub fn eof<I : Iter<Item=u8>>(source : &mut PeekableSource<I>) -> bool {
+    match source.peek() {
+        None => true,
+        _ => false,
     }
 }
 
@@ -23,8 +18,6 @@ pub trait Sink {
 
     fn write(&mut self, c: Self::Item);
 }
-
-mod peek;
 
 mod int;
 

@@ -1,37 +1,8 @@
-use super::{Source, Sink};
-use super::peek::Peekable;
+use super::super::iter::{Iter, SliceIter, Peekable, into_iter};
+use super::Sink;
 
-pub struct TestSource<'a> {
-    s: &'a [u8],
-}
-
-impl<'a> Source for TestSource<'a> {
-    type Item = u8;
-
-    fn read(&mut self) -> Option<u8> {
-        match self.s.split_first() {
-            Some((i,s)) => {
-                self.s = s;
-                Some(*i)
-            },
-            None => {
-                None
-            },
-        }
-    }
-}
-
-impl<'a> TestSource<'a> {
-    pub fn new(s: &'a [u8]) -> Self {
-        TestSource {
-            s: s,
-        }
-    }
-}
-
-
-pub fn new_test_source<'a>(s: &'a [u8]) -> Peekable<TestSource<'a>> {
-    Peekable::new(TestSource::new(s))
+pub fn new_test_source<'a>(s: &'a [u8]) -> Peekable<SliceIter<'a, u8>> {
+    into_iter(s).peek()
 }
 
 
