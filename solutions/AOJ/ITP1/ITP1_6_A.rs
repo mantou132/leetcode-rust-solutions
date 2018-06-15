@@ -21,9 +21,20 @@ fn solve() {
 
     let b = slice!(a, [,,-1]);
 
-    printf!(stdout, "%d", b[0]);
-    for i in 1..n {
-        printf!(stdout, " %d", b[i]);
-    }
+    io::fwrite(
+        stdout,
+        io::join(
+            move |s| {
+                printf!(s, " ");
+            },
+            list::iter(b).map(
+                |e| {
+                    move |s| {
+                        printf!(s, "%d", e);
+                    }
+                }
+            )
+        ));
+
     printf!(stdout, "\n");
 }

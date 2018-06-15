@@ -1,5 +1,6 @@
 use super::iter::Iterator;
 
+
 pub trait Source : Iterator<Item=u8> {}
 
 impl<T : Iterator<Item=u8>> Source for T {}
@@ -53,6 +54,9 @@ pub mod printf;
 
 pub mod read;
 pub use self::read::{fread, Whitespace};
+
+mod write;
+pub use self::write::{fwrite, join};
 
 pub mod stdio;
 pub use self::stdio::{stdin, stdout};
