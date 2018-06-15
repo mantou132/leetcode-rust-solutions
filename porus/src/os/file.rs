@@ -114,8 +114,6 @@ impl FileSink {
 }
 
 impl Sink for FileSink {
-    type Item = u8;
-
     fn write(&mut self, c: u8) {
         if self.offset == self.capacity {
             write(self.fd, self.buffer, self.capacity as usize).unwrap();

@@ -12,8 +12,6 @@ pub struct SliceSink<'a> {
 
 
 impl<'a> Sink for SliceSink<'a> {
-    type Item = u8;
-
     fn write(&mut self, c: u8) {
         if self.offset == self.s.len() {
             panic!("buffer overflow");

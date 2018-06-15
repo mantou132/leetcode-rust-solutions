@@ -1,11 +1,11 @@
 use super::Sink;
 
-pub fn write_char<S: Sink<Item=u8>>(s: &mut S, c: u8) -> &mut S {
+pub fn write_char<S: Sink>(s: &mut S, c: u8) -> &mut S {
     Sink::write(s, c);
     s
 }
 
-pub fn write_string<S: Sink<Item=u8>, T: AsRef<[u8]>>(s: &mut S, t: T) -> &mut S {
+pub fn write_string<S: Sink, T: AsRef<[u8]>>(s: &mut S, t: T) -> &mut S {
     for c in AsRef::<[u8]>::as_ref(&t) {
         Sink::write(s, *c);
     }

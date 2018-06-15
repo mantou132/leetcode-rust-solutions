@@ -14,9 +14,7 @@ pub fn eof<I : Iter<Item=u8>>(source : &mut PeekableSource<I>) -> bool {
 }
 
 pub trait Sink {
-    type Item;
-
-    fn write(&mut self, c: Self::Item);
+    fn write(&mut self, c: u8);
 }
 
 pub mod slice;
