@@ -1,5 +1,5 @@
 use super::super::ptr;
-use super::super::iter::Iter;
+use super::super::iter::Iterator;
 use super::super::io::Sink;
 use super::libc;
 use super::OSError;
@@ -75,7 +75,7 @@ impl FileSource {
     }
 }
 
-impl Iter for FileSource {
+impl Iterator for FileSource {
     type Item = u8;
 
     fn next(&mut self) -> Option<u8> {

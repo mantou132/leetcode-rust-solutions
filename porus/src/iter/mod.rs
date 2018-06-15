@@ -1,51 +1,13 @@
 mod map;
-use self::map::{Map, MapRef, MapRefMut};
+use self::map::{MapRef, MapRefMut};
 
 mod filter;
-use self::filter::{Filter, FilterRef, FilterRefMut};
+use self::filter::{FilterRef, FilterRefMut};
 
-mod peek;
-pub use self::peek::Peekable;
+pub use core::iter::{Iterator, IntoIterator, Peekable};
 
-pub trait Iter {
-    type Item;
-
-    fn next(&mut self) -> Option<Self::Item>;
-
-    fn map<T, Fn : FnMut(Self::Item) -> T>(self, f: Fn) -> Map<Self, T, Fn>
-        where Self : Sized
-    {
-        Map::new(self, f)
-    }
-
-    fn filter<Fn : FnMut(&Self::Item) -> bool>(self, f: Fn) -> Filter<Self, Fn>
-        where Self : Sized
-    {
-        Filter::new(self, f)
-    }
-
-    fn foreach<Fn : FnMut(Self::Item) -> ()>(self, f: Fn)
-        where Self : Sized
-    {
-        let mut iter = Iter::map(self, f);
-        while let Some(()) = iter.next() {
-        }
-    }
-
-    fn count(mut self) -> isize
-        where Self : Sized
-    {
-        let mut count = 0;
-        while let Some(_) = self.next() {
-            count += 1;
-        }
-        count
-    }
-
-    fn peek(self) -> Peekable<Self>
-        where Self : Sized {
-        Peekable::new(self)
-    }
+pub fn into_iter<T : IntoIterator>(x: T) -> T::IntoIter {
+    IntoIterator::into_iter(x)
 }
 
 pub trait IterRef {
@@ -119,6 +81,3 @@ pub trait IterRefMut {
         count
     }
 }
-
-mod convert;
-pub use self::convert::{IntoIter, into_iter};

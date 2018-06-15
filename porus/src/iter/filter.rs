@@ -1,31 +1,4 @@
-use super::{Iter, IterRef, IterRefMut};
-
-pub struct Filter<I : Iter, F : FnMut(&I::Item) -> bool> {
-    it: I,
-    f: F,
-}
-
-impl<I : Iter, F : FnMut(&I::Item) -> bool> Filter<I, F> {
-    pub fn new(it: I, f: F) -> Self {
-        Filter {
-            it: it,
-            f: f,
-        }
-    }
-}
-
-impl<I : Iter, F : FnMut(&I::Item) -> bool> Iter for Filter<I, F> {
-    type Item = I::Item;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        while let Some(x) = Iter::next(&mut self.it) {
-            if (self.f)(&x) {
-                return Some(x);
-            }
-        }
-        None
-    }
-}
+use super::{IterRef, IterRefMut};
 
 
 pub struct FilterRef<I : IterRef, F : FnMut(&I::Item) -> bool> {

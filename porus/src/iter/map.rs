@@ -1,29 +1,5 @@
-use super::{Iter, IterRef, IterRefMut};
+use super::{Iterator, IterRef, IterRefMut};
 
-pub struct Map<I : Iter, T, F : FnMut(I::Item) -> T> {
-    it: I,
-    f: F,
-}
-
-impl<I : Iter, T, F : FnMut(I::Item) -> T> Map<I, T, F> {
-    pub fn new(it: I, f: F) -> Self {
-        Map {
-            it: it,
-            f: f,
-        }
-    }
-}
-
-impl<I : Iter, T, F : FnMut(I::Item) -> T> Iter for Map<I, T, F> {
-    type Item = T;
-
-    fn next(&mut self) -> Option<T> {
-        match Iter::next(&mut self.it) {
-            None => None,
-            Some(x) => Some((self.f)(x)),
-        }
-    }
-}
 
 pub struct MapRef<I : IterRef, T, F : FnMut(&I::Item) -> T> {
     it: I,
@@ -39,7 +15,7 @@ impl<I : IterRef, T, F : FnMut(&I::Item) -> T> MapRef<I, T, F> {
     }
 }
 
-impl<I : IterRef, T, F : FnMut(&I::Item) -> T> Iter for MapRef<I, T, F> {
+impl<I : IterRef, T, F : FnMut(&I::Item) -> T> Iterator for MapRef<I, T, F> {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
@@ -65,7 +41,7 @@ impl<I : IterRefMut, T, F : FnMut(&mut I::Item) -> T> MapRefMut<I, T, F> {
     }
 }
 
-impl<I : IterRefMut, T, F : FnMut(&mut I::Item) -> T> Iter for MapRefMut<I, T, F> {
+impl<I : IterRefMut, T, F : FnMut(&mut I::Item) -> T> Iterator for MapRefMut<I, T, F> {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {

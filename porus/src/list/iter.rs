@@ -1,4 +1,4 @@
-use super::super::iter::{Iter, IterRef, IterRefMut};
+use super::super::iter::{Iterator, IterRef, IterRefMut};
 use super::{ListBase, ListMutBase};
 
 pub struct ListIter<'a, T: 'a + ListBase>
@@ -7,7 +7,7 @@ pub struct ListIter<'a, T: 'a + ListBase>
     index: isize,
 }
 
-impl<'a, T: 'a + ListBase> Iter for ListIter<'a, T>
+impl<'a, T: 'a + ListBase> Iterator for ListIter<'a, T>
     where T::Elem : Copy {
     type Item = T::Elem;
 

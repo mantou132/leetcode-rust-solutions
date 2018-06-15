@@ -1,8 +1,34 @@
-use super::super::iter::{Iter, IntoIter, Peekable, into_iter};
-use super::Sink;
+use super::super::iter::Iterator;
+use super::{PeekableSource, Sink};
 
-pub fn new_slice_source<'a>(s: &'a [u8]) -> Peekable<<&'a [u8] as IntoIter>::Iter> {
-    into_iter(s).peek()
+pub struct SliceSource<'a> {
+    offset: usize,
+    s: &'a [u8],
+}
+
+impl<'a> Iterator for SliceSource<'a> {
+    type Item = u8;
+
+    fn next(&mut self) -> Option<u8> {
+        if self.offset < self.s.len() {
+            let c = self.s[self.offset];
+            self.offset += 1;
+            Some(c)
+        } else {
+            None
+        }
+    }
+}
+
+
+impl<'a> SliceSource<'a> {
+    pub fn new(s: &'a [u8]) -> PeekableSource<Self> {
+        PeekableSource::new(
+            SliceSource {
+                offset: 0,
+                s: s,
+            })
+    }
 }
 
 pub struct SliceSink<'a> {

@@ -1,15 +1,43 @@
-use super::iter::{Iter, Peekable};
+use super::iter::Iterator;
 
-pub trait Source : Iter<Item=u8> {}
+pub trait Source : Iterator<Item=u8> {}
 
-impl<T : Iter<Item=u8>> Source for T {}
+impl<T : Iterator<Item=u8>> Source for T {}
 
-pub type PeekableSource<I> = Peekable<I>;
+pub struct PeekableSource<S : Source> {
+    source: S,
+    peeked: Option<Option<S::Item>>,
+}
 
-pub fn eof<I : Iter<Item=u8>>(source : &mut PeekableSource<I>) -> bool {
-    match source.peek() {
-        None => true,
-        _ => false,
+impl<S : Source> PeekableSource<S> {
+    pub const fn new(s: S) -> Self {
+        PeekableSource {
+            source: s,
+            peeked: None,
+        }
+    }
+
+    pub fn peek(&mut self) -> Option<&S::Item> {
+        if let None = self.peeked {
+            self.consume();
+        }
+
+        if let Some(ref x) = self.peeked {
+            return x.as_ref();
+        }
+
+        unreachable!();
+    }
+
+    pub fn consume(&mut self) {
+        self.peeked = Some(Iterator::next(&mut self.source));
+    }
+
+    pub fn eof(&mut self) -> bool {
+        match self.peek() {
+            None => true,
+            _ => false,
+        }
     }
 }
 

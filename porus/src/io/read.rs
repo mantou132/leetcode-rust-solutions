@@ -1,22 +1,21 @@
 use core::str::from_utf8_unchecked;
 use core::num::ParseIntError;
-use super::super::iter::Iter;
-use super::{PeekableSource, Sink};
+use super::{Source, PeekableSource, Sink};
 use super::slice::SliceSink;
 
 
 pub trait Consumer {
-    fn consume<I : Iter<Item=u8>>(self, s: &mut PeekableSource<I>);
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>);
 }
 
-pub fn fread<I : Iter<Item=u8>, C: Consumer>(s: &mut PeekableSource<I>, c: C) {
+pub fn fread<I : Source, C: Consumer>(s: &mut PeekableSource<I>, c: C) {
     Consumer::consume(c, s)
 }
 
 pub struct Whitespace;
 
 impl Consumer for Whitespace {
-    fn consume<I : Iter<Item=u8>>(self, s: &mut PeekableSource<I>) {
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
         while let Some(&c) = s.peek() {
             match c {
                 b' ' | b'\t' ... b'\r' => { s.consume(); },
@@ -56,14 +55,14 @@ fn is_digit(c: u8, radix: u32) -> bool {
 }
 
 impl<'a, T : 'a + FromStrRadix> Consumer for Int<'a, T> {
-    fn consume<I : Iter<Item=u8>>(self, s: &mut PeekableSource<I>) {
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
         let buf = &mut [0;40];
         let sink = &mut SliceSink::new(buf);
 
         match s.peek() {
             Some(&b'-') => {
                 Sink::write(sink, b'-');
-                s.consume()
+                s.consume();
             },
             _ => {
             },
@@ -75,7 +74,7 @@ impl<'a, T : 'a + FromStrRadix> Consumer for Int<'a, T> {
             }
 
             Sink::write(sink, c);
-            s.consume()
+            s.consume();
         }
 
         let s = unsafe {
@@ -95,7 +94,7 @@ macro_rules! int {
         }
 
         impl<'a> Consumer for &'a mut $t {
-            fn consume<I : Iter<Item=u8>>(self, s: &mut PeekableSource<I>) {
+            fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
                 Consumer::consume(Int(self, 10), s)
             }
         }
@@ -119,20 +118,19 @@ int!(isize);
 
 #[cfg(test)]
 mod tests {
-    use super::super::slice::new_slice_source;
-    use super::super::eof;
+    use super::super::slice::SliceSource;
     use super::{fread, hex, Whitespace};
 
     #[test]
     fn test_whitespace() {
-        let source = &mut new_slice_source(b"   ");
+        let source = &mut SliceSource::new(b"   ");
         fread(source, Whitespace);
-        assert!(eof(source));
+        assert!(source.eof());
     }
 
     #[test]
     fn test_unsigned_match() {
-        let source = &mut new_slice_source(b"a");
+        let source = &mut SliceSource::new(b"a");
         let mut x = 0usize;
         fread(source, hex(&mut x));
         assert!(x == 0xa);
@@ -141,7 +139,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_unsigned_mismatch() {
-        let source = &mut new_slice_source(b"g");
+        let source = &mut SliceSource::new(b"g");
         let mut x = 0usize;
         fread(source, hex(&mut x));
     }
@@ -149,14 +147,14 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_unsigned_mismatch_empty() {
-        let source = &mut new_slice_source(b"");
+        let source = &mut SliceSource::new(b"");
         let mut x = 0usize;
         fread(source, hex(&mut x));
     }
 
     #[test]
     fn test_signed_match() {
-        let source = &mut new_slice_source(b"-123");
+        let source = &mut SliceSource::new(b"-123");
         let mut x = 0isize;
         fread(source, &mut x);
         assert!(x == -123);
@@ -165,7 +163,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_signed_mismatch() {
-        let source = &mut new_slice_source(b"-g");
+        let source = &mut SliceSource::new(b"-g");
         let mut x = 0isize;
         fread(source, &mut x);
     }
@@ -173,7 +171,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_signed_mismatch_empty() {
-        let source = &mut new_slice_source(b"");
+        let source = &mut SliceSource::new(b"");
         let mut x = 0isize;
         fread(source, &mut x);
     }
@@ -181,7 +179,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_signed_mismatch_sign() {
-        let source = &mut new_slice_source(b"-");
+        let source = &mut SliceSource::new(b"-");
         let mut x = 0isize;
         fread(source, &mut x);
     }
