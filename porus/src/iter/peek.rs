@@ -13,7 +13,7 @@ impl<I : Iter> Peekable<I> {
         }
     }
 
-    pub fn peek<'a>(&'a mut self) -> Option<&'a I::Item> {
+    pub fn peek(&mut self) -> Option<&I::Item> {
         if let None = self.peeked {
             self.consume();
         }

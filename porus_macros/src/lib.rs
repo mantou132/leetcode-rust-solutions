@@ -10,13 +10,7 @@ extern crate quote;
 use proc_macro::TokenStream;
 
 mod common;
-mod scanf;
 mod printf;
-
-#[proc_macro]
-pub fn scanf(stream: TokenStream) -> TokenStream {
-    scanf::parse_scanf(stream).unwrap()
-}
 
 #[proc_macro]
 pub fn printf(stream: TokenStream) -> TokenStream {

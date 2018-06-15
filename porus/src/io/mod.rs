@@ -19,13 +19,14 @@ pub trait Sink {
     fn write(&mut self, c: Self::Item);
 }
 
+pub mod slice;
+
 mod int;
 
-pub mod scanf;
 pub mod printf;
+
+pub mod read;
+pub use self::read::{fread, Whitespace};
 
 pub mod stdio;
 pub use self::stdio::{stdin, stdout};
-
-#[cfg(test)]
-mod tests;

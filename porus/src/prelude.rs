@@ -13,7 +13,6 @@ pub use super::deque::Deque;
 pub use super::dlist::DoublyLinkedList;
 
 pub use super::io;
-pub use porus_macros::scanf;
 pub use porus_macros::printf;
 
 pub fn default<T: Default>() -> T {
@@ -22,6 +21,15 @@ pub fn default<T: Default>() -> T {
 
 pub use core::ptr::drop_in_place;
 
+#[macro_export]
+macro_rules! read {
+    ( $($expr:expr),* ) => (
+        $(
+            ::read($crate::io::Whitespace);
+            ::read($expr);
+        )*
+    )
+}
 
 #[macro_export]
 macro_rules! prelude {
@@ -34,6 +42,13 @@ macro_rules! prelude {
         #[allow(dead_code)]
         static mut STDIN : $crate::io::stdio::Input = $crate::io::stdin(&mut [0;$size]);
         static mut STDOUT : $crate::io::stdio::Output = $crate::io::stdout(&mut [0;$size]);
+
+        #[allow(dead_code)]
+        fn read<C: $crate::io::read::Consumer>(c: C) {
+            unsafe {
+                $crate::io::fread(&mut STDIN, c);
+            }
+        }
 
         fn porus_main() {
             solve();

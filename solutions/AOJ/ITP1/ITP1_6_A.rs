@@ -6,10 +6,10 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (stdin, stdout) = unsafe { (&mut STDIN, &mut STDOUT) };
+    let stdout = unsafe { &mut STDOUT };
     let mut n : isize = default();
 
-    scanf!(stdin, " %d", &mut n);
+    read!(&mut n);
 
     if n <= 0 {
         return;
@@ -17,7 +17,7 @@ fn solve() {
 
     let a = array![0isize; n];
 
-    list::iter_ref_mut(a).foreach(|e| { scanf!(stdin, " %d", e); });
+    list::iter_ref_mut(a).foreach(|e| { read!(e); });
 
     let b = slice!(a, [,,-1]);
 

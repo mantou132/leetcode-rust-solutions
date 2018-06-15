@@ -1,5 +1,4 @@
 use core::ops::{Add, Mul, Div, Rem, Neg};
-use super::scanf::{Converter, CharPattern, SignedPattern, UnsignedPattern};
 use super::printf::IntField;
 
 pub trait FromChar {
@@ -17,17 +16,6 @@ pub trait Signed : Sized + Copy + Add<Self,Output=Self> + Mul<Self,Output=Self> 
 }
 
 
-fn from_digit<T : FromChar>(c: u8) -> T {
-    FromChar::from_char(
-        match c {
-            b'0' ... b'9' => { c - b'0' },
-            b'A' ... b'Z' => { c - b'A' + 10 },
-            b'a' ... b'z' => { c - b'a' + 10 },
-            _ => { panic!() },
-        })
-}
-
-
 fn to_digit<T : ToChar>(x: T) -> u8 {
     let c = ToChar::to_char(x);
     match c {
@@ -37,85 +25,6 @@ fn to_digit<T : ToChar>(x: T) -> u8 {
     }
 }
 
-
-pub struct CharConverter<T> {
-    data: T,
-}
-
-impl<'a, T: FromChar> Converter for CharConverter<&'a mut T> {
-    fn write(&mut self, c: u8) {
-        *self.data = FromChar::from_char(c);
-    }
-}
-
-impl<'a, T: FromChar> CharPattern for &'a mut T {
-    type Converter = CharConverter<Self>;
-
-    fn converter(self) -> Self::Converter {
-        CharConverter {
-            data: self,
-        }
-    }
-}
-
-
-pub struct UnsignedConverter<'a, T: 'a + Unsigned> {
-    base: T,
-    data: &'a mut T,
-}
-
-impl<'a, T: 'a + Unsigned> Converter for UnsignedConverter<'a, T> {
-    fn write(&mut self, c: u8) {
-        *self.data = *self.data * self.base + from_digit(c);
-    }
-}
-
-impl<'a, T: 'a + Unsigned> UnsignedPattern for &'a mut T {
-    type Converter = UnsignedConverter<'a, T>;
-
-    fn converter(self, base: u8) -> Self::Converter {
-        *self = FromChar::from_char(0);
-        UnsignedConverter {
-            base: FromChar::from_char(base),
-            data: self,
-        }
-    }
-}
-
-pub struct SignedConverter<'a, T: 'a + Signed> {
-    base: T,
-    sign: T,
-    data: &'a mut T,
-}
-
-impl<'a, T: 'a + Signed> Converter for SignedConverter<'a, T> {
-    fn write(&mut self, c: u8) {
-        if let b'-' = c {
-            self.sign = -self.sign;
-        } else {
-            *self.data = *self.data * self.base + from_digit(c);
-        }
-    }
-}
-
-impl<'a, T: 'a + Signed> SignedPattern for &'a mut T {
-    type Converter = SignedConverter<'a, T>;
-
-    fn converter(self, base: u8) -> Self::Converter {
-        *self = FromChar::from_char(0);
-        SignedConverter {
-            base: FromChar::from_char(base),
-            sign: FromChar::from_char(1),
-            data: self,
-        }
-    }
-}
-
-impl<'a, T: 'a + Signed> Drop for SignedConverter<'a, T> {
-    fn drop(&mut self) {
-        *self.data = *self.data * self.sign;
-    }
-}
 
 pub struct IntBuffer {
     offset: u8,

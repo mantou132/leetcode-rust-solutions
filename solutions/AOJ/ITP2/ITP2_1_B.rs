@@ -6,19 +6,18 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (stdin, stdout) = unsafe { (&mut STDIN, &mut STDOUT) };
+    let stdout = unsafe { &mut STDOUT };
     let mut n : isize = default();
-
-    scanf!(stdin, "%d", &mut n);
+    read!(&mut n);
 
     let buf = buffer![];
 
     for _ in 0..n {
         let mut op : isize = default();
-        scanf!(stdin, " %d", &mut op);
+        read!(&mut op);
         if op == 0 {
             let (mut d, mut x) : (isize, isize) = default();
-            scanf!(stdin, " %d %d", &mut d, &mut x);
+            read!(&mut d, &mut x);
             if d == 0 {
                 Deque::push_front(buf, x);
             } else if d == 1 {
@@ -26,11 +25,11 @@ fn solve() {
             }
         } else if op == 1 {
             let mut p : isize = default();
-            scanf!(stdin, " %d", &mut p);
+            read!(&mut p);
             printf!(stdout, "%d\n", buf[p]);
         } else if op == 2 {
             let mut d : isize = default();
-            scanf!(stdin, " %d", &mut d);
+            read!(&mut d);
             if d == 0 {
                 Deque::pop_front(buf);
             } else if d == 1 {

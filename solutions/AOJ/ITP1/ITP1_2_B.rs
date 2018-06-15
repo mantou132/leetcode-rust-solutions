@@ -6,9 +6,9 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (stdin, stdout) = unsafe { (&mut STDIN, &mut STDOUT) };
+    let stdout = unsafe { &mut STDOUT };
     let (mut a, mut b, mut c): (isize, isize, isize) = default();
-    scanf!(stdin, " %d %d %d", &mut a, &mut b, &mut c);
+    read!(&mut a, &mut b, &mut c);
     printf!(stdout,
             "%s\n",
             if (a < b) && (b < c) {

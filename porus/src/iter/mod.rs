@@ -121,4 +121,4 @@ pub trait IterRefMut {
 }
 
 mod convert;
-pub use self::convert::{into_iter, SliceIter};
+pub use self::convert::{IntoIter, into_iter};

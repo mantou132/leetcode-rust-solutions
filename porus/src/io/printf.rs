@@ -22,13 +22,13 @@ pub trait IntField : Sized {
 mod tests {
     use porus_macros::printf;
     use super::super::super::io;
-    use super::super::tests::new_test_sink;
+    use super::super::slice::SliceSink;
 
     #[test]
     fn test_char() {
         let array = &mut [0;1];
         {
-            let sink = &mut new_test_sink(array);
+            let sink = &mut SliceSink::new(array);
             printf!(sink, "%c", b'0');
         }
         assert!(array == b"0");
@@ -38,14 +38,14 @@ mod tests {
     fn test_unsigned() {
         let array = &mut [0;1];
         {
-            let sink = &mut new_test_sink(array);
+            let sink = &mut SliceSink::new(array);
             printf!(sink, "%d", 0u8);
         }
         assert!(array == b"0");
 
         let array = &mut [0;3];
         {
-            let sink = &mut new_test_sink(array);
+            let sink = &mut SliceSink::new(array);
             printf!(sink, "%d", 123u8);
         }
         assert!(array == b"123");
@@ -55,21 +55,21 @@ mod tests {
     fn test_signed() {
         let array = &mut [0;1];
         {
-            let sink = &mut new_test_sink(array);
+            let sink = &mut SliceSink::new(array);
             printf!(sink, "%d", 0i8);
         }
         assert!(array == b"0");
 
         let array = &mut [0;3];
         {
-            let sink = &mut new_test_sink(array);
+            let sink = &mut SliceSink::new(array);
             printf!(sink, "%d", 123i8);
         }
         assert!(array == b"123");
 
         let array = &mut [0;4];
         {
-            let sink = &mut new_test_sink(array);
+            let sink = &mut SliceSink::new(array);
             printf!(sink, "%d", -123i8);
         }
         assert!(array == b"-123");
@@ -79,7 +79,7 @@ mod tests {
     fn test_string() {
         let array = &mut [0;5];
         {
-            let sink = &mut new_test_sink(array);
+            let sink = &mut SliceSink::new(array);
             printf!(sink, "%s", "hello");
         }
         assert!(array == b"hello");
@@ -90,7 +90,7 @@ mod tests {
     fn test_overflow() {
         let array = &mut [0;1];
         {
-            let sink = &mut new_test_sink(array);
+            let sink = &mut SliceSink::new(array);
             printf!(sink, "%d", 123u8);
         }
     }
@@ -99,7 +99,7 @@ mod tests {
     fn test_print() {
         let array = &mut [0;7];
         {
-            let sink = &mut new_test_sink(array);
+            let sink = &mut SliceSink::new(array);
             printf!(sink, "%d %d", 123, 456);
         }
         assert!(array == b"123 456");

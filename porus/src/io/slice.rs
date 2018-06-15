@@ -1,18 +1,17 @@
-use super::super::iter::{Iter, SliceIter, Peekable, into_iter};
+use super::super::iter::{Iter, IntoIter, Peekable, into_iter};
 use super::Sink;
 
-pub fn new_test_source<'a>(s: &'a [u8]) -> Peekable<SliceIter<'a, u8>> {
+pub fn new_slice_source<'a>(s: &'a [u8]) -> Peekable<<&'a [u8] as IntoIter>::Iter> {
     into_iter(s).peek()
 }
 
-
-pub struct TestSink<'a> {
+pub struct SliceSink<'a> {
     offset: usize,
     s: &'a mut [u8],
 }
 
 
-impl<'a> Sink for TestSink<'a> {
+impl<'a> Sink for SliceSink<'a> {
     type Item = u8;
 
     fn write(&mut self, c: u8) {
@@ -24,16 +23,15 @@ impl<'a> Sink for TestSink<'a> {
     }
 }
 
-impl<'a> TestSink<'a> {
+impl<'a> SliceSink<'a> {
     pub fn new(s: &'a mut[u8]) -> Self {
-        TestSink {
+        SliceSink {
             offset: 0,
             s: s,
         }
     }
-}
 
-
-pub fn new_test_sink<'a>(s: &'a mut [u8]) -> TestSink<'a> {
-    TestSink::new(s)
+    pub fn offset(&self) -> usize {
+        self.offset
+    }
 }

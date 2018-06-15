@@ -6,11 +6,11 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (stdin, stdout) = unsafe { (&mut STDIN, &mut STDOUT) };
+    let stdout = unsafe { &mut STDOUT };
 
     loop {
         let (mut x, mut y) : (isize, isize) = default();
-        scanf!(stdin, " %d %d", &mut x, &mut y);
+        read!(&mut x, &mut y);
         if (x == 0) && (y == 0) {
             break;
         }
