@@ -41,6 +41,6 @@ fn solve() {
 
     while !Deque::is_empty(list) {
         let x = Deque::pop_front(list);
-        io::writeln(f!("{x:d}"));
+        writelnf!("{x:d}");
     }
 }

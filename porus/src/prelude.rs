@@ -14,6 +14,8 @@ pub use super::dlist::DoublyLinkedList;
 
 pub use super::io::join;
 pub use porus_macros::f;
+pub use porus_macros::writef;
+pub use porus_macros::writelnf;
 
 pub fn default<T: Default>() -> T {
     Default::default()

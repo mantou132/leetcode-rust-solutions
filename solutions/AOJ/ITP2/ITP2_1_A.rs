@@ -22,7 +22,7 @@ fn solve() {
             let mut p : isize = default();
             read!(&mut p);
             let x = vec[p];
-            io::writeln(f!("{x:d}"));
+            writelnf!("{x:d}");
         } else if op == 2 {
             Stack::pop(vec);
         }

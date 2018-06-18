@@ -12,6 +12,6 @@ fn solve() {
         if (x == 0) && (y == 0) {
             break;
         }
-        io::writeln(f!("{:d} {:d}", Ord::min(x,y), Ord::max(x,y)));
+        writelnf!("{:d} {:d}", Ord::min(x,y), Ord::max(x,y));
     }
 }

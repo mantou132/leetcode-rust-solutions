@@ -8,5 +8,5 @@ prelude!();
 fn solve() {
     let (mut a, mut b, mut c) : (isize, isize, isize) = default();
     read!(&mut a, &mut b, &mut c);
-    io::writeln(f!("{:d}", into_iter(a..=b).filter(|x| {(&c) % x == 0}).count()));
+    writelnf!("{:d}", into_iter(a..=b).filter(|x| {(&c) % x == 0}).count());
 }

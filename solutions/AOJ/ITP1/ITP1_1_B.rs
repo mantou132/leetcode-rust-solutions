@@ -8,5 +8,5 @@ prelude!();
 fn solve() {
     let mut x : isize = default();
     read!(&mut x);
-    io::writeln(f!("{:d}", x*x*x));
+    writelnf!("{:d}", x*x*x);
 }

@@ -12,5 +12,5 @@ fn solve() {
     let mut m = t / 60;
     let h = m / 60;
     m = m % 60;
-    io::write(f!("{h:d}:{m:d}:{s:d}\n"));
+    writelnf!("{h:d}:{m:d}:{s:d}");
 }

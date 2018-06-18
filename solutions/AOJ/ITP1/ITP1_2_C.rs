@@ -8,9 +8,9 @@ prelude!();
 fn solve() {
     let (mut a, mut b, mut c): (isize, isize, isize) = default();
     read!(&mut a, &mut b, &mut c);
-    io::writeln(
-        f!("{:d} {:d} {:d}",
-           Ord::min(Ord::min(a,b),c),
-           Ord::max(Ord::max(Ord::min(a,b), Ord::min(b,c)), Ord::min(a,c)),
-           Ord::max(Ord::max(a,b),c)));
+    writelnf!(
+        "{:d} {:d} {:d}",
+        Ord::min(Ord::min(a,b),c),
+        Ord::max(Ord::max(Ord::min(a,b), Ord::min(b,c)), Ord::min(a,c)),
+        Ord::max(Ord::max(a,b),c));
 }

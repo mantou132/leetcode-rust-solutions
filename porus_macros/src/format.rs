@@ -1,5 +1,4 @@
-use proc_macro::TokenStream;
-use proc_macro2::{Span, Literal, Ident};
+use proc_macro2::{Span, Literal, Ident, TokenStream};
 use syn::{Expr, LitStr};
 use fmt_macros::{Parser, Piece, Argument, Position};
 use common::parse_args;
@@ -39,9 +38,24 @@ pub fn f(tokens: TokenStream) -> TokenStream {
         }
     };
 
-    (quote!{
+    quote!{
         move |sink| {
             #stream
         }
-    }).into()
+    }
+}
+
+
+pub fn writef(tokens: TokenStream) -> TokenStream {
+    let stream = f(tokens);
+    quote! {
+        ::io::write(#stream);
+    }
+}
+
+pub fn writelnf(tokens: TokenStream) -> TokenStream {
+    let stream = f(tokens);
+    quote! {
+        ::io::writeln(#stream);
+    }
 }

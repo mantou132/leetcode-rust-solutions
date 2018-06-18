@@ -8,11 +8,11 @@ prelude!();
 fn solve() {
     let (mut w, mut h, mut x, mut y, mut r): (isize, isize, isize, isize ,isize) = default();
     read!(&mut w, &mut h, &mut x, &mut y, &mut r);
-    io::writeln(
-        f!("{}",
-           if (r <= x) && (x <= (w - r)) && (r <= y) && (y <= (h - r)) {
-               "Yes"
-           } else {
-               "No"
-           }));
+    writelnf!(
+        "{}",
+        if (r <= x) && (x <= (w - r)) && (r <= y) && (y <= (h - r)) {
+            "Yes"
+        } else {
+            "No"
+        });
 }
