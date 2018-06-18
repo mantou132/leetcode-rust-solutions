@@ -14,13 +14,6 @@ use proc_macro::{TokenStream, Span};
 mod common;
 use common::set_span;
 
-mod printf;
-
-#[proc_macro]
-pub fn printf(stream: TokenStream) -> TokenStream {
-    set_span(Span::call_site(), printf::parse_printf(stream).unwrap())
-}
-
 mod format;
 
 #[proc_macro]
