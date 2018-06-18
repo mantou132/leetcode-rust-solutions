@@ -44,7 +44,8 @@ def get_rustc_argv(mode='debug', target=None):
 
     return ['rustc',
             "-Z", "borrowck=mir",
-            "-Z", "polonius" ] + DEPS, EXTERNS
+            "-Z", "polonius",
+            '--cfg', 'feature="build"' ] + DEPS, EXTERNS
 
 
 def get_compile_argv(filename):

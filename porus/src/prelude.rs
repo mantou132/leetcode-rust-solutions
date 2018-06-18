@@ -13,6 +13,7 @@ pub use super::deque::Deque;
 pub use super::dlist::DoublyLinkedList;
 
 pub use super::io;
+pub use porus_macros::f;
 pub use porus_macros::printf;
 
 pub fn default<T: Default>() -> T {
@@ -47,6 +48,13 @@ macro_rules! prelude {
         fn read<C: $crate::io::read::Consumer>(c: C) {
             unsafe {
                 $crate::io::fread(&mut STDIN, c);
+            }
+        }
+
+        #[allow(dead_code)]
+        fn write<'a, F : FnMut(&'a mut $crate::io::stdio::Output)>(f: F) {
+            unsafe {
+                $crate::io::fwrite(&mut STDOUT, f);
             }
         }
 

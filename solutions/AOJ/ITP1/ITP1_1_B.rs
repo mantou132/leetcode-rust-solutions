@@ -6,8 +6,8 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let stdout = unsafe { &mut STDOUT };
     let mut x : isize = default();
     read!(&mut x);
-    printf!(stdout, "%d\n", x*x*x);
+    let cube = x*x*x;
+    write(f!("{cube:d}\n"));
 }

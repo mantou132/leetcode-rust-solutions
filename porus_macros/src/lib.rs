@@ -1,20 +1,31 @@
 #![feature(proc_macro)]
 #![feature(proc_macro_non_items)]
+#![feature(rustc_private)]
 
 extern crate proc_macro;
 extern crate proc_macro2;
 extern crate syn;
 #[macro_use]
 extern crate quote;
+extern crate fmt_macros;
 
-use proc_macro::TokenStream;
+use proc_macro::{TokenStream, Span};
 
 mod common;
+use common::set_span;
+
 mod printf;
 
 #[proc_macro]
 pub fn printf(stream: TokenStream) -> TokenStream {
-    printf::parse_printf(stream).unwrap()
+    set_span(Span::call_site(), printf::parse_printf(stream).unwrap())
+}
+
+mod format;
+
+#[proc_macro]
+pub fn f(stream: TokenStream) -> TokenStream {
+    set_span(Span::call_site(), format::f(stream))
 }
 
 use syn::DeriveInput;

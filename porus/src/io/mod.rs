@@ -55,7 +55,7 @@ pub mod printf;
 pub mod read;
 pub use self::read::{fread, Whitespace};
 
-mod write;
+pub mod write;
 pub use self::write::{fwrite, join};
 
 pub mod stdio;

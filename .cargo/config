@@ -1,4 +1,5 @@
 [build]
 rustflags = [
   "-Z", "borrowck=mir",
-  "-Z", "polonius"]
+  "-Z", "polonius",
+  '--cfg', 'feature="build"']

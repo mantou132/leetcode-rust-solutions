@@ -6,8 +6,9 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let stdout = unsafe { &mut STDOUT };
     let (mut a, mut b): (isize, isize) = default();
     read!(&mut a, &mut b);
-    printf!(stdout, "%d %d\n", a*b, (a+b)*2);
+    let area = a*b;
+    let perimeter = (a+b) * 2;
+    write(f!("{area:d} {perimeter:d}\n"));
 }

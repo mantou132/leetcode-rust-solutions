@@ -1,4 +1,4 @@
-use proc_macro::{TokenStream, Span};
+use proc_macro::TokenStream;
 use proc_macro2::Literal;
 use syn::buffer::TokenBuffer;
 use syn::synom::ParseError;
@@ -7,7 +7,7 @@ use syn::token::Comma;
 use syn::LitStr;
 use std::str::Chars;
 use std::iter::Peekable;
-use common::{Cursor, set_span};
+use common::Cursor;
 
 #[derive(Debug)]
 enum Directive {
@@ -89,5 +89,5 @@ pub fn parse_printf(tokens: TokenStream) -> Result<TokenStream, ParseError> {
         }
     }
 
-    Ok(set_span(Span::call_site(), stream.into()))
+    Ok(stream.into())
 }
