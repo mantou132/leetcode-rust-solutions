@@ -37,6 +37,16 @@ pub fn fwrite_str<S: Sink, T: AsRef<[u8]>>(s: &mut S, t: T) {
     }
 }
 
+pub trait String {
+    fn write<S: Sink>(self, s: &mut S);
+}
+
+impl<'a> String for &'a str {
+    fn write<S: Sink>(self, s: &mut S) {
+        fwrite_str(s, self);
+    }
+}
+
 pub trait Int {
     fn write<S: Sink>(self, s: &mut S, radix: u8);
 }
@@ -74,8 +84,36 @@ fn write_signed<S: Sink, T: Copy + Default + PartialOrd + Neg<Output=T> + Div<Ou
     }
 }
 
-impl Int for isize {
-    fn write<S: Sink>(self, s: &mut S, radix: u8) {
-        write_signed(s, self, radix as _)
-    }
+macro_rules! unsigned {
+    ($t:ty) => (
+        impl Int for $t {
+            fn write<S: Sink>(self, s: &mut S, radix: u8) {
+                write_unsigned(s, self, radix as _)
+            }
+        }
+    )
 }
+
+macro_rules! signed {
+    ($t:ty) => (
+        impl Int for $t {
+            fn write<S: Sink>(self, s: &mut S, radix: u8) {
+                write_signed(s, self, radix as _)
+            }
+        }
+    )
+}
+
+unsigned!(u8);
+unsigned!(u16);
+unsigned!(u32);
+unsigned!(u64);
+unsigned!(u128);
+unsigned!(usize);
+
+signed!(i8);
+signed!(i16);
+signed!(i32);
+signed!(i64);
+signed!(i128);
+signed!(isize);

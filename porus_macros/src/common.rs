@@ -1,7 +1,9 @@
 use proc_macro::{TokenStream, TokenTree, Span, Group};
+use syn::buffer::TokenBuffer;
 use std::iter::FromIterator;
-use syn::synom::Synom;
-use syn::synom::ParseError;
+use syn::synom::{Synom, ParseError};
+use syn::{Expr, LitStr};
+use syn::token::Comma;
 use syn::buffer;
 
 pub struct Cursor<'a> {
@@ -9,7 +11,7 @@ pub struct Cursor<'a> {
 }
 
 impl<'a> Cursor<'a> {
-    pub fn new(buf: &'a buffer::TokenBuffer) -> Self {
+    pub fn new(buf: &'a TokenBuffer) -> Self {
         Cursor {
             cur: buf.begin()
         }
@@ -20,6 +22,25 @@ impl<'a> Cursor<'a> {
         self.cur = cur;
         Ok(v)
     }
+
+    pub fn eof(&self) -> bool {
+        self.cur.eof()
+    }
+}
+
+pub fn parse_args(tokens: TokenStream) -> Result<(LitStr, Vec<Expr>), ParseError> {
+    let buf = TokenBuffer::new2(tokens.into());
+    let mut cur = Cursor::new(&buf);
+    let s : LitStr = cur.parse()?;
+    let mut exprs = Vec::new();
+
+    while !(cur.eof()) {
+        let _ : Comma = cur.parse()?;
+        let arg : Expr = cur.parse()?;
+        exprs.push(arg);
+    }
+
+    Ok((s, exprs))
 }
 
 pub fn set_span(span: Span, stream: TokenStream) -> TokenStream {

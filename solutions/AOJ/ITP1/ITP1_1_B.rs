@@ -8,6 +8,5 @@ prelude!();
 fn solve() {
     let mut x : isize = default();
     read!(&mut x);
-    let cube = x*x*x;
-    write(f!("{cube:d}\n"));
+    io::writeln(f!("{:d}", x*x*x));
 }

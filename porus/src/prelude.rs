@@ -12,22 +12,19 @@ pub use super::deque::Deque;
 
 pub use super::dlist::DoublyLinkedList;
 
-pub use super::io;
+pub use super::io::join;
 pub use porus_macros::f;
-pub use porus_macros::printf;
 
 pub fn default<T: Default>() -> T {
     Default::default()
 }
 
-pub use core::ptr::drop_in_place;
-
 #[macro_export]
 macro_rules! read {
     ( $($expr:expr),* ) => (
         $(
-            ::read($crate::io::Whitespace);
-            ::read($expr);
+            ::io::read($crate::io::Whitespace);
+            ::io::read($expr);
         )*
     )
 }
@@ -38,42 +35,62 @@ macro_rules! prelude {
         prelude!(1024);
     );
     ($size:expr) => (
+        #[allow(unused_imports)]
         use $crate::prelude::*;
 
-        #[allow(dead_code)]
-        static mut STDIN : $crate::io::stdio::Input = $crate::io::stdin(&mut [0;$size]);
-        static mut STDOUT : $crate::io::stdio::Output = $crate::io::stdout(&mut [0;$size]);
+        mod io {
+            #[cfg(debug_assertions)]
+            use std::ptr::drop_in_place;
 
-        #[allow(dead_code)]
-        fn read<C: $crate::io::read::Consumer>(c: C) {
-            unsafe {
-                $crate::io::fread(&mut STDIN, c);
+            #[cfg(not(debug_assertions))]
+            use core::ptr::drop_in_place;
+
+            use $crate::io::stdio;
+            use $crate::io::{fread, fwrite, Sink};
+
+            #[allow(dead_code)]
+            static mut STDIN : stdio::Input = stdio::stdin(&mut [0;$size]);
+            static mut STDOUT : stdio::Output = stdio::stdout(&mut [0;$size]);
+
+            #[allow(dead_code)]
+            pub fn read<C: $crate::io::read::Consumer>(c: C) {
+                unsafe {
+                    fread(&mut STDIN, c);
+                }
             }
-        }
 
-        #[allow(dead_code)]
-        fn write<'a, F : FnMut(&'a mut $crate::io::stdio::Output)>(f: F) {
-            unsafe {
-                $crate::io::fwrite(&mut STDOUT, f);
+            #[allow(dead_code)]
+            pub fn write<'a, F : FnMut(&'a mut stdio::Output)>(f: F) {
+                unsafe {
+                    fwrite(&mut STDOUT, f);
+                }
             }
-        }
 
-        fn porus_main() {
-            solve();
-            unsafe {
-                drop_in_place(&mut STDOUT as *mut _)
-            };
+            #[allow(dead_code)]
+            pub fn writeln<'a, F : FnMut(&'a mut stdio::Output)>(f: F) {
+                write(f);
+                unsafe {
+                    Sink::write(&mut STDOUT, b'\n');
+                }
+            }
+
+            pub fn main() {
+                ::solve();
+                unsafe {
+                    drop_in_place(&mut STDOUT as *mut _)
+                };
+            }
         }
 
         #[cfg(debug_assertions)]
         fn main() {
-            porus_main();
+            io::main();
         }
 
         #[cfg(not(debug_assertions))]
         #[no_mangle]
         pub extern fn main() -> i32 {
-            porus_main();
+            io::main();
             0
         }
     )

@@ -6,5 +6,5 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    write(f!("Hello World\n"));
+    io::writeln(f!("Hello World"));
 }

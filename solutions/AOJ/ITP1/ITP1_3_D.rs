@@ -6,8 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let stdout = unsafe { &mut STDOUT };
     let (mut a, mut b, mut c) : (isize, isize, isize) = default();
     read!(&mut a, &mut b, &mut c);
-    printf!(stdout, "%d\n", into_iter(a..=b).filter(|x| {(&c) % x == 0}).count());
+    io::writeln(f!("{:d}", into_iter(a..=b).filter(|x| {(&c) % x == 0}).count()));
 }

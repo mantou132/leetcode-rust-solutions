@@ -6,7 +6,6 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let stdout = unsafe { &mut STDOUT };
     let mut n : isize = default();
     read!(&mut n);
 
@@ -41,6 +40,7 @@ fn solve() {
     }
 
     while !Deque::is_empty(list) {
-        printf!(stdout, "%d\n", Deque::pop_front(list));
+        let x = Deque::pop_front(list);
+        io::writeln(f!("{x:d}"));
     }
 }

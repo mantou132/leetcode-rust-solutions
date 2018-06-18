@@ -7,12 +7,8 @@ prelude!();
 
 fn solve() {
     let mut n : isize = default();
-
     read!(&mut n);
-
     let a = array![0isize; n];
     list::iter_ref_mut(a).foreach(|e| { read!(e); });
-
-    write(io::join(f!(" "), list::iter(slice!(a, [,,-1])).map(|e| f!("{e:d}"))));
-    write(f!("\n"));
+    io::writeln(join(f!(" "), list::iter(slice!(a, [,,-1])).map(|e| f!("{e:d}"))));
 }

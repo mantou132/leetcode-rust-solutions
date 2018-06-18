@@ -7,6 +7,6 @@ prelude!();
 
 fn solve() {
     for _ in 0..1000 {
-        write(f!("Hello World\n"));
+        io::write(f!("Hello World\n"));
     }
 }

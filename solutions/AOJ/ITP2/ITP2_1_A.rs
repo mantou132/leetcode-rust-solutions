@@ -6,7 +6,6 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let stdout = unsafe { &mut STDOUT };
     let mut n : isize = default();
     read!(&mut n);
 
@@ -22,7 +21,8 @@ fn solve() {
         } else if op == 1 {
             let mut p : isize = default();
             read!(&mut p);
-            printf!(stdout, "%d\n", vec[p]);
+            let x = vec[p];
+            io::writeln(f!("{x:d}"));
         } else if op == 2 {
             Stack::pop(vec);
         }
