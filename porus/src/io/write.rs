@@ -48,7 +48,7 @@ impl<'a> String for &'a str {
 }
 
 pub trait Int {
-    fn write<S: Sink>(self, s: &mut S, radix: u8);
+    fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize);
 }
 
 fn to_char(d: u8) -> u8 {
@@ -59,36 +59,34 @@ fn to_char(d: u8) -> u8 {
     }
 }
 
-fn write_unsigned_aux<S: Sink, T : Copy + Default + PartialEq + Div<Output=T> + Rem<Output=T> + TryInto<u8>>(s: &mut S, x: T, radix: T) {
-    if x != Default::default() {
-        write_unsigned_aux(s, x / radix, radix);
-        let d = TryInto::try_into(x % radix).ok().unwrap();
-        Sink::write(s, to_char(d));
+fn write_unsigned<S: Sink, T: Copy + Default + PartialOrd + Div<Output=T> + Rem<Output=T> + TryInto<u8>>(s: &mut S, mut x: T, radix: T, width: usize) {
+    let mut buf = [b'0';40];
+    let mut i = 39;
+
+    while x > Default::default() {
+        buf[i] = to_char(TryInto::try_into(x % radix).ok().unwrap());
+        i -= 1;
+        x = x /radix;
     }
+
+    i = Ord::min(i+1, 40-width);
+    fwrite_str(s, &buf[i..]);
 }
 
-fn write_unsigned<S: Sink, T: Copy + Default + PartialEq + Div<Output=T> + Rem<Output=T> + TryInto<u8>>(s: &mut S, x: T, radix: T) {
-    if x == Default::default() {
-        Sink::write(s, b'0');
-    } else {
-        write_unsigned_aux(s, x, radix)
-    }
-}
-
-fn write_signed<S: Sink, T: Copy + Default + PartialOrd + Neg<Output=T> + Div<Output=T> + Rem<Output=T> + TryInto<u8>>(s: &mut S, x: T, radix: T) {
-    if x < Default::default() {
+fn write_signed<S: Sink, T: Copy + Default + PartialOrd + Neg<Output=T> + Div<Output=T> + Rem<Output=T> + TryInto<u8>>(s: &mut S, x: T, radix: T, width: usize) {
+    if x < -x {
         Sink::write(s, b'-');
-        write_unsigned(s, -x, radix);
+        write_unsigned(s, -x, radix, width);
     } else {
-        write_unsigned(s, x, radix);
+        write_unsigned(s, x, radix, width);
     }
 }
 
 macro_rules! unsigned {
     ($t:ty) => (
         impl Int for $t {
-            fn write<S: Sink>(self, s: &mut S, radix: u8) {
-                write_unsigned(s, self, radix as _)
+            fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
+                write_unsigned(s, self, radix as _, width)
             }
         }
     )
@@ -97,8 +95,8 @@ macro_rules! unsigned {
 macro_rules! signed {
     ($t:ty) => (
         impl Int for $t {
-            fn write<S: Sink>(self, s: &mut S, radix: u8) {
-                write_signed(s, self, radix as _)
+            fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
+                write_signed(s, self, radix as _, width)
             }
         }
     )
@@ -117,3 +115,35 @@ signed!(i32);
 signed!(i64);
 signed!(i128);
 signed!(isize);
+
+
+pub trait Float {
+    fn write<S: Sink>(self, s: &mut S, prec: i32);
+}
+
+use core::intrinsics::powif64;
+
+impl Float for f64 {
+
+    fn write<S: Sink>(mut self, s: &mut S, prec: i32) {
+        if self.is_finite() {
+            if self.is_sign_negative() {
+                Sink::write(s, b'-');
+                self = -self;
+            }
+
+            self *= unsafe { powif64(10.0, prec) };
+            let i = self as u64;
+            let m = 10u64.pow(prec as _);
+
+            if self <= 9007199254740992.0 {
+                write_unsigned(s, i / m, 10, 1);
+                Sink::write(s, b'.');
+                write_unsigned(s, i % m, 10, prec as _);
+                return;
+            }
+        }
+
+        panic!("floating number out of range");
+    }
+}
