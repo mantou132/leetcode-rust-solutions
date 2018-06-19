@@ -7,7 +7,7 @@ pub fn fwrite<'a, S : 'a + Sink, F : FnMut(&'a mut S)>(sink: &'a mut S, mut f: F
     f(sink)
 }
 
-#[cfg(feature="build")]
+#[cfg(not(doc))]
 pub fn join<'a, S : 'a + Sink, Sep : FnMut(&'a mut S), F : FnMut(&'a mut S), I : Iterator<Item=F>>(mut sep: Sep, mut it: I) -> impl FnMut(&'a mut S) {
     move |s: &'a mut S| {
         let iter = &mut it;
@@ -24,7 +24,7 @@ pub fn join<'a, S : 'a + Sink, Sep : FnMut(&'a mut S), F : FnMut(&'a mut S), I :
     }
 }
 
-#[cfg(not(feature="build"))]
+#[cfg(doc)]
 pub fn join<'a, S : 'a + Sink, Sep : FnMut(&'a mut S), F : FnMut(&'a mut S), I : Iterator<Item=F>>(mut sep: Sep, mut it: I) -> impl FnMut(&'a mut S) {
     move |s: &'a mut S| {
         panic!();
@@ -127,6 +127,13 @@ impl Float for f64 {
 
     fn write<S: Sink>(mut self, s: &mut S, prec: i32) {
         if self.is_finite() {
+            #[cfg(all(debug_assertions, not(test)))]
+            {
+                fwrite_str(s, b"\x1bXf.");
+                write_unsigned(s, prec, 10, 1);
+                fwrite_str(s, b"\x1b\\");
+            }
+
             if self.is_sign_negative() {
                 Sink::write(s, b'-');
                 self = -self;

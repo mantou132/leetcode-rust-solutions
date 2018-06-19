@@ -25,8 +25,7 @@ fn solve() {
         } else if op == 1 {
             let mut p : isize = default();
             read!(&mut p);
-            let x = buf[p];
-            writelnf!("{x:d}");
+            writelnf!("{:d}", buf[p]);
         } else if op == 2 {
             let mut d : isize = default();
             read!(&mut d);

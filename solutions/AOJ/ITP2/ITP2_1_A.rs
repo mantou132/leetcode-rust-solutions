@@ -21,8 +21,7 @@ fn solve() {
         } else if op == 1 {
             let mut p : isize = default();
             read!(&mut p);
-            let x = vec[p];
-            writelnf!("{x:d}");
+            writelnf!("{:d}", vec[p]);
         } else if op == 2 {
             Stack::pop(vec);
         }

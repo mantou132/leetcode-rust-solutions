@@ -1,5 +1,8 @@
 [build]
 rustflags = [
   "-Z", "borrowck=mir",
+  "-Z", "polonius"]
+rustdocflags = [
+  "-Z", "borrowck=mir",
   "-Z", "polonius",
-  '--cfg', 'feature="build"']
+  '--cfg', 'doc']

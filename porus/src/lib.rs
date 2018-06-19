@@ -1,5 +1,4 @@
 #![feature(core_intrinsics)]
-#![feature(try_trait)]
 #![feature(decl_macro)]
 #![feature(proc_macro_non_items)]
 #![feature(extern_prelude)]

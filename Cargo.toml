@@ -4,7 +4,3 @@ members = ["porus_macros", "porus"]
 [profile.release]
 panic = "abort"
 opt-level = "s"
-
-
-[features]
-build = []

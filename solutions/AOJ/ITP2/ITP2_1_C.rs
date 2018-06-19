@@ -40,7 +40,6 @@ fn solve() {
     }
 
     while !Deque::is_empty(list) {
-        let x = Deque::pop_front(list);
-        writelnf!("{x:d}");
+        writelnf!("{:d}", Deque::pop_front(list));
     }
 }

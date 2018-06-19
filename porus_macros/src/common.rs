@@ -1,12 +1,13 @@
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use syn::buffer::TokenBuffer;
 use syn::synom::{Synom, ParseError};
-use syn::{Expr, LitStr};
-use syn::token::Comma;
+use syn::{Expr, ExprTuple, LitStr};
+use syn::punctuated::Punctuated;
+use syn::token::{Paren, Comma};
 use syn::buffer;
 
 pub struct Cursor<'a> {
-    cur: buffer::Cursor<'a>,
+    pub cur: buffer::Cursor<'a>,
 }
 
 impl<'a> Cursor<'a> {
@@ -27,17 +28,24 @@ impl<'a> Cursor<'a> {
     }
 }
 
-pub fn parse_args(tokens: TokenStream) -> Result<(LitStr, Vec<Expr>), ParseError> {
+pub fn parse_args(tokens: TokenStream) -> Result<(LitStr, Expr), ParseError> {
     let buf = TokenBuffer::new2(tokens.into());
     let mut cur = Cursor::new(&buf);
     let s : LitStr = cur.parse()?;
-    let mut exprs = Vec::new();
 
-    while !(cur.eof()) {
-        let _ : Comma = cur.parse()?;
-        let arg : Expr = cur.parse()?;
-        exprs.push(arg);
+    if !cur.eof() {
+        let _: Comma = cur.parse()?;
     }
 
-    Ok((s, exprs))
+    let (args, _) = Punctuated::parse_separated(cur.cur)?;
+
+    let tuple =
+        Expr::Tuple(
+            ExprTuple {
+                attrs: Vec::new(),
+                paren_token: Paren(Span::call_site()),
+                elems: args}
+        );
+
+    Ok((s, tuple))
 }
