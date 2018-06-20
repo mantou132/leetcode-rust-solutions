@@ -1,14 +1,15 @@
 language: python
 dist: trusty
-sudo: required
 python:
 - "3.5"
 - "3.6"
 - "3.7-dev"
 addons:
   apt:
+    sources:
+    - llvm-toolchain-trusty-5.0
     packages:
-    - libssl-dev
+    - llvm-5.0
 env:
   global:
   - PATH=${PATH}:${HOME}/.cargo/bin
@@ -21,12 +22,18 @@ install:
 script:
 - cargo test --verbose
 - cargo test --release --verbose
-- find solutions -name '*.rs' | RUSTFLAGS="--cfg local -Z borrowck=mir -Z polonius" xargs -I {} python3 -mix generate {}.c
+- find solutions -name '*.rs' | RUSTFLAGS="--cfg local -Z borrowck=mir -Z polonius" xargs -I {} python3 -mix -v generate {}.c
 - python3 -mix -v test
 - python3 -mix -v clean
 after_success:
-- RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin --git https://github.com/xd009642/tarpaulin --branch develop
-- RUSTFLAGS="-Z borrowck=mir -Z polonius" cargo tarpaulin --verbose --no-count --ciserver travis-ci --coveralls "$TRAVIS_JOB_ID"
+- CARGO_INCREMENTAL=0 RUSTFLAGS='-Z borrowck=mir -Z polonius -Z profile -C opt-level=0 -C no-prepopulate-passes -C link-dead-code -C overflow-checks=off -C inline-threshold=0 -C codegen-units=1' cargo test -v
+- CARGO_INCREMENTAL=0 RUSTFLAGS='-Z borrowck=mir -Z polonius -Z profile -C opt-level=0 -C no-prepopulate-passes -C link-dead-code -C overflow-checks=off -C inline-threshold=0 -C codegen-units=1' python3 -mix -v test
+- find target/debug/deps -name 'porus*' | grep -v gcno | grep -v gcda | xargs -I {} llvm-cov gcov -l -p {}
+- find solutions -name '*.rs' | xargs -I {} llvm-cov gcov -l -p {}
+- pip install requests
+- python3 coveralls.py
+- python3 -mix -v clean
+- rm *.gcov
 matrix:
   allow_failures:
   - env: TRAVIS_RUST_VERSION=nightly

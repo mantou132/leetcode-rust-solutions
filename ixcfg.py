@@ -43,7 +43,7 @@ def get_rustc_argv(mode='debug', target=None):
         return
 
     FLAGS = os.environ.get("RUSTFLAGS", "-Z borrowck=mir -Z polonius").split(" ")
-    return ['rustc'] + FLAGS + DEPS, EXTERNS
+    return ['rustc', '-C', 'debuginfo=2'] + FLAGS + DEPS, EXTERNS
 
 
 def get_compile_argv(filename):
@@ -60,7 +60,7 @@ def get_compile_argv(filename):
 
 
 def list_generated_files(filename):
-    return [replace_ext(filename, ext) for ext in ["elf","bc","ll","s","rs.c","rs.elf"]]
+    return [replace_ext(filename, ext) for ext in ["elf","bc","ll","s","rs.c","rs.elf","gcno","gcda"]]
 
 
 def pick_env(envs):
@@ -100,8 +100,10 @@ LABEL = re.compile(rb'^([^:\s]+):$', re.M)
 CHARS = b'_.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
 def encode_int(n):
-    while n > 0:
+    while True:
         yield CHARS[n % 64]
+        if n == 0:
+            break
         n //= 64
 
 def prepare_submission(envs, filename):
