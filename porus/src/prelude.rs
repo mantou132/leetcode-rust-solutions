@@ -2,6 +2,8 @@ pub use core::cmp::Ordering::Less;
 pub use core::cmp::Ordering::Equal;
 pub use core::cmp::Ordering::Greater;
 
+pub use core::f64::consts::PI;
+
 pub use super::iter::{Iterator, IterRef, IterRefMut, into_iter};
 
 pub use super::collection;

@@ -6,6 +6,7 @@
 #![feature(const_slice_len)]
 #![feature(const_slice_as_ptr)]
 #![feature(try_from)]
+#![feature(specialization)]
 #![cfg_attr(not(any(test, debug_assertions)), feature(lang_items))]
 #![cfg_attr(not(any(test, debug_assertions)), feature(panic_implementation))]
 #![no_std]

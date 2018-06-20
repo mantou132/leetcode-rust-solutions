@@ -1,7 +1,6 @@
-use core::str::from_utf8_unchecked;
-use core::num::ParseIntError;
-use super::{Source, PeekableSource, Sink};
-use super::slice::SliceSink;
+use core::ops::{Add, Mul, Neg};
+use core::convert::TryFrom;
+use super::{Source, PeekableSource};
 
 
 pub trait Consumer {
@@ -25,74 +24,77 @@ impl Consumer for Whitespace {
     }
 }
 
-pub trait FromStrRadix : Sized {
-    fn from_str_radix(src: &str, radix: u32) -> Result<Self, ParseIntError>;
-}
+pub struct Int<'a, T : 'a>(&'a mut T, u8);
 
-pub struct Int<'a, T : 'a + FromStrRadix>(&'a mut T, u32);
-
-pub fn bin<'a, T : 'a + FromStrRadix>(i: &'a mut T) -> Int<'a, T> {
+pub fn bin<'a, T : 'a>(i: &'a mut T) -> Int<'a, T> {
     Int(i, 2)
 }
 
-pub fn oct<'a, T : 'a + FromStrRadix>(i: &'a mut T) -> Int<'a, T> {
+pub fn oct<'a, T : 'a>(i: &'a mut T) -> Int<'a, T> {
     Int(i, 8)
 }
 
-pub fn hex<'a, T : 'a + FromStrRadix>(i: &'a mut T) -> Int<'a, T> {
+pub fn hex<'a, T : 'a>(i: &'a mut T) -> Int<'a, T> {
     Int(i, 16)
 }
 
-fn is_digit(c: u8, radix: u32) -> bool {
+fn read_digit<I : Source>(s: &mut PeekableSource<I>, radix: u8) -> Option<u8> {
+    let c =
+        match s.peek() {
+            None => { return None; },
+            Some(&x) => { x },
+        };
+
     let d =
         match c {
             b'0' ... b'9' => { c - b'0' },
             b'A' ... b'Z' => { c - b'A' + 10u8 },
             b'a' ... b'z' => { c - b'a' + 10u8 },
-            _ => { return false; },
+            _ => { return None; },
         };
-    (d as u32) < radix
+
+    if d >= radix {
+        return None;
+    }
+
+    s.consume();
+    Some(d)
 }
 
-impl<'a, T : 'a + FromStrRadix> Consumer for Int<'a, T> {
+fn read_unsigned<I : Source, T : Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8>>(s: &mut PeekableSource<I>, radix: u8) -> T {
+    let mut x : T = TryFrom::try_from(read_digit(s, radix).unwrap()).ok().unwrap();
+
+    while let Some(d) = read_digit(s, radix) {
+        x = x * TryFrom::try_from(10).ok().unwrap() + TryFrom::try_from(d).ok().unwrap();
+    }
+
+    x
+}
+
+fn read_signed<I : Source, T : Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8> + Neg<Output=T>>(s: &mut PeekableSource<I>, radix: u8) -> T {
+    if let Some(&b'-') = s.peek() {
+        s.consume();
+        return -read_unsigned::<_, T>(s, radix);
+    }
+
+    read_unsigned(s, radix)
+}
+
+
+impl<'a, T : 'a + Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8>> Consumer for Int<'a, T> {
+    default fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
+        *self.0 = read_unsigned(s, self.1);
+    }
+}
+
+impl<'a, T : 'a + Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8> + Neg<Output=T>> Consumer for Int<'a, T> {
     fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
-        let buf = &mut [0;40];
-        let sink = &mut SliceSink::new(buf);
-
-        match s.peek() {
-            Some(&b'-') => {
-                Sink::write(sink, b'-');
-                s.consume();
-            },
-            _ => {
-            },
-        }
-
-        while let Some(&c) = s.peek() {
-            if !is_digit(c, self.1) {
-                break;
-            }
-
-            Sink::write(sink, c);
-            s.consume();
-        }
-
-        let s = unsafe {
-            from_utf8_unchecked(buf.get_unchecked(..sink.offset()))
-        };
-
-        *self.0 = FromStrRadix::from_str_radix(s, self.1).unwrap()
+        *self.0 = read_signed(s, self.1);
     }
 }
 
 macro_rules! int {
     ($t:ty) => (
-        impl FromStrRadix for $t {
-            fn from_str_radix(src: &str, radix: u32) -> Result<Self, ParseIntError> {
-                <$t>::from_str_radix(src, radix)
-            }
-        }
-
         impl<'a> Consumer for &'a mut $t {
             fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
                 Consumer::consume(Int(self, 10), s)
@@ -115,6 +117,34 @@ int!(i64);
 int!(i128);
 int!(isize);
 
+use core::intrinsics::powif64;
+
+impl<'a> Consumer for &'a mut f64 {
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
+        let mut int : i64 = 0;
+        fread(s, &mut int);
+
+        let mut exp : i32 = 0;
+
+        if let Some(&b'.') = s.peek() {
+            s.consume();
+
+            while let Some(d) = read_digit(s, 10) {
+                int = int * 10 + (d as i64);
+                exp -= 1;
+            }
+        }
+
+        if let Some(&b'e') = s.peek() {
+            s.consume();
+            let mut e : i32 = 0;
+            fread(s, &mut e);
+            exp += e;
+        }
+
+        *self = unsafe { powif64(10.0, exp) } * (int as f64);
+    }
+}
 
 #[cfg(test)]
 mod tests {
