@@ -42,9 +42,8 @@ def get_rustc_argv(mode='debug', target=None):
     if compile_file(ROOTDIR, ARGV, 'PORUS LIB', EXTERNS["porus"]) is None:
         return
 
-    return ['rustc',
-            "-Z", "borrowck=mir",
-            "-Z", "polonius" ] + DEPS, EXTERNS
+    FLAGS = os.environ.get("RUSTFLAGS", "-Z borrowck=mir -Z polonius").split(" ")
+    return ['rustc'] + FLAGS + DEPS, EXTERNS
 
 
 def get_compile_argv(filename):

@@ -127,7 +127,7 @@ impl Float for f64 {
 
     fn write<S: Sink>(mut self, s: &mut S, prec: i32) {
         if self.is_finite() {
-            #[cfg(all(debug_assertions, not(test)))]
+            #[cfg(any(all(debug_assertions, not(test)), local))]
             {
                 fwrite_str(s, b"\x1bXf.");
                 write_unsigned(s, prec, 10, 1);
