@@ -24,6 +24,16 @@ impl Consumer for Whitespace {
     }
 }
 
+pub struct Char<'a>(pub &'a mut u8);
+
+impl<'a> Consumer for Char<'a> {
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
+        *(self.0) = *(s.peek().unwrap());
+        s.consume();
+    }
+}
+
+
 pub struct Int<'a, T : 'a>(&'a mut T, u8);
 
 pub fn bin<'a, T : 'a>(i: &'a mut T) -> Int<'a, T> {

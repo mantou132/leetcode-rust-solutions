@@ -14,10 +14,9 @@ pub use super::deque::Deque;
 
 pub use super::dlist::DoublyLinkedList;
 
-pub use super::io::join;
-pub use porus_macros::f;
-pub use porus_macros::writef;
-pub use porus_macros::writelnf;
+pub use super::io::read::Char;
+pub use super::io::write::join;
+pub use porus_macros::{f, writef, writelnf};
 
 pub fn default<T: Default>() -> T {
     Default::default()
@@ -27,7 +26,7 @@ pub fn default<T: Default>() -> T {
 macro_rules! read {
     ( $($expr:expr),* ) => (
         $(
-            ::io::read($crate::io::Whitespace);
+            ::io::read($crate::io::read::Whitespace);
             ::io::read($expr);
         )*
     )
@@ -50,7 +49,9 @@ macro_rules! prelude {
             use core::ptr::drop_in_place;
 
             use $crate::io::stdio;
-            use $crate::io::{fread, fwrite, Sink};
+            use $crate::io::Sink;
+            use $crate::io::read::fread;
+            use $crate::io::write::fwrite;
 
             #[allow(dead_code)]
             static mut STDIN : stdio::Input = stdio::stdin(&mut [0;$size]);

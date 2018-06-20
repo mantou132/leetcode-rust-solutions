@@ -47,11 +47,6 @@ pub trait Sink {
 }
 
 pub mod slice;
-
 pub mod read;
-pub use self::read::{fread, Whitespace};
-
 pub mod write;
-pub use self::write::{fwrite, join};
-
 pub mod stdio;
