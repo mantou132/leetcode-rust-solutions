@@ -65,14 +65,14 @@ macro_rules! prelude {
             }
 
             #[allow(dead_code)]
-            pub fn write<'a, F : FnMut(&'a mut stdio::Output)>(f: F) {
+            pub fn write<'a, F : FnMut(&'a mut stdio::Output)>(f: &mut F) {
                 unsafe {
                     fwrite(&mut STDOUT, f);
                 }
             }
 
             #[allow(dead_code)]
-            pub fn writeln<'a, F : FnMut(&'a mut stdio::Output)>(f: F) {
+            pub fn writeln<'a, F : FnMut(&'a mut stdio::Output)>(f: &mut F) {
                 write(f);
                 unsafe {
                     Sink::write(&mut STDOUT, b'\n');

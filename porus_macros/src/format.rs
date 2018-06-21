@@ -32,6 +32,9 @@ pub fn f(tokens: TokenStream) -> TokenStream {
 
                 match fmt.ty {
                     "" => {
+                        stream = quote! { #stream porus::io::write::fwrite(porus_sink, &mut #arg); };
+                    },
+                    "s" => {
                         stream = quote! { #stream porus::io::write::String::write(#arg, porus_sink); };
                     },
                     "d" => {
@@ -65,8 +68,8 @@ pub fn f(tokens: TokenStream) -> TokenStream {
 
     quote!{
         {
-            #[allow(unused_variables)]
-            let porus_args = #args;
+            #[allow(unused_variables, unused_mut)]
+            let mut porus_args = #args;
             move |porus_sink| {
                 #stream
             }
@@ -78,13 +81,13 @@ pub fn f(tokens: TokenStream) -> TokenStream {
 pub fn writef(tokens: TokenStream) -> TokenStream {
     let stream = f(tokens);
     quote! {
-        ::io::write(#stream);
+        ::io::write(&mut #stream);
     }
 }
 
 pub fn writelnf(tokens: TokenStream) -> TokenStream {
     let stream = f(tokens);
     quote! {
-        ::io::writeln(#stream);
+        ::io::writeln(&mut #stream);
     }
 }

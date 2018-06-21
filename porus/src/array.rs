@@ -115,6 +115,6 @@ impl<T, P : CapacityPolicy, A : Allocator> Drop for Array<T,P,A>{
 #[macro_export]
 macro_rules! array {
     ($elem:expr; $n:expr) => (
-        &mut $crate::array::Array::<_, $crate::capacity::DefaultCapacityPolicy>::new_from_elem($elem, $n)
+        &mut $crate::array::Array::<_>::new_from_elem($elem, $n)
     );
 }

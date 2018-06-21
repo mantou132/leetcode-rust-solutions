@@ -9,7 +9,7 @@ fn solve() {
     let (mut a, mut b): (isize, isize) = default();
     read!(&mut a, &mut b);
     writelnf!(
-        "a {} b",
+        "a {:s} b",
         match Ord::cmp(&a, &b) {
             Less => "<",
             Equal => "==",

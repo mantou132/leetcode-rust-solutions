@@ -9,7 +9,7 @@ fn solve() {
     let (mut w, mut h, mut x, mut y, mut r): (isize, isize, isize, isize ,isize) = default();
     read!(&mut w, &mut h, &mut x, &mut y, &mut r);
     writelnf!(
-        "{}",
+        "{:s}",
         if (r <= x) && (x <= (w - r)) && (r <= y) && (y <= (h - r)) {
             "Yes"
         } else {

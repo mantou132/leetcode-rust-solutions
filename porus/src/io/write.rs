@@ -3,7 +3,7 @@ use core::convert::TryInto;
 use super::super::iter::Iterator;
 use super::Sink;
 
-pub fn fwrite<'a, S : 'a + Sink, F : FnMut(&'a mut S)>(sink: &'a mut S, mut f: F) {
+pub fn fwrite<'a, S : 'a + Sink, F : FnMut(&'a mut S)>(sink: &'a mut S, f: &mut F) {
     f(sink)
 }
 
