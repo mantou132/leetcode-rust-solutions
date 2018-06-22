@@ -1,5 +1,12 @@
-[workspace]
-members = ["porus_macros", "porus"]
+[package]
+name = "porus"
+description = "porus library"
+version = "0.0.0"
+authors = ["bhuztez <bhuztez@gmail.com>"]
+license = "MIT"
+
+[dependencies]
+porus_macros = { path = "porus_macros" }
 
 [profile.release]
 panic = "abort"
