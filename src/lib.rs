@@ -16,13 +16,44 @@
 //!
 
 //! Competitive programming still stucks in the 1950s when you have to
-//! build everything from scratch, since almost all popular online
-//! judges accept only a single file within tens of kilobytes. So
-//! before submitting, you have to generate a file from your solution.
+//! build everything from scratch. Everyone is rolling their own
+//! ad-hoc implementations of data structures and algorithms, since
+//! most popular online judges accept only a single file within tens
+//! of kilobytes which is orders of magnitude smaller than the size of
+//! libraries used in real world.
 //!
 
-//! Currently Rust nightly is required, and you have to put following
-//! code at the very beginning of your solutions.
+//! Thus, solutions have to be preproccessed before submitting to
+//! online judges. Right now, [`porus`](self) piggybacks on `ix` to do
+//! the preprocessing.  For example, to submit to
+//! [AOJ](http://judge.u-aizu.ac.jp/onlinejudge/) the solution to
+//! [ITP1_1_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_1_A)
+//!
+
+//! ```bash
+//! $ python3 -mix submit -w solutions/AOJ/ITP1/ITP1_1_A.rs
+//! [SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs
+//! [COMPILE] target/x86_64-unknown-linux-gnu/release/libporus.rlib
+//! AOJ (judge.u-aizu.ac.jp)
+//! User ID: your_username
+//! Password:
+//! [SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs: Accepted (Memory: 2000, Time: 0, Length: 1380)
+//! $
+//! ```
+//!
+
+//! Under the hood, Rust code is first compiled to assembly with
+//! link-time optimization. Because of name mangling, labels in the
+//! assembly code might consist of tens of characters. So, then all
+//! labels is renamed, to reduce the size of the assembly
+//! code. Finally, the assembly code is compressed with [Sequitur
+//! algorithm](https://en.wikipedia.org/wiki/Sequitur_algorithm) to
+//! furthur reduce the size, and wrapped with `__asm__()`, so that it
+//! could be submitted as C code.
+//!
+
+//! Currently Rust nightly-2018-06-18 is required, and following code
+//! have to be put at the very beginning of solution code.
 //!
 //! ```ignore
 //! #![feature(proc_macro_non_items)]

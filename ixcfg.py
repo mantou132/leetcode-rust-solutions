@@ -20,9 +20,9 @@ def has_to_recompile(source, target, rlibs=DEBUG_EXTERNS):
     if ix_has_to_recompile(source, target):
         return True
 
-    for rlib in rlibs.values():
-        if os.stat(rlib).st_mtime >= os.stat(target).st_mtime:
-            return True
+    rlib = rlibs["porus"]
+    if os.stat(rlib).st_mtime >= os.stat(target).st_mtime:
+        return True
 
     return False
 

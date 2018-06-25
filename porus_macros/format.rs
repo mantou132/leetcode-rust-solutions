@@ -70,6 +70,7 @@ pub fn f(tokens: TokenStream) -> TokenStream {
         {
             #[allow(unused_variables, unused_mut)]
             let mut porus_args = #args;
+            #[allow(unused_variables)]
             move |porus_sink| {
                 #stream
             }

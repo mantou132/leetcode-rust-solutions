@@ -17,7 +17,7 @@ env:
   - TRAVIS_RUST_VERSION=nightly
   - TRAVIS_RUST_VERSION=nightly-2018-06-18
 install:
-- curl -sSf https://build.travis-ci.org/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
+- curl -sSf https://sh.rustup.rs/ | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
 - pip install -r requirements.txt
 script:
 - cargo test --verbose
