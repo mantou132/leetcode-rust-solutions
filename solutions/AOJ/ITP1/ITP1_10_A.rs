@@ -8,5 +8,5 @@ prelude!();
 fn solve() {
     let (mut x1, mut y1, mut x2, mut y2) : (f64, f64, f64, f64) = default();
     read!(&mut x1, &mut y1, &mut x2, &mut y2);
-    writelnf!("{:.5f}", ((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1)).sqrt());
+    writelnf!("{:.5f}", sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1)));
 }

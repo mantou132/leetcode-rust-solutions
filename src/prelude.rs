@@ -3,6 +3,13 @@ pub use core::cmp::Ordering::Equal;
 pub use core::cmp::Ordering::Greater;
 
 pub use core::f64::consts::PI;
+use core::intrinsics::sqrtf64;
+
+pub fn sqrt(x : f64) -> f64 {
+    unsafe {
+        sqrtf64(x)
+    }
+}
 
 pub use super::iter::{Iterator, IterRef, IterRefMut, into_iter};
 

@@ -52,7 +52,7 @@
 //! could be submitted as C code.
 //!
 
-//! Currently Rust nightly-2018-06-18 is required, and following code
+//! Currently Rust nightly is required, and following code
 //! have to be put at the very beginning of solution code.
 //!
 //! ```ignore

@@ -10,7 +10,7 @@ don't have to copy and paste library code into your solution.
 
 ## Requirements
 
-* Rust nightly-2018-06-18
+* Rust nightly
   * i686-pc-windows-gnu
   * i686-unknown-linux-gnu
   * x86_64-pc-windows-gnu
@@ -29,7 +29,7 @@ $ python3 -mix submit -w solutions/AOJ/ITP1/ITP1_1_A.rs
 [COMPILE] target/x86_64-unknown-linux-gnu/release/libporus.rlib
 AOJ (judge.u-aizu.ac.jp)
 User ID: your_username
-Password: 
+Password:
 [SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs: Accepted (Memory: 2000, Time: 0, Length: 1380)
-$ 
+$
 ```
