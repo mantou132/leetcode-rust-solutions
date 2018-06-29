@@ -32,4 +32,4 @@ mod iter;
 pub use self::iter::{iter, iter_ref, iter_ref_mut};
 
 pub mod sort;
-pub use self::sort::{insertion_sort, bubble_sort};
+pub use self::sort::{bubble_sort, insertion_sort, selection_sort};

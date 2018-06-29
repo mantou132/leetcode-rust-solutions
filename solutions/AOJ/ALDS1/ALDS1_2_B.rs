@@ -12,7 +12,7 @@ fn solve() {
     let a = array![0; n];
     list::iter_ref_mut(a).foreach(|e| { read!(e); });
 
-    let count = list::bubble_sort(a, &PartialOrd::lt);
+    let count = list::selection_sort(a, &PartialOrd::lt);
 
     writelnf!("{}", join(f!(" "), list::iter(a).map(|e| f!("{e:d}"))));
     writelnf!("{count:d}");

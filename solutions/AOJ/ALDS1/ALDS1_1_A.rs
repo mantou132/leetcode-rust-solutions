@@ -17,7 +17,7 @@ fn solve() {
     writelnf!("{}", join(f!(" "), list::iter(a).map(|e| f!("{e:d}"))));
 
     for i in 2..n+1 {
-        bubble_sorted(slice_mut!(a, [0, i]));
+        bubble_sorted(slice_mut!(a, [0, i]), &PartialOrd::lt);
         writelnf!("{}", join(f!(" "), list::iter(a).map(|e| f!("{e:d}"))));
     }
 }
