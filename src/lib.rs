@@ -52,8 +52,8 @@
 //! could be submitted as C code.
 //!
 
-//! Currently Rust nightly is required, and following code
-//! have to be put at the very beginning of solution code.
+//! Currently Rust nightly is required, and following code have to be
+//! put at the very beginning of solution code.
 //!
 //! ```ignore
 //! #![feature(proc_macro_non_items)]
@@ -95,6 +95,7 @@ pub mod alloc;
 #[macro_use]
 pub mod iter;
 pub mod collection;
+#[macro_use]
 pub mod list;
 pub mod stack;
 pub mod deque;

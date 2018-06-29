@@ -25,8 +25,11 @@ pub fn get_mut<T: ListMut>(list: &mut T, index: isize) -> Option<&mut T::Elem> {
     ListMutBase::get_mut(list, index)
 }
 
-mod slice;
-pub use self::slice::slice;
+#[macro_use]
+pub mod slice;
 
 mod iter;
 pub use self::iter::{iter, iter_ref, iter_ref_mut};
+
+pub mod sort;
+pub use self::sort::{insertion_sort, bubble_sort};
