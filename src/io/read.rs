@@ -131,7 +131,15 @@ use core::intrinsics::powif64;
 
 impl<'a> Consumer for &'a mut f64 {
     fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
-        let mut int : i64 = 0;
+        let sign : f64 =
+            if let Some(&b'-') = s.peek() {
+                s.consume();
+                -1.0
+            } else {
+                1.0
+            };
+
+        let mut int : u64 = 0;
         fread(s, &mut int);
 
         let mut exp : i32 = 0;
@@ -140,7 +148,7 @@ impl<'a> Consumer for &'a mut f64 {
             s.consume();
 
             while let Some(d) = read_digit(s, 10) {
-                int = int * 10 + (d as i64);
+                int = int * 10 + (d as u64);
                 exp -= 1;
             }
         }
@@ -152,7 +160,7 @@ impl<'a> Consumer for &'a mut f64 {
             exp += e;
         }
 
-        *self = unsafe { powif64(10.0, exp) } * (int as f64);
+        *self = sign * unsafe { powif64(10.0, exp) } * (int as f64);
     }
 }
 
