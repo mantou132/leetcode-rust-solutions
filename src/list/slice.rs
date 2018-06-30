@@ -21,7 +21,11 @@ impl<'a, T : List> ListBase for ListView<'a, T> {
     type Elem = T::Elem;
 
     fn get(&self, index: isize) -> Option<&Self::Elem> {
-        ListBase::get(self.list, self.offset + self.step * index)
+        if index < self.size {
+            ListBase::get(self.list, self.offset + self.step * index)
+        } else {
+            None
+        }
     }
 }
 
@@ -35,7 +39,7 @@ impl<'a, T : 'a + List + Collection> ListView<'a, T> {
         if step > 0 {
             if !((start >= 0) && (start <= size)) {
                 panic!("start must in [0,size]");
-        }
+            }
 
             if !((stop >= 0) && (stop <= size)) {
                 panic!("stop must in [0,size]");
@@ -93,13 +97,21 @@ impl<'a, T : ListMut> ListBase for ListMutView<'a, T> {
     type Elem = T::Elem;
 
     fn get(&self, index: isize) -> Option<&Self::Elem> {
-        ListBase::get(self.list, self.offset + self.step * index)
+        if index < self.size {
+            ListBase::get(self.list, self.offset + self.step * index)
+        } else {
+            None
+        }
     }
 }
 
 impl<'a, T : ListMut> ListMutBase for ListMutView<'a, T> {
     fn get_mut(&mut self, index: isize) -> Option<&mut Self::Elem> {
-        ListMutBase::get_mut(self.list, self.offset + self.step * index)
+        if index < self.size {
+            ListMutBase::get_mut(self.list, self.offset + self.step * index)
+        } else {
+            None
+        }
     }
 }
 
@@ -113,7 +125,7 @@ impl<'a, T : 'a + ListMut + Collection> ListMutView<'a, T> {
         if step > 0 {
             if !((start >= 0) && (start <= size)) {
                 panic!("start must in [0,size]");
-        }
+            }
 
             if !((stop >= 0) && (stop <= size)) {
                 panic!("stop must in [0,size]");

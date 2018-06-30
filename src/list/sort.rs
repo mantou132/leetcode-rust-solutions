@@ -4,6 +4,10 @@ use super::super::collection::Collection;
 
 
 fn swap<L: ListMut>(list: &mut L, i: isize, j: isize) {
+    if i == j {
+        return;
+    }
+
     let mut t = unsafe { mem::uninitialized() };
     mem::swap(&mut t, get_mut(list, i).unwrap());
     mem::swap(&mut t, get_mut(list, j).unwrap());
@@ -60,7 +64,6 @@ pub fn insertion_sort<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>
     count
 }
 
-
 pub fn selection_sort<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list: &mut L, lt: &F) -> usize {
     let mut count = 0;
     let size = Collection::size(list);
@@ -78,4 +81,18 @@ pub fn selection_sort<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>
         }
     }
     count
+}
+
+pub fn partition<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list: &mut L, lt: &F) -> isize {
+    let size = Collection::size(list);
+    let mut i = 0;
+    for j in 0..size-1 {
+        if lt(&list[j], &list[size-1]) {
+            swap(list, j, i);
+            i += 1;
+        }
+    }
+
+    swap(list, i, size-1);
+    i
 }

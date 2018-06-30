@@ -45,11 +45,13 @@ impl Range {
 #[macro_export]
 macro_rules! range {
     () => ( &$crate::range::Range::new(None, None, 1) );
-    ($stop:expr) => ( &$crate::range::Range::new(Some(0), Some($stop), 1) );
+    ($stop:expr) => ( &$crate::range::Range::new(None, Some($stop), 1) );
     ($start:expr, $stop:expr) => ( &$crate::range::Range::new(Some($start), Some($stop), 1) );
     ($start:expr, $stop:expr, $step:expr) => ( &$crate::range::Range::new(Some($start), Some($stop), $step) );
+    ($start:expr, ) => ( &$crate::range::Range::new(Some($start), None, 1) );
     ($start:expr, , $step:expr) => ( &$crate::range::Range::new(Some($start), None, $step) );
     (, $stop:expr, $step:expr) => ( &$crate::range::Range::new(None, Some($stop), $step) );
+    (, $stop:expr) => ( &$crate::range::Range::new(None, Some($stop), 1) );
     (, , $step:expr) => ( &$crate::range::Range::new(None, None, $step) );
 }
 
