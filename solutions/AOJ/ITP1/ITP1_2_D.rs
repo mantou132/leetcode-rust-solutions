@@ -6,8 +6,11 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (mut w, mut h, mut x, mut y, mut r): (isize, isize, isize, isize ,isize) = default();
-    read!(&mut w, &mut h, &mut x, &mut y, &mut r);
+    let w : isize = read!();
+    let h : isize = read!();
+    let x : isize = read!();
+    let y : isize = read!();
+    let r : isize = read!();
     writelnf!(
         "{:s}",
         if (r <= x) && (x <= (w - r)) && (r <= y) && (y <= (h - r)) {

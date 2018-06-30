@@ -31,6 +31,13 @@ pub fn default<T: Default>() -> T {
 
 #[macro_export]
 macro_rules! read {
+    () => (
+        {
+            let mut x = Default::default();
+            read!(&mut x);
+            x
+        }
+    );
     ( $($expr:expr),* ) => (
         $(
             ::io::read($crate::io::read::Whitespace);

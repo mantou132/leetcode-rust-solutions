@@ -7,8 +7,8 @@ prelude!();
 
 fn solve() {
     loop {
-        let (mut h, mut w) : (isize, isize) = default();
-        read!(&mut h, &mut w);
+        let h : isize = read!();
+        let w : isize = read!();
         if (h == 0) && (w == 0) {
             break;
         }

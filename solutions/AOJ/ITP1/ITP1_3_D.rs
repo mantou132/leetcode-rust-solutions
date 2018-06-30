@@ -6,7 +6,8 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (mut a, mut b, mut c) : (isize, isize, isize) = default();
-    read!(&mut a, &mut b, &mut c);
+    let a : isize = read!();
+    let b : isize = read!();
+    let c : isize = read!();
     writelnf!("{:d}", into_iter(a..=b).filter(|x| {(&c) % x == 0}).count());
 }

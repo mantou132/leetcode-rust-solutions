@@ -6,8 +6,8 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (mut a, mut b): (isize, isize) = default();
-    read!(&mut a, &mut b);
+    let a : isize = read!();
+    let b : isize = read!();
     writelnf!(
         "a {:s} b",
         match Ord::cmp(&a, &b) {

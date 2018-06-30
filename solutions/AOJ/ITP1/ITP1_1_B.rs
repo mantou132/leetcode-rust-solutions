@@ -6,7 +6,6 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let mut x : isize = default();
-    read!(&mut x);
+    let x : isize = read!();
     writelnf!("{:d}", x*x*x);
 }

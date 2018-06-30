@@ -6,21 +6,16 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let mut n : isize = default();
-    read!(&mut n);
-
+    let n : isize = read!();
     let vec = array![0isize; 0];
 
     for _ in 0..n {
-        let mut op : isize = default();
-        read!(&mut op);
+        let op : isize = read!();
         if op == 0 {
-            let mut x : isize = default();
-            read!(&mut x);
+            let x : isize = read!();
             Stack::push(vec, x);
         } else if op == 1 {
-            let mut p : isize = default();
-            read!(&mut p);
+            let p : isize = read!();
             writelnf!("{:d}", vec[p]);
         } else if op == 2 {
             Stack::pop(vec);

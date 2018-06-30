@@ -6,8 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let mut n : isize = default();
-    read!(&mut n);
+    let n : isize = read!();
 
     'outer:
     for i in (0..n).map(|x| x+1) {

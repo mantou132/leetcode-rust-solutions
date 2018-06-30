@@ -6,11 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (mut a, mut b) : (isize, isize) = default();
-    read!(&mut a, &mut b);
-    let d = a / b;
-    let r = a % b;
-    let f = (a as f64) / (b as f64);
-
-    writelnf!("{d:d} {r:d} {f:.6f}");
+    let a : isize = read!();
+    let b : isize = read!();
+    writelnf!("{:d} {:d} {:.6f}", a / b, a % b, (a as f64) / (b as f64));
 }

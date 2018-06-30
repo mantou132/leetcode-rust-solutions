@@ -6,7 +6,9 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let (mut x1, mut y1, mut x2, mut y2) : (f64, f64, f64, f64) = default();
-    read!(&mut x1, &mut y1, &mut x2, &mut y2);
+    let x1 : f64 = read!();
+    let y1 : f64 = read!();
+    let x2 : f64 = read!();
+    let y2 : f64 = read!();
     writelnf!("{:.5f}", sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1)));
 }

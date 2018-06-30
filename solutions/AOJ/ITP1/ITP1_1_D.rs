@@ -6,8 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let mut t: isize = default();
-    read!(&mut t);
+    let t : isize = read!();
     let s = t % 60;
     let mut m = t / 60;
     let h = m / 60;

@@ -6,7 +6,6 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let mut r : f64 = default();
-    read!(&mut r);
+    let r : f64 = read!();
     writelnf!("{:.6f} {:.6f}", PI * r * r, PI * 2.0 * r);
 }
