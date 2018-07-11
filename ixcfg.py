@@ -9,7 +9,7 @@ DEBUG_EXTERNS = {
     "porus": os.path.join(ROOTDIR, "target/debug/libporus.rlib"),
     "porus_macros": os.path.join(ROOTDIR, "target/debug/libporus_macros.so"),
 }
-SOLUTION_PATTERN = r'^(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs(?:\.c)?$'
+SOLUTION_PATTERN = r'^(?:[^/]+)/(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs(?:\.c)?$'
 
 
 def extern(externs):
@@ -96,7 +96,7 @@ def generate_submission(source, llvm_target):
 
     return target
 
-
+GLOBL = re.compile(rb'^\s+[.]globl\s+(\S+)$', re.M)
 LABEL = re.compile(rb'^([^:\s]+):$', re.M)
 CHARS = b'_.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
@@ -125,9 +125,9 @@ def prepare_submission(envs, filename):
     with open(asm,'rb') as f:
         code = f.read()
 
-    labels = set(LABEL.findall(code))
-    labels.discard(b"main")
-    labels.discard(b"_main")
+    labels = set(LABEL.findall(code)) - set(GLOBL.findall(code))
+    # labels.discard(b"main")
+    # labels.discard(b"_main")
     pattern = b"|".join(map(re.escape, labels))
     labels = {l: b"L"+bytes(encode_int(n))
               for n,l in enumerate(labels)}
