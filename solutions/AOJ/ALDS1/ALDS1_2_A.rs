@@ -7,9 +7,7 @@ prelude!();
 
 fn solve() {
     let n : isize = read!();
-
-    let a = array![0; n];
-    list::iter_ref_mut(a).foreach(|e| { read!(e); });
+    let a = &mut Array::<isize>::new_from_iter((0..n).map(|_| read!()));
 
     let count = list::bubble_sort(a, &PartialOrd::lt);
 

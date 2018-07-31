@@ -19,6 +19,7 @@ pub use super::list::slice;
 pub use super::stack::Stack;
 pub use super::deque::Deque;
 
+pub use super::array::Array;
 pub use super::dlist::DoublyLinkedList;
 
 pub use super::io::read::Char;

@@ -1,4 +1,5 @@
 use core::marker::PhantomData;
+use core::iter::{Iterator, ExactSizeIterator};
 use super::ptr::{read, write, get, get_mut};
 use super::alloc::{Allocator, allocate, deallocate, reallocate};
 use super::os::OSAllocator;
@@ -18,14 +19,15 @@ pub struct Array<T, P : CapacityPolicy = DefaultCapacityPolicy, A : Allocator = 
 }
 
 
-impl<T : Clone, P : CapacityPolicy, A : Allocator + Default> Array<T,P,A> {
-    pub fn new_from_elem(x: T, size: isize) -> Self {
+impl<T, P : CapacityPolicy, A : Allocator + Default> Array<T,P,A> {
+    pub fn new_from_iter<I: ExactSizeIterator<Item=T>>(mut it: I) -> Self {
+        let size = ExactSizeIterator::len(&it) as isize;
         let mut allocator = Default::default();
         let capacity = P::initial(size);
         let data = allocate(&mut allocator, capacity);
 
         for i in 0..size {
-            write(data, i, Clone::clone(&x));
+            write(data, i, Iterator::next(&mut it).unwrap())
         }
 
         Array {
@@ -35,6 +37,13 @@ impl<T : Clone, P : CapacityPolicy, A : Allocator + Default> Array<T,P,A> {
             allocator: allocator,
             _policy: PhantomData,
         }
+    }
+}
+
+
+impl<T : Clone, P : CapacityPolicy, A : Allocator + Default> Array<T,P,A> {
+    pub fn new_from_elem(x: T, size: isize) -> Self {
+        Array::new_from_iter((0..size).map(|_| Clone::clone(&x)))
     }
 }
 
