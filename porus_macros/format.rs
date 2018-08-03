@@ -34,6 +34,9 @@ pub fn f(tokens: TokenStream) -> TokenStream {
                     "" => {
                         stream = quote! { #stream porus::io::write::fwrite(porus_sink, &mut #arg); };
                     },
+                    "c" => {
+                        stream = quote! { #stream porus::io::Sink::write(porus_sink, #arg); };
+                    },
                     "s" => {
                         stream = quote! { #stream porus::io::write::String::write(#arg, porus_sink); };
                     },

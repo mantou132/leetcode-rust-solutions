@@ -1,5 +1,5 @@
 use core::mem;
-use super::{ListMut, get_mut};
+use super::{List, ListMut, get_mut};
 use super::super::collection::Collection;
 
 
@@ -13,6 +13,15 @@ fn swap<L: ListMut>(list: &mut L, i: isize, j: isize) {
     mem::swap(&mut t, get_mut(list, j).unwrap());
     mem::swap(&mut t, get_mut(list, i).unwrap());
     mem::forget(t);
+}
+
+pub fn is_stable_sort<E, L: List<Elem=E> + Collection, F: Fn(&E, &E) -> bool, I: List<Elem=isize>>(list: &L, lt: &F, index: &I) -> bool {
+    for i in 0..(Collection::size(list)-1) {
+        if !lt(&list[index[i]], &list[index[i+1]]) && !(index[i] < index[i+1]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 pub fn bubble<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list: &mut L, lt: &F) -> usize {
