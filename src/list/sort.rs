@@ -1,5 +1,6 @@
 use core::mem;
 use super::{List, ListMut, get_mut};
+use super::slice::ListMutView;
 use super::super::collection::Collection;
 
 
@@ -104,4 +105,20 @@ pub fn partition<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list
 
     swap(list, i, size-1);
     i
+}
+
+
+fn quick_sort_aux<'a, 'b: 'a, E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list: &'b mut ListMutView<'a, L>, lt: &F) {
+    let size = Collection::size(list);
+    if size < 2 {
+        return;
+    }
+
+    let p = partition(list, lt);
+    quick_sort_aux::<E,L,F>(slice_mut!(list, [,p]), lt);
+    quick_sort_aux::<E,L,F>(slice_mut!(list, [p+1,]), lt);
+}
+
+pub fn quick_sort<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list: &mut L, lt: &F) {
+    quick_sort_aux(slice_mut!(list, [0,]), lt);
 }

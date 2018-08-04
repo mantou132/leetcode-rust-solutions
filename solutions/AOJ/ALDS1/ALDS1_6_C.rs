@@ -6,7 +6,7 @@ extern crate porus;
 prelude!();
 
 #[derive(Default, Clone, Copy)]
-struct Card(u8, u8);
+struct Card(u8, u32);
 
 fn read_card() -> Card {
     let mut suit = 0u8;
@@ -27,12 +27,7 @@ fn solve() {
     let a = &mut Array::<Card>::new_from_iter((0..n).map(|_| read_card()));
 
     let bi = &mut Array::<isize>::new_from_iter(0..n);
-    list::bubble_sort(bi, &|i, j| { a[*i].1 < a[*j].1 });
-    writelnf!("{}", join(f!(" "), list::iter(bi).map(|i| f!("{:c}{:d}", a[i].0, a[i].1))));
+    list::quick_sort(bi, &|i, j| { a[*i].1 <= a[*j].1 });
     writelnf!("{:s}", stable(list::is_stable_sort(a, &|x, y| { x.1 < y.1 }, bi)));
-
-    let si = &mut Array::<isize>::new_from_iter(0..n);
-    list::selection_sort(si, &|i, j| { a[*i].1 < a[*j].1 });
-    writelnf!("{}", join(f!(" "), list::iter(si).map(|i| f!("{:c}{:d}", a[i].0, a[i].1))));
-    writelnf!("{:s}", stable(list::is_stable_sort(a, &|x, y| { x.1 < y.1 }, si)));
+    writelnf!("{}", join(f!("\n"), list::iter(bi).map(|i| f!("{:c} {:d}", a[i].0, a[i].1))));
 }

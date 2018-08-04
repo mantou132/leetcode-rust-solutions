@@ -2,6 +2,40 @@ use super::super::range::Range;
 use super::super::collection::Collection;
 use super::{ListBase, ListMutBase, List, ListMut};
 
+fn slice(size: isize, range: &Range) -> (isize, isize, isize) {
+    let start = range.start(size);
+    let stop = range.stop(size);
+    let step = range.step();
+
+    if step > 0 {
+        if !((start >= 0) && (start <= size)) {
+            panic!("start must in [0,size]");
+        }
+
+        if !((stop >= 0) && (stop <= size)) {
+            panic!("stop must in [0,size]");
+        }
+
+        (start,
+         if stop <= start { 0 } else { (stop - start - 1) / step + 1 },
+         step)
+    } else if step < 0 {
+        if !((start >= -1) && (start < size)) {
+            panic!("start must in [-1,size)");
+        }
+
+        if !((stop >= -1) && (stop < size)) {
+            panic!("stop must in [-1,size)");
+        }
+
+        (start,
+         if stop >= start { 0 } else { (stop - start + 1) / step + 1 },
+         step)
+    } else {
+        panic!("step must not be 0");
+    }
+}
+
 
 #[derive(List)]
 pub struct ListView<'a, T: 'a + List> {
@@ -29,45 +63,31 @@ impl<'a, T : List> ListBase for ListView<'a, T> {
     }
 }
 
-impl<'a, T : 'a + List + Collection> ListView<'a, T> {
-    pub fn new(list: &'a T, range: &Range) -> Self {
-        let size = Collection::size(list);
-        let start = range.start(size);
-        let stop = range.stop(size);
-        let step = range.step();
+pub trait Slice<'a, T : List + Collection> {
+    fn new(&'a mut self, range: &Range) -> ListView<'a, T>;
+}
 
-        if step > 0 {
-            if !((start >= 0) && (start <= size)) {
-                panic!("start must in [0,size]");
-            }
+impl<'a, 'b : 'a, T: List + Collection> Slice<'b, T> for ListView<'a, T> {
+    fn new(&'b mut self, range: &Range) -> ListView<'b, T> {
+        let (offset, size, step) = slice(Collection::size(self), range);
 
-            if !((stop >= 0) && (stop <= size)) {
-                panic!("stop must in [0,size]");
-            }
+        ListView {
+            list: self.list,
+            offset: self.offset + offset * self.step,
+            size: size,
+            step: self.step * step,
+        }
+    }
+}
 
-            ListView {
-                list: list,
-                offset: start,
-                size: if stop <= start { 0 } else { (stop - start - 1) / step + 1 },
-                step: step,
-            }
-        } else if step < 0 {
-            if !((start >= -1) && (start < size)) {
-                panic!("start must in [-1,size)");
-            }
-
-            if !((stop >= -1) && (stop < size)) {
-                panic!("stop must in [-1,size)");
-            }
-
-            ListView {
-                list: list,
-                offset: start,
-                size: if stop >= start { 0 } else { (stop - start + 1) / step + 1 },
-                step: step,
-            }
-        } else {
-            unreachable!();
+impl<'a, T : List + Collection> Slice<'a, T> for T {
+    fn new(&'a mut self, range: &Range) -> ListView<'a, T> {
+        let (offset, size, step) = slice(Collection::size(self), range);
+        ListView {
+            list: self,
+            offset: offset,
+            size: size,
+            step: step,
         }
     }
 }
@@ -75,7 +95,7 @@ impl<'a, T : 'a + List + Collection> ListView<'a, T> {
 #[macro_export]
 macro_rules! slice {
     ($list:expr, [ $($arg:tt)+ ]) => {
-        &$crate::list::slice::ListView::new($list, range!($($arg)+))
+        &$crate::list::slice::Slice::new($list, range!($($arg)+))
     }
 }
 
@@ -115,52 +135,40 @@ impl<'a, T : ListMut> ListMutBase for ListMutView<'a, T> {
     }
 }
 
-impl<'a, T : 'a + ListMut + Collection> ListMutView<'a, T> {
-    pub fn new(list: &'a mut T, range: &Range) -> Self {
-        let size = Collection::size(list);
-        let start = range.start(size);
-        let stop = range.stop(size);
-        let step = range.step();
 
-        if step > 0 {
-            if !((start >= 0) && (start <= size)) {
-                panic!("start must in [0,size]");
-            }
+pub trait SliceMut<'a, T : ListMut + Collection> {
+    fn new(&'a mut self, range: &Range) -> ListMutView<'a, T>;
+}
 
-            if !((stop >= 0) && (stop <= size)) {
-                panic!("stop must in [0,size]");
-            }
+impl<'a, 'b : 'a, T: ListMut + Collection> SliceMut<'b, T> for ListMutView<'a, T> {
+    fn new(&'b mut self, range: &Range) -> ListMutView<'b, T> {
+        let (offset, size, step) = slice(Collection::size(self), range);
 
-            ListMutView {
-                list: list,
-                offset: start,
-                size: if stop <= start { 0 } else { (stop - start - 1) / step + 1 },
-                step: step,
-            }
-        } else if step < 0 {
-            if !((start >= -1) && (start < size)) {
-                panic!("start must in [-1,size)");
-            }
-
-            if !((stop >= -1) && (stop < size)) {
-                panic!("stop must in [-1,size)");
-            }
-
-            ListMutView {
-                list: list,
-                offset: start,
-                size: if stop >= start { 0 } else { (stop - start + 1) / step + 1 },
-                step: step,
-            }
-        } else {
-            unreachable!();
+        ListMutView {
+            list: self.list,
+            offset: self.offset + offset * self.step,
+            size: size,
+            step: self.step * step,
         }
     }
 }
 
+impl<'a, T : ListMut + Collection> SliceMut<'a, T> for T {
+    fn new(&'a mut self, range: &Range) -> ListMutView<'a, T> {
+        let (offset, size, step) = slice(Collection::size(self), range);
+        ListMutView {
+            list: self,
+            offset: offset,
+            size: size,
+            step: step,
+        }
+    }
+}
+
+
 #[macro_export]
 macro_rules! slice_mut {
     ($list:expr, [ $($arg:tt)+ ]) => {
-        &mut $crate::list::slice::ListMutView::new($list, range!($($arg)+))
+        &mut $crate::list::slice::SliceMut::new($list, range!($($arg)+))
     }
 }
