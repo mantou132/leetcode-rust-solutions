@@ -8,5 +8,6 @@ prelude!();
 fn solve() {
     let n : isize = read!();
     let a = &mut Array::<isize>::new_from_iter((0..n).map(|_| read!()));
-    writelnf!("{}", join(f!(" "), list::iter(slice!(a, [,,-1])).map(|e| f!("{e:d}"))));
+    let r = slice!(a, [,,-1]);
+    writelnf!("{}", join(f!(" "), list::iter(r).map(|e| f!("{e:d}"))));
 }
