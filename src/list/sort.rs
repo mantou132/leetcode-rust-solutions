@@ -1,5 +1,5 @@
 use core::mem;
-use super::{List, ListMut, get_mut};
+use super::{List, ListMut, get_mut, iter};
 use super::slice::ListMutView;
 use super::super::collection::Collection;
 
@@ -54,22 +54,48 @@ pub fn bubble_sort<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(li
 pub fn bubble_sorted<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list: &mut L, lt: &F) -> usize {
     let mut count = 0;
     let size = Collection::size(list);
-    if size >= 2 {
-        let mut i = size - 1;
-        while (i > 0) && lt(&list[i], &list[i-1]) {
-            swap(list, i, i-1);
-            count += 1;
-            i -= 1;
-        }
+    let mut i = size - 1;
+    while (i > 0) && lt(&list[i], &list[i-1]) {
+        swap(list, i, i-1);
+        count += 1;
+        i -= 1;
     }
     count
 }
 
-pub fn insertion_sort<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list: &mut L, lt: &F) -> usize {
+fn insertion_sort_g<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list: &mut L, lt: &F, g: isize) -> usize {
     let mut count = 0;
     let size = Collection::size(list);
-    for i in 2..size+1 {
-        count += bubble_sorted(slice_mut!(list, [0, i]), lt);
+
+    for i in g..size {
+        let mut j = i;
+        while ((j - g) >= 0) && lt(&list[j], &list[j-g]) {
+            swap(list, j, j-g);
+            count += 1;
+            j -= g;
+        }
+    }
+
+    count
+}
+
+pub fn insertion_sort<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool>(list: &mut L, lt: &F) -> usize {
+    // let mut count = 0;
+    // let size = Collection::size(list);
+    // for i in 2..size+1 {
+    //     count += bubble_sorted(slice_mut!(list, [0, i]), lt);
+    // }
+    // count
+    insertion_sort_g(list, lt, 1)
+}
+
+pub fn shell_sort<E, L: ListMut<Elem=E> + Collection, F: Fn(&E, &E) -> bool, G : List<Elem=isize> + Collection>(list: &mut L, lt: &F, gaps: &G) -> usize {
+    let mut count = 0;
+    for g in iter(gaps) {
+        // for i in 0..g {
+        //     count += insertion_sort(slice_mut!(list, [i,,g]), lt);
+        // }
+        count += insertion_sort_g(list, lt, g);
     }
     count
 }

@@ -16,7 +16,6 @@ pub trait List : ListBase + Index<isize, Output=<Self as ListBase>::Elem> {
 pub trait ListMut : ListMutBase + IndexMut<isize, Output=<Self as ListBase>::Elem> {
 }
 
-
 pub fn get<T: List>(list: &T, index: isize) -> Option<&T::Elem> {
     ListBase::get(list, index)
 }
@@ -32,4 +31,4 @@ mod iter;
 pub use self::iter::{iter, iter_ref, iter_ref_mut};
 
 pub mod sort;
-pub use self::sort::{is_stable_sort, bubble_sort, insertion_sort, selection_sort, quick_sort};
+pub use self::sort::{is_stable_sort, bubble_sort, insertion_sort, shell_sort, selection_sort, quick_sort};

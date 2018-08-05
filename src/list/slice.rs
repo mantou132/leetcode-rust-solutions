@@ -64,11 +64,11 @@ impl<'a, T : List> ListBase for ListView<'a, T> {
 }
 
 pub trait Slice<'a, T : List + Collection> {
-    fn new(&'a mut self, range: &Range) -> ListView<'a, T>;
+    fn new(&'a self, range: &Range) -> ListView<'a, T>;
 }
 
 impl<'a, 'b : 'a, T: List + Collection> Slice<'b, T> for ListView<'a, T> {
-    fn new(&'b mut self, range: &Range) -> ListView<'b, T> {
+    fn new(&'b self, range: &Range) -> ListView<'b, T> {
         let (offset, size, step) = slice(Collection::size(self), range);
 
         ListView {
@@ -81,7 +81,7 @@ impl<'a, 'b : 'a, T: List + Collection> Slice<'b, T> for ListView<'a, T> {
 }
 
 impl<'a, T : List + Collection> Slice<'a, T> for T {
-    fn new(&'a mut self, range: &Range) -> ListView<'a, T> {
+    fn new(&'a self, range: &Range) -> ListView<'a, T> {
         let (offset, size, step) = slice(Collection::size(self), range);
         ListView {
             list: self,
