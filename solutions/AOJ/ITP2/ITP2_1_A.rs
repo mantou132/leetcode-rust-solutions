@@ -13,12 +13,12 @@ fn solve() {
         let op : isize = read!();
         if op == 0 {
             let x : isize = read!();
-            Stack::push(vec, x);
+            stack::push(vec, x);
         } else if op == 1 {
             let p : isize = read!();
             writelnf!("{:d}", vec[p]);
         } else if op == 2 {
-            Stack::pop(vec);
+            stack::pop(vec);
         }
     }
 }

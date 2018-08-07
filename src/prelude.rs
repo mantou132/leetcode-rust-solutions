@@ -16,7 +16,7 @@ pub use super::iter::{Iterator, IterRef, IterRefMut, into_iter};
 pub use super::collection;
 pub use super::list;
 pub use super::list::slice;
-pub use super::stack::Stack;
+pub use super::stack;
 pub use super::deque::Deque;
 
 pub use super::array::Array;
@@ -31,18 +31,29 @@ pub fn default<T: Default>() -> T {
 }
 
 #[macro_export]
-macro_rules! read {
+macro_rules! read_opt {
     () => (
         {
             let mut x = Default::default();
-            read!(&mut x);
-            x
+            if ::io::read_skip_ws(&mut x) {
+                Some(x)
+            } else {
+                None
+            }
+        }
+    )
+}
+
+#[macro_export]
+macro_rules! read {
+    () => (
+        {
+            read_opt!().unwrap()
         }
     );
     ( $($expr:expr),* ) => (
         $(
-            ::io::read($crate::io::read::Whitespace);
-            ::io::read($expr);
+            ::io::read_skip_ws($expr);
         )*
     )
 }
@@ -66,7 +77,7 @@ macro_rules! prelude {
 
             use $crate::io::stdio;
             use $crate::io::Sink;
-            use $crate::io::read::fread;
+            use $crate::io::read::{fread, Consumer, Whitespace};
             use $crate::io::write::fwrite;
 
             #[allow(dead_code)]
@@ -74,10 +85,15 @@ macro_rules! prelude {
             static mut STDOUT : stdio::Output = stdio::stdout(&mut [0;$size]);
 
             #[allow(dead_code)]
-            pub fn read<C: $crate::io::read::Consumer>(c: C) {
+            pub fn read<C: Consumer>(c: C) -> bool {
                 unsafe {
-                    fread(&mut STDIN, c);
+                    fread(&mut STDIN, c)
                 }
+            }
+
+            pub fn read_skip_ws<C: Consumer>(c: C) -> bool {
+                read(Whitespace);
+                read(c)
             }
 
             #[allow(dead_code)]

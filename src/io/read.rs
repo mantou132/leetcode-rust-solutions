@@ -4,32 +4,39 @@ use super::{Source, PeekableSource};
 
 
 pub trait Consumer {
-    fn consume<I : Source>(self, s: &mut PeekableSource<I>);
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>) -> bool;
 }
 
-pub fn fread<I : Source, C: Consumer>(s: &mut PeekableSource<I>, c: C) {
+pub fn fread<I : Source, C: Consumer>(s: &mut PeekableSource<I>, c: C) -> bool {
     Consumer::consume(c, s)
 }
 
 pub struct Whitespace;
 
 impl Consumer for Whitespace {
-    fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>) -> bool {
         while let Some(&c) = s.peek() {
             match c {
                 b' ' | b'\t' ... b'\r' => { s.consume(); },
                 _ => { break; },
             }
         }
+        true
     }
 }
 
 pub struct Char<'a>(pub &'a mut u8);
 
 impl<'a> Consumer for Char<'a> {
-    fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
-        *(self.0) = *(s.peek().unwrap());
-        s.consume();
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>) -> bool {
+        match s.peek() {
+            None => false,
+            Some(&c) => {
+                *(self.0) = c;
+                s.consume();
+                true
+            }
+        }
     }
 }
 
@@ -71,42 +78,64 @@ fn read_digit<I : Source>(s: &mut PeekableSource<I>, radix: u8) -> Option<u8> {
     Some(d)
 }
 
-fn read_unsigned<I : Source, T : Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8>>(s: &mut PeekableSource<I>, radix: u8) -> T {
-    let mut x : T = TryFrom::try_from(read_digit(s, radix).unwrap()).ok().unwrap();
+fn read_unsigned<I : Source, T : Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8>>(s: &mut PeekableSource<I>, radix: u8) -> Option<T> {
+    match read_digit(s, radix) {
+        None => None,
+        Some(d) => {
+            let mut x : T = TryFrom::try_from(d).ok().unwrap();
 
-    while let Some(d) = read_digit(s, radix) {
-        x = x * TryFrom::try_from(10).ok().unwrap() + TryFrom::try_from(d).ok().unwrap();
+            while let Some(d) = read_digit(s, radix) {
+                x = x * TryFrom::try_from(10).ok().unwrap() + TryFrom::try_from(d).ok().unwrap();
+            }
+
+            Some(x)
+        }
     }
-
-    x
 }
 
-fn read_signed<I : Source, T : Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8> + Neg<Output=T>>(s: &mut PeekableSource<I>, radix: u8) -> T {
-    if let Some(&b'-') = s.peek() {
-        s.consume();
-        return -read_unsigned::<_, T>(s, radix);
+fn read_signed<I : Source, T : Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8> + Neg<Output=T>>(s: &mut PeekableSource<I>, radix: u8) -> Option<T> {
+    match s.peek() {
+        None => None,
+        Some(&b'-') => {
+            s.consume();
+            let x : T = read_unsigned(s, radix).unwrap();
+            Some(-x)
+        },
+        Some(_) => {
+            read_unsigned(s, radix)
+        }
     }
-
-    read_unsigned(s, radix)
 }
 
 
 impl<'a, T : 'a + Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8>> Consumer for Int<'a, T> {
-    default fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
-        *self.0 = read_unsigned(s, self.1);
+    default fn consume<I : Source>(self, s: &mut PeekableSource<I>) -> bool {
+        match read_unsigned(s, self.1) {
+            None => false,
+            Some(v) => {
+                *self.0 = v;
+                true
+            }
+        }
     }
 }
 
 impl<'a, T : 'a + Copy + Default + Add<Output=T> + Mul<Output=T> + TryFrom<u8> + Neg<Output=T>> Consumer for Int<'a, T> {
-    fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
-        *self.0 = read_signed(s, self.1);
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>) -> bool {
+        match read_signed(s, self.1) {
+            None => false,
+            Some(v) => {
+                *self.0 = v;
+                true
+            }
+        }
     }
 }
 
 macro_rules! int {
     ($t:ty) => (
         impl<'a> Consumer for &'a mut $t {
-            fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
+            fn consume<I : Source>(self, s: &mut PeekableSource<I>) -> bool {
                 Consumer::consume(Int(self, 10), s)
             }
         }
@@ -130,7 +159,7 @@ int!(isize);
 use core::intrinsics::powif64;
 
 impl<'a> Consumer for &'a mut f64 {
-    fn consume<I : Source>(self, s: &mut PeekableSource<I>) {
+    fn consume<I : Source>(self, s: &mut PeekableSource<I>) -> bool {
         let sign : f64 =
             if let Some(&b'-') = s.peek() {
                 s.consume();
@@ -161,6 +190,7 @@ impl<'a> Consumer for &'a mut f64 {
         }
 
         *self = sign * unsafe { powif64(10.0, exp) } * (int as f64);
+        true
     }
 }
 
