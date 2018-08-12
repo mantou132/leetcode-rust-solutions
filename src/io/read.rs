@@ -215,19 +215,17 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn test_unsigned_mismatch() {
         let source = &mut SliceSource::new(b"g");
         let mut x = 0usize;
-        fread(source, hex(&mut x));
+        assert!(!fread(source, hex(&mut x)));
     }
 
     #[test]
-    #[should_panic]
     fn test_unsigned_mismatch_empty() {
         let source = &mut SliceSource::new(b"");
         let mut x = 0usize;
-        fread(source, hex(&mut x));
+        assert!(!fread(source, hex(&mut x)));
     }
 
     #[test]
@@ -247,11 +245,10 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn test_signed_mismatch_empty() {
         let source = &mut SliceSource::new(b"");
         let mut x = 0isize;
-        fread(source, &mut x);
+        assert!(!fread(source, &mut x));
     }
 
     #[test]
