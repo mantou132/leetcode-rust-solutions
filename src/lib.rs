@@ -101,6 +101,8 @@ pub mod stack;
 pub mod deque;
 
 #[macro_use]
+pub mod static_array;
+#[macro_use]
 pub mod array;
 #[macro_use]
 pub mod buffer;

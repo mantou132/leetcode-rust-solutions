@@ -10,8 +10,7 @@ fn solve() {
     let n : isize = read!();
     let a = &mut Array::<isize>::new_from_iter((0..n).map(|_| read!()));
 
-    let gaps = &Array::<isize>::new_from_iter(
-        [797161, 265720, 88573, 29524, 9841, 3280, 1093, 364, 121, 40, 13, 4, 1].iter().map(|x| *x));
+    let gaps = static_array![797161, 265720, 88573, 29524, 9841, 3280, 1093, 364, 121, 40, 13, 4, 1];
 
     let mut skip = 0;
     while (gaps[skip] > n) && (gaps[skip] != 1) {
