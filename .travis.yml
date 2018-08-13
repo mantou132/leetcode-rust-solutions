@@ -4,12 +4,6 @@ python:
 - "3.5"
 - "3.6"
 - "3.7-dev"
-addons:
-  apt:
-    sources:
-    - llvm-toolchain-trusty-5.0
-    packages:
-    - llvm-5.0
 env:
   global:
   - PATH=${PATH}:${HOME}/.cargo/bin
@@ -18,21 +12,19 @@ env:
 install:
 - curl -sSf https://sh.rustup.rs/ | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y
 - pip install -r requirements.txt
+- CARGO_TARGET_DIR="${HOME}/.cargo/target" cargo install cargo-update || echo "cargo-update already installed"
+- CARGO_TARGET_DIR="${HOME}/.cargo/target" cargo install --git git://github.com/bhuztez/cov cargo-cov || echo "cargo-cov already installed"
+- CARGO_TARGET_DIR="${HOME}/.cargo/target" cargo install-update -ag
 script:
 - cargo test --verbose
-- cargo test --release --verbose
 - find solutions -name '*.rs' | RUSTFLAGS="--cfg local -Z borrowck=mir -Z polonius" xargs -I {} python3 -mix -v generate {}.c
 - python3 -mix -v test
 - python3 -mix -v clean
 after_success:
-- CARGO_INCREMENTAL=0 RUSTFLAGS='-Z borrowck=mir -Z polonius -Z profile -C opt-level=0 -C no-prepopulate-passes -C link-dead-code -C overflow-checks=off -C inline-threshold=0 -C codegen-units=1' cargo test -v
-- CARGO_INCREMENTAL=0 RUSTFLAGS='-Z borrowck=mir -Z polonius -Z profile -C opt-level=0 -C no-prepopulate-passes -C link-dead-code -C overflow-checks=off -C inline-threshold=0 -C codegen-units=1' python3 -mix -v test
-- find target/debug/deps -name 'porus*' | grep -v gcno | grep -v gcda | xargs -I {} llvm-cov gcov -l -p {}
-- find solutions -name '*.rs' | xargs -I {} llvm-cov gcov -l -p {}
-- pip install requests
-- python3 coveralls.py
-- python3 -mix -v clean
-- rm *.gcov
+- cargo cov clean
+- COVERAGE=1 python3 -mix -v test
+- cargo cov test -v
+- cargo cov report --coveralls
 matrix:
   allow_failures:
   - python: "3.7-dev"

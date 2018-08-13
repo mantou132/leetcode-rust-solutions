@@ -5,9 +5,20 @@ from ix import has_to_recompile as ix_has_to_recompile, compile_file
 from ix.utils import index_of, replace_ext
 import subprocess
 
+COVERAGE= os.environ.get('COVERAGE', '0').lower() in ('1', 'on')
+BUILD_PATH = os.path.join(ROOTDIR, 'target/cov/build' if COVERAGE else 'target')
+RUSTC = os.path.join(BUILD_PATH, 'rustc-shim.bat') if COVERAGE else 'rustc'
+
+if COVERAGE:
+    os.environ["CARGO_INCREMENTAL"]="0"
+    os.environ["COV_PROFILER_LIB_NAME"]="@native"
+    os.environ["COV_PROFILER_LIB_PATH"]="@native"
+    os.environ["COV_RUSTC"]="rustc"
+    os.environ["COV_BUILD_PATH"]=BUILD_PATH
+
 DEBUG_EXTERNS = {
-    "porus": os.path.join(ROOTDIR, "target/debug/libporus.rlib"),
-    "porus_macros": os.path.join(ROOTDIR, "target/debug/libporus_macros.so"),
+    "porus": os.path.join(BUILD_PATH, "debug/libporus.rlib"),
+    "porus_macros": os.path.join(BUILD_PATH, "debug/libporus_macros.so"),
 }
 SOLUTION_PATTERN = r'^(?:[^/]+)/(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs(?:\.c)?$'
 
@@ -29,22 +40,25 @@ def has_to_recompile(source, target, rlibs=DEBUG_EXTERNS):
 
 def get_rustc_argv(mode='debug', target=None):
     EXTERNS = {
-        "porus": os.path.join(ROOTDIR, "target/{}{}/libporus.rlib".format("" if target is None else target+"/", mode)),
-        "porus_macros": os.path.join(ROOTDIR, "target/{}/libporus_macros.so".format(mode)),
+        "porus": os.path.join(BUILD_PATH, "{}{}/libporus.rlib".format("" if target is None else target+"/", mode)),
+        "porus_macros": os.path.join(BUILD_PATH, "{}/libporus_macros.so".format(mode)),
     }
-    DEPS = ['-L', 'dependency='+os.path.join(ROOTDIR, "target/{}/deps".format(mode))]
+    DEPS = ['-L', 'dependency='+os.path.join(BUILD_PATH, "{}/deps".format(mode))]
 
     VERBOSE_FLAG = '-v' if VERBOSE else '-q'
     MODE = [] if mode == 'debug' else ['--'+mode]
     TARGET = [] if target is None else ['--target', target]
 
-    ARGV = ['cargo', 'build', VERBOSE_FLAG, '--lib'] + MODE + TARGET
+    ARGV = ['cargo'] + (
+        ['cov'] if COVERAGE else []
+    ) + ['build', VERBOSE_FLAG, '--lib'] + MODE + TARGET
+
     if compile_file(ROOTDIR, ARGV, 'PORUS LIB', EXTERNS["porus"]) is None:
         return
 
     FLAGS = os.environ.get("RUSTFLAGS", "-Z borrowck=mir -Z polonius").split(" ")
     DEBUG = ['-C', 'debuginfo=2'] if mode == 'debug' else []
-    return ['rustc', '-Z', 'external-macro-backtrace'] + DEBUG + FLAGS + DEPS, EXTERNS
+    return [RUSTC, '-Z', 'external-macro-backtrace'] + DEBUG + FLAGS + DEPS, EXTERNS
 
 
 def get_compile_argv(filename):
