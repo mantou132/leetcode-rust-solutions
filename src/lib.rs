@@ -1,12 +1,11 @@
 #![feature(core_intrinsics)]
 #![feature(decl_macro)]
-#![feature(proc_macro_non_items)]
-#![feature(extern_prelude)]
 #![feature(const_fn)]
 #![feature(const_slice_len)]
 #![feature(const_slice_as_ptr)]
 #![feature(try_from)]
 #![feature(specialization)]
+#![feature(refcell_replace_swap)]
 #![cfg_attr(not(any(test, debug_assertions)), feature(lang_items))]
 #![cfg_attr(not(any(test, debug_assertions)), feature(panic_implementation))]
 #![no_std]
@@ -82,6 +81,8 @@
 
 #[macro_use]
 extern crate porus_macros;
+
+pub mod tests;
 
 pub mod ptr;
 

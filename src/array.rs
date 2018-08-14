@@ -127,3 +127,20 @@ macro_rules! array {
         &mut $crate::array::Array::<_>::new_from_elem($elem, $n)
     );
 }
+
+
+#[cfg(test)]
+mod tests {
+    use core::cell::RefCell;
+    use super::Array;
+    use super::super::tests::Item;
+
+    #[test]
+    fn test_drop() {
+        let counter = RefCell::new(0);
+        {
+            Array::<_>::new_from_iter((0..10).map(|_| Item::new(&counter)));
+        }
+        assert!(counter.into_inner() == 10);
+    }
+}
