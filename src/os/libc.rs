@@ -9,6 +9,7 @@ extern "C" {
     pub fn realloc(ptr: *mut u8, size: usize) -> *mut u8;
 
     #[cfg_attr(target_os="windows", link_name = "_errno")]
+    #[cfg_attr(target_os="macos", link_name = "__error")]
     #[cfg_attr(target_os="linux", link_name = "__errno_location")]
     fn errno_location() -> *mut i32;
 }
