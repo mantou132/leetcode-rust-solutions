@@ -58,7 +58,7 @@ def get_rustc_argv(mode='debug', target=None):
 
     FLAGS = os.environ.get("RUSTFLAGS", "-Z borrowck=mir -Z polonius").split(" ")
     DEBUG = ['-C', 'debuginfo=2'] if mode == 'debug' else []
-    return [RUSTC, '-Z', 'external-macro-backtrace'] + DEBUG + FLAGS + DEPS, EXTERNS
+    return [RUSTC, '-Z', 'external-macro-backtrace'] + DEBUG + FLAGS + TARGET + DEPS, EXTERNS
 
 
 def get_compile_argv(filename):
