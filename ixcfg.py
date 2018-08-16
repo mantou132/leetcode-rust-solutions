@@ -110,16 +110,6 @@ def generate_submission(source, llvm_target):
 
     return target
 
-GLOBL = re.compile(rb'^\s+[.]globl\s+(\S+)$', re.M)
-LABEL = re.compile(rb'^([^:\s]+):$', re.M)
-CHARS = b'_.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-
-def encode_int(n):
-    while True:
-        yield CHARS[n % 64]
-        if n == 0:
-            break
-        n //= 64
 
 def prepare_submission(envs, filename):
     env = pick_env(envs)
@@ -138,16 +128,6 @@ def prepare_submission(envs, filename):
 
     with open(asm,'rb') as f:
         code = f.read()
-
-    labels = set(LABEL.findall(code)) - set(GLOBL.findall(code))
-    # labels.discard(b"main")
-    # labels.discard(b"_main")
-    pattern = b"|".join(map(re.escape, labels))
-    labels = {l: b"L"+bytes(encode_int(n))
-              for n,l in enumerate(labels)}
-    def repl(m):
-        return labels[m.group(0)]
-    code = re.sub(pattern, repl, code)
 
     if llvm_target is None:
         from ix.escape import escape_source

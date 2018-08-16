@@ -23,7 +23,7 @@ don't have to copy and paste library code into your solution.
 ```console
 $ git clone git://github.com/bhuztez/porus.git
 $ cd porus
-$ pip3 install -r requirements.txt
+$ pip3 install --user -r requirements.txt
 $ python3 -mix submit -w solutions/AOJ/ITP1/ITP1_1_A.rs
 [SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs
 [COMPILE] target/x86_64-unknown-linux-gnu/release/libporus.rlib
