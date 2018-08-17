@@ -6,9 +6,9 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let mut i : isize = 1;
+    let mut i: isize = 1;
     loop {
-        let x : isize = read!();
+        let x: isize = read!();
         if x == 0 {
             break;
         }

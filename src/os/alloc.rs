@@ -1,15 +1,13 @@
-use core::ptr::null_mut;
-use super::OSError;
-use super::libc::{malloc, free, realloc, get_error};
 use super::super::alloc::Allocator;
+use super::libc::{free, get_error, malloc, realloc};
+use super::OSError;
+use core::ptr::null_mut;
 
-pub struct OSAllocator {
-}
+pub struct OSAllocator {}
 
 impl Default for OSAllocator {
     fn default() -> Self {
-        OSAllocator {
-        }
+        OSAllocator {}
     }
 }
 
@@ -25,12 +23,11 @@ impl Allocator for OSAllocator {
             }
             Ok(null_mut())
         } else {
-            let p =
-                if ptr.is_null() {
-                    unsafe { malloc(size) }
-                } else {
-                    unsafe { realloc(ptr, size) }
-                };
+            let p = if ptr.is_null() {
+                unsafe { malloc(size) }
+            } else {
+                unsafe { realloc(ptr, size) }
+            };
 
             if p.is_null() {
                 get_error()
@@ -43,7 +40,6 @@ impl Allocator for OSAllocator {
 
 impl OSAllocator {
     pub fn new() -> Self {
-        OSAllocator {
-        }
+        OSAllocator {}
     }
 }

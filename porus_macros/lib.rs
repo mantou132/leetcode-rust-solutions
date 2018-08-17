@@ -7,23 +7,20 @@ extern crate syn;
 extern crate quote;
 extern crate fmt_macros;
 
-use proc_macro::{TokenStream, TokenTree, Span, Group};
+use proc_macro::{Group, Span, TokenStream, TokenTree};
 use std::iter::FromIterator;
 
 mod common;
 mod format;
 
-
 fn set_span(span: Span, stream: TokenStream) -> TokenStream {
-    let iter = stream.into_iter().map(|mut tree| {
-        match tree {
-            TokenTree::Group(g) => {
-                TokenTree::Group(Group::new(g.delimiter(), set_span(span, g.stream())))
-            }
-            _ => {
-                tree.set_span(span);
-                tree
-            }
+    let iter = stream.into_iter().map(|mut tree| match tree {
+        TokenTree::Group(g) => {
+            TokenTree::Group(Group::new(g.delimiter(), set_span(span, g.stream())))
+        }
+        _ => {
+            tree.set_span(span);
+            tree
         }
     });
     TokenStream::from_iter(iter)

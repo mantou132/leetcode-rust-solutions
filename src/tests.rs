@@ -1,14 +1,12 @@
 use core::cell::RefCell;
 
 pub struct Item<'a> {
-    counter: &'a RefCell<usize>
+    counter: &'a RefCell<usize>,
 }
 
 impl<'a> Item<'a> {
     pub fn new(counter: &'a RefCell<usize>) -> Self {
-        Item {
-            counter: counter
-        }
+        Item { counter: counter }
     }
 }
 

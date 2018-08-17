@@ -1,10 +1,10 @@
+use super::pool::{Handle as PoolHandle, Pool};
 use core::fmt::Debug;
 use core::mem::size_of;
-use core::ptr::{read, write, null_mut};
-use super::pool::{Pool, Handle as PoolHandle};
+use core::ptr::{null_mut, read, write};
 
 pub trait Allocator {
-    type Error : Debug;
+    type Error: Debug;
 
     fn reallocate(&mut self, ptr: *mut u8, capacity: usize) -> Result<*mut u8, Self::Error>;
 }
@@ -25,9 +25,8 @@ pub fn deallocate<T, A: Allocator>(allocator: &mut A, ptr: *mut T) {
     reallocate(allocator, ptr, 0);
 }
 
-
 #[derive(Copy, Clone, Eq)]
-pub struct Handle (*mut u8);
+pub struct Handle(*mut u8);
 
 impl PartialEq for Handle {
     fn eq(&self, rhs: &Self) -> bool {
@@ -41,22 +40,17 @@ impl Default for Handle {
     }
 }
 
-impl PoolHandle for Handle {
-}
+impl PoolHandle for Handle {}
 
-impl<T, A : Allocator> Pool<T> for A {
+impl<T, A: Allocator> Pool<T> for A {
     type Handle = Handle;
 
     fn get(&self, handle: Self::Handle) -> &T {
-        unsafe {
-            &*(handle.0 as *mut T)
-        }
+        unsafe { &*(handle.0 as *mut T) }
     }
 
     fn get_mut(&mut self, handle: Self::Handle) -> &mut T {
-        unsafe {
-            &mut *(handle.0 as *mut T)
-        }
+        unsafe { &mut *(handle.0 as *mut T) }
     }
 
     fn add(&mut self, item: T) -> Self::Handle {

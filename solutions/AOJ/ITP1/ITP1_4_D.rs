@@ -6,14 +6,14 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let n : isize = read!();
+    let n: isize = read!();
 
     let mut min = isize::max_value();
     let mut max = isize::min_value();
-    let mut sum : isize = 0;
+    let mut sum: isize = 0;
 
     for _ in 0..n {
-        let a : isize = read!();
+        let a: isize = read!();
 
         min = Ord::min(a, min);
         max = Ord::max(a, max);

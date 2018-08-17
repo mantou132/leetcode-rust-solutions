@@ -1,6 +1,6 @@
-use super::super::range::Range;
 use super::super::collection::Collection;
-use super::{ListBase, ListMutBase, List, ListMut};
+use super::super::range::Range;
+use super::{List, ListBase, ListMut, ListMutBase};
 
 fn slice(size: isize, range: &Range) -> (isize, isize, isize) {
     let start = range.start(size);
@@ -16,9 +16,15 @@ fn slice(size: isize, range: &Range) -> (isize, isize, isize) {
             panic!("stop must in [0,size]");
         }
 
-        (start,
-         if stop <= start { 0 } else { (stop - start - 1) / step + 1 },
-         step)
+        (
+            start,
+            if stop <= start {
+                0
+            } else {
+                (stop - start - 1) / step + 1
+            },
+            step,
+        )
     } else if step < 0 {
         if !((start >= -1) && (start < size)) {
             panic!("start must in [-1,size)");
@@ -28,14 +34,19 @@ fn slice(size: isize, range: &Range) -> (isize, isize, isize) {
             panic!("stop must in [-1,size)");
         }
 
-        (start,
-         if stop >= start { 0 } else { (stop - start + 1) / step + 1 },
-         step)
+        (
+            start,
+            if stop >= start {
+                0
+            } else {
+                (stop - start + 1) / step + 1
+            },
+            step,
+        )
     } else {
         panic!("step must not be 0");
     }
 }
-
 
 #[derive(List)]
 pub struct ListView<'a, T: 'a + List> {
@@ -45,13 +56,13 @@ pub struct ListView<'a, T: 'a + List> {
     step: isize,
 }
 
-impl<'a, T : List> Collection for ListView<'a, T> {
+impl<'a, T: List> Collection for ListView<'a, T> {
     fn size(&self) -> isize {
         self.size
     }
 }
 
-impl<'a, T : List> ListBase for ListView<'a, T> {
+impl<'a, T: List> ListBase for ListView<'a, T> {
     type Elem = T::Elem;
 
     fn get(&self, index: isize) -> Option<&Self::Elem> {
@@ -63,11 +74,11 @@ impl<'a, T : List> ListBase for ListView<'a, T> {
     }
 }
 
-pub trait Slice<'a, T : List + Collection> {
+pub trait Slice<'a, T: List + Collection> {
     fn new(&'a self, range: &Range) -> ListView<'a, T>;
 }
 
-impl<'a, 'b : 'a, T: List + Collection> Slice<'b, T> for ListView<'a, T> {
+impl<'a, 'b: 'a, T: List + Collection> Slice<'b, T> for ListView<'a, T> {
     fn new(&'b self, range: &Range) -> ListView<'b, T> {
         let (offset, size, step) = slice(Collection::size(self), range);
 
@@ -80,7 +91,7 @@ impl<'a, 'b : 'a, T: List + Collection> Slice<'b, T> for ListView<'a, T> {
     }
 }
 
-impl<'a, T : List + Collection> Slice<'a, T> for T {
+impl<'a, T: List + Collection> Slice<'a, T> for T {
     fn new(&'a self, range: &Range) -> ListView<'a, T> {
         let (offset, size, step) = slice(Collection::size(self), range);
         ListView {
@@ -107,13 +118,13 @@ pub struct ListMutView<'a, T: 'a + ListMut> {
     step: isize,
 }
 
-impl<'a, T : ListMut> Collection for ListMutView<'a, T> {
+impl<'a, T: ListMut> Collection for ListMutView<'a, T> {
     fn size(&self) -> isize {
         self.size
     }
 }
 
-impl<'a, T : ListMut> ListBase for ListMutView<'a, T> {
+impl<'a, T: ListMut> ListBase for ListMutView<'a, T> {
     type Elem = T::Elem;
 
     fn get(&self, index: isize) -> Option<&Self::Elem> {
@@ -125,7 +136,7 @@ impl<'a, T : ListMut> ListBase for ListMutView<'a, T> {
     }
 }
 
-impl<'a, T : ListMut> ListMutBase for ListMutView<'a, T> {
+impl<'a, T: ListMut> ListMutBase for ListMutView<'a, T> {
     fn get_mut(&mut self, index: isize) -> Option<&mut Self::Elem> {
         if index < self.size {
             ListMutBase::get_mut(self.list, self.offset + self.step * index)
@@ -135,12 +146,11 @@ impl<'a, T : ListMut> ListMutBase for ListMutView<'a, T> {
     }
 }
 
-
-pub trait SliceMut<'a, T : ListMut + Collection> {
+pub trait SliceMut<'a, T: ListMut + Collection> {
     fn new(&'a mut self, range: &Range) -> ListMutView<'a, T>;
 }
 
-impl<'a, 'b : 'a, T: ListMut + Collection> SliceMut<'b, T> for ListMutView<'a, T> {
+impl<'a, 'b: 'a, T: ListMut + Collection> SliceMut<'b, T> for ListMutView<'a, T> {
     fn new(&'b mut self, range: &Range) -> ListMutView<'b, T> {
         let (offset, size, step) = slice(Collection::size(self), range);
 
@@ -153,7 +163,7 @@ impl<'a, 'b : 'a, T: ListMut + Collection> SliceMut<'b, T> for ListMutView<'a, T
     }
 }
 
-impl<'a, T : ListMut + Collection> SliceMut<'a, T> for T {
+impl<'a, T: ListMut + Collection> SliceMut<'a, T> for T {
     fn new(&'a mut self, range: &Range) -> ListMutView<'a, T> {
         let (offset, size, step) = slice(Collection::size(self), range);
         ListMutView {
@@ -164,7 +174,6 @@ impl<'a, T : ListMut + Collection> SliceMut<'a, T> for T {
         }
     }
 }
-
 
 #[macro_export]
 macro_rules! slice_mut {

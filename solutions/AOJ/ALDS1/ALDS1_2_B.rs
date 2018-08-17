@@ -6,7 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let n : isize = read!();
+    let n: isize = read!();
     let a = &mut Array::<isize>::new_from_iter((0..n).map(|_| read!()));
 
     let count = list::selection_sort(a, &PartialOrd::lt);

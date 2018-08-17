@@ -1,15 +1,14 @@
-use core::marker::PhantomData;
-use super::ptr::{read, write, get, get_mut, copy};
-use super::alloc::{Allocator, allocate, deallocate, reallocate};
-use super::os::OSAllocator;
+use super::alloc::{allocate, deallocate, reallocate, Allocator};
 use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use super::collection::Collection;
-use super::list::{ListBase, ListMutBase, List, ListMut};
 use super::deque::Deque;
-
+use super::list::{List, ListBase, ListMut, ListMutBase};
+use super::os::OSAllocator;
+use super::ptr::{copy, get, get_mut, read, write};
+use core::marker::PhantomData;
 
 #[derive(List, ListMut)]
-pub struct Buffer<T, P : CapacityPolicy = DefaultCapacityPolicy, A : Allocator = OSAllocator> {
+pub struct Buffer<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
     front: isize,
     back: isize,
     capacity: isize,
@@ -18,8 +17,7 @@ pub struct Buffer<T, P : CapacityPolicy = DefaultCapacityPolicy, A : Allocator =
     _policy: PhantomData<P>,
 }
 
-impl<T, P : CapacityPolicy, A : Allocator + Default> Buffer<T, P, A> {
-
+impl<T, P: CapacityPolicy, A: Allocator + Default> Buffer<T, P, A> {
     pub fn new() -> Self {
         Self::new_with_capacity(0)
     }
@@ -39,8 +37,7 @@ impl<T, P : CapacityPolicy, A : Allocator + Default> Buffer<T, P, A> {
     }
 }
 
-impl<T, P : CapacityPolicy, A : Allocator> Buffer<T, P, A> {
-
+impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
     fn increase_index(&self, index: isize) -> isize {
         if index + 1 == self.capacity {
             0
@@ -61,7 +58,12 @@ impl<T, P : CapacityPolicy, A : Allocator> Buffer<T, P, A> {
         self.data = reallocate(&mut self.allocator, self.data, new_capacity);
         if self.back < self.front {
             let grow = new_capacity - self.capacity;
-            copy(self.data, self.front, self.front+grow, self.capacity-self.front);
+            copy(
+                self.data,
+                self.front,
+                self.front + grow,
+                self.capacity - self.front,
+            );
             self.front += grow;
         }
         self.capacity = new_capacity;
@@ -70,7 +72,12 @@ impl<T, P : CapacityPolicy, A : Allocator> Buffer<T, P, A> {
     fn shrink_to(&mut self, new_capacity: isize) {
         if self.back < self.front {
             let shrink = self.capacity - new_capacity;
-            copy(self.data, self.front, self.front-shrink, self.capacity-self.front);
+            copy(
+                self.data,
+                self.front,
+                self.front - shrink,
+                self.capacity - self.front,
+            );
             self.front -= shrink;
         } else if self.back > new_capacity {
             let size = self.back - self.front;
@@ -98,11 +105,9 @@ impl<T, P : CapacityPolicy, A : Allocator> Buffer<T, P, A> {
             self.shrink_to(new_capacity);
         }
     }
-
 }
 
-
-impl<T, P : CapacityPolicy, A : Allocator> Collection for Buffer<T,P,A> {
+impl<T, P: CapacityPolicy, A: Allocator> Collection for Buffer<T, P, A> {
     fn size(&self) -> isize {
         if self.front <= self.back {
             self.back - self.front
@@ -112,11 +117,10 @@ impl<T, P : CapacityPolicy, A : Allocator> Collection for Buffer<T,P,A> {
     }
 }
 
-
-impl<T, P : CapacityPolicy, A : Allocator> ListBase for Buffer<T,P,A> {
+impl<T, P: CapacityPolicy, A: Allocator> ListBase for Buffer<T, P, A> {
     type Elem = T;
 
-    fn get(&self, index:isize) -> Option<&T> {
+    fn get(&self, index: isize) -> Option<&T> {
         if self.front <= self.back {
             if self.front + index >= self.back {
                 None
@@ -135,8 +139,8 @@ impl<T, P : CapacityPolicy, A : Allocator> ListBase for Buffer<T,P,A> {
     }
 }
 
-impl<T, P : CapacityPolicy, A : Allocator> ListMutBase for Buffer<T,P,A> {
-    fn get_mut(&mut self, index:isize) -> Option<&mut T> {
+impl<T, P: CapacityPolicy, A: Allocator> ListMutBase for Buffer<T, P, A> {
+    fn get_mut(&mut self, index: isize) -> Option<&mut T> {
         if self.front <= self.back {
             if self.front + index >= self.back {
                 None
@@ -155,7 +159,7 @@ impl<T, P : CapacityPolicy, A : Allocator> ListMutBase for Buffer<T,P,A> {
     }
 }
 
-impl<T, P : CapacityPolicy, A : Allocator> Deque for Buffer<T,P,A> {
+impl<T, P: CapacityPolicy, A: Allocator> Deque for Buffer<T, P, A> {
     type Elem = T;
 
     fn is_empty(&self) -> bool {
@@ -203,8 +207,8 @@ impl<T, P : CapacityPolicy, A : Allocator> Deque for Buffer<T,P,A> {
     }
 }
 
-impl<T, P : CapacityPolicy, A : Allocator> Drop for Buffer<T,P,A>{
-    fn drop(&mut self){
+impl<T, P: CapacityPolicy, A: Allocator> Drop for Buffer<T, P, A> {
+    fn drop(&mut self) {
         if self.back < self.front {
             for i in 0..self.back {
                 read(self.data, i);
@@ -222,10 +226,9 @@ impl<T, P : CapacityPolicy, A : Allocator> Drop for Buffer<T,P,A>{
     }
 }
 
-
 #[macro_export]
 macro_rules! buffer {
-    () => (
+    () => {
         &mut $crate::buffer::Buffer::<_, $crate::capacity::DefaultCapacityPolicy>::new()
-    );
+    };
 }

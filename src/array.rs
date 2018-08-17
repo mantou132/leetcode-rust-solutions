@@ -1,16 +1,15 @@
-use core::marker::PhantomData;
-use core::iter::{Iterator, ExactSizeIterator};
-use super::ptr::{read, write, get, get_mut};
-use super::alloc::{Allocator, allocate, deallocate, reallocate};
-use super::os::OSAllocator;
+use super::alloc::{allocate, deallocate, reallocate, Allocator};
 use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use super::collection::Collection;
-use super::list::{ListBase, ListMutBase, List, ListMut};
+use super::list::{List, ListBase, ListMut, ListMutBase};
+use super::os::OSAllocator;
+use super::ptr::{get, get_mut, read, write};
 use super::stack::Stack;
-
+use core::iter::{ExactSizeIterator, Iterator};
+use core::marker::PhantomData;
 
 #[derive(List, ListMut)]
-pub struct Array<T, P : CapacityPolicy = DefaultCapacityPolicy, A : Allocator = OSAllocator> {
+pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
     size: isize,
     capacity: isize,
     data: *mut T,
@@ -18,9 +17,8 @@ pub struct Array<T, P : CapacityPolicy = DefaultCapacityPolicy, A : Allocator = 
     _policy: PhantomData<P>,
 }
 
-
-impl<T, P : CapacityPolicy, A : Allocator + Default> Array<T,P,A> {
-    pub fn new_from_iter<I: ExactSizeIterator<Item=T>>(mut it: I) -> Self {
+impl<T, P: CapacityPolicy, A: Allocator + Default> Array<T, P, A> {
+    pub fn new_from_iter<I: ExactSizeIterator<Item = T>>(mut it: I) -> Self {
         let size = ExactSizeIterator::len(&it) as isize;
         let mut allocator = Default::default();
         let capacity = P::initial(size);
@@ -40,20 +38,19 @@ impl<T, P : CapacityPolicy, A : Allocator + Default> Array<T,P,A> {
     }
 }
 
-
-impl<T : Clone, P : CapacityPolicy, A : Allocator + Default> Array<T,P,A> {
+impl<T: Clone, P: CapacityPolicy, A: Allocator + Default> Array<T, P, A> {
     pub fn new_from_elem(x: T, size: isize) -> Self {
         Array::new_from_iter((0..size).map(|_| Clone::clone(&x)))
     }
 }
 
-impl<T, P : CapacityPolicy, A : Allocator> Collection for Array<T,P,A> {
+impl<T, P: CapacityPolicy, A: Allocator> Collection for Array<T, P, A> {
     fn size(&self) -> isize {
         self.size
     }
 }
 
-impl<T, P : CapacityPolicy, A : Allocator> ListBase for Array<T,P,A> {
+impl<T, P: CapacityPolicy, A: Allocator> ListBase for Array<T, P, A> {
     type Elem = T;
 
     fn get(&self, index: isize) -> Option<&T> {
@@ -65,7 +62,7 @@ impl<T, P : CapacityPolicy, A : Allocator> ListBase for Array<T,P,A> {
     }
 }
 
-impl<T, P : CapacityPolicy, A : Allocator> ListMutBase for Array<T,P,A> {
+impl<T, P: CapacityPolicy, A: Allocator> ListMutBase for Array<T, P, A> {
     fn get_mut(&mut self, index: isize) -> Option<&mut T> {
         if (0 <= index) && (index < self.size) {
             Some(get_mut(self.data, index))
@@ -75,7 +72,7 @@ impl<T, P : CapacityPolicy, A : Allocator> ListMutBase for Array<T,P,A> {
     }
 }
 
-impl<T, P : CapacityPolicy, A : Allocator> Stack for Array<T,P,A> {
+impl<T, P: CapacityPolicy, A: Allocator> Stack for Array<T, P, A> {
     type Elem = T;
 
     fn is_empty(&self) -> bool {
@@ -111,8 +108,8 @@ impl<T, P : CapacityPolicy, A : Allocator> Stack for Array<T,P,A> {
     }
 }
 
-impl<T, P : CapacityPolicy, A : Allocator> Drop for Array<T,P,A>{
-    fn drop(&mut self){
+impl<T, P: CapacityPolicy, A: Allocator> Drop for Array<T, P, A> {
+    fn drop(&mut self) {
         for i in 0..self.size {
             read(self.data, i);
         }
@@ -120,20 +117,18 @@ impl<T, P : CapacityPolicy, A : Allocator> Drop for Array<T,P,A>{
     }
 }
 
-
 #[macro_export]
 macro_rules! array {
-    ($elem:expr; $n:expr) => (
+    ($elem:expr; $n:expr) => {
         &mut $crate::array::Array::<_>::new_from_elem($elem, $n)
-    );
+    };
 }
-
 
 #[cfg(test)]
 mod tests {
-    use core::cell::RefCell;
-    use super::Array;
     use super::super::tests::Item;
+    use super::Array;
+    use core::cell::RefCell;
 
     #[test]
     fn test_drop() {

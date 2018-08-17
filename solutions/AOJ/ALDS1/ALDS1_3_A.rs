@@ -6,15 +6,15 @@ extern crate porus;
 prelude!();
 
 use porus::io::read::Consumer;
-use porus::io::{Source, PeekableSource};
+use porus::io::{PeekableSource, Source};
 
 enum Symbol {
     Operator(u8),
     Operand(isize),
 }
 
-use Symbol::Operator;
 use Symbol::Operand;
+use Symbol::Operator;
 
 impl Default for Symbol {
     fn default() -> Self {
@@ -23,7 +23,7 @@ impl Default for Symbol {
 }
 
 impl<'a> Consumer for &'a mut Symbol {
-    fn consume<I : Source>(self, s: &mut PeekableSource<I>) -> bool {
+    fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
         match s.peek() {
             None => false,
             Some(&b'+') => {
@@ -42,7 +42,7 @@ impl<'a> Consumer for &'a mut Symbol {
                 true
             }
             Some(_) => {
-                let mut x : isize = 0;
+                let mut x: isize = 0;
                 if Consumer::consume(&mut x, s) {
                     *self = Operand(x);
                     true
@@ -53,7 +53,6 @@ impl<'a> Consumer for &'a mut Symbol {
         }
     }
 }
-
 
 fn solve() {
     let a = array![0isize; 0];
@@ -66,17 +65,17 @@ fn solve() {
             Operator(b'+') => {
                 let y = stack::pop(a);
                 let x = stack::pop(a);
-                stack::push(a, x+y);
+                stack::push(a, x + y);
             }
             Operator(b'-') => {
                 let y = stack::pop(a);
                 let x = stack::pop(a);
-                stack::push(a, x-y);
+                stack::push(a, x - y);
             }
             Operator(b'*') => {
                 let y = stack::pop(a);
                 let x = stack::pop(a);
-                stack::push(a, x*y);
+                stack::push(a, x * y);
             }
             Operator(_) => unreachable!(),
         }

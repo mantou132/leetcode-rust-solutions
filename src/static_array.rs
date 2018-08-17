@@ -1,5 +1,5 @@
 use super::collection::Collection;
-use super::list::{ListBase, List};
+use super::list::{List, ListBase};
 
 #[derive(List)]
 pub struct StaticArray<'a, T: 'a> {
@@ -8,9 +8,7 @@ pub struct StaticArray<'a, T: 'a> {
 
 impl<'a, T: 'a> StaticArray<'a, T> {
     pub fn new(slice: &'a [T]) -> Self {
-        StaticArray {
-            slice: slice
-        }
+        StaticArray { slice: slice }
     }
 }
 

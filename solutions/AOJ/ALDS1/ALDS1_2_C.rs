@@ -23,16 +23,34 @@ fn stable(b: bool) -> &'static str {
 }
 
 fn solve() {
-    let n : isize = read!();
+    let n: isize = read!();
     let a = &mut Array::<Card>::new_from_iter((0..n).map(|_| read_card()));
 
     let bi = &mut Array::<isize>::new_from_iter(0..n);
-    list::bubble_sort(bi, &|i, j| { a[*i].1 < a[*j].1 });
-    writelnf!("{}", join(f!(" "), list::iter(bi).map(|i| f!("{:c}{:d}", a[i].0, a[i].1))));
-    writelnf!("{:s}", stable(list::is_stable_sort(a, &|x, y| { x.1 < y.1 }, bi)));
+    list::bubble_sort(bi, &|i, j| a[*i].1 < a[*j].1);
+    writelnf!(
+        "{}",
+        join(
+            f!(" "),
+            list::iter(bi).map(|i| f!("{:c}{:d}", a[i].0, a[i].1))
+        )
+    );
+    writelnf!(
+        "{:s}",
+        stable(list::is_stable_sort(a, &|x, y| x.1 < y.1, bi))
+    );
 
     let si = &mut Array::<isize>::new_from_iter(0..n);
-    list::selection_sort(si, &|i, j| { a[*i].1 < a[*j].1 });
-    writelnf!("{}", join(f!(" "), list::iter(si).map(|i| f!("{:c}{:d}", a[i].0, a[i].1))));
-    writelnf!("{:s}", stable(list::is_stable_sort(a, &|x, y| { x.1 < y.1 }, si)));
+    list::selection_sort(si, &|i, j| a[*i].1 < a[*j].1);
+    writelnf!(
+        "{}",
+        join(
+            f!(" "),
+            list::iter(si).map(|i| f!("{:c}{:d}", a[i].0, a[i].1))
+        )
+    );
+    writelnf!(
+        "{:s}",
+        stable(list::is_stable_sort(a, &|x, y| x.1 < y.1, si))
+    );
 }

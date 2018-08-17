@@ -1,16 +1,15 @@
 use super::iter::Iterator;
 
+pub trait Source: Iterator<Item = u8> {}
 
-pub trait Source : Iterator<Item=u8> {}
+impl<T: Iterator<Item = u8>> Source for T {}
 
-impl<T : Iterator<Item=u8>> Source for T {}
-
-pub struct PeekableSource<S : Source> {
+pub struct PeekableSource<S: Source> {
     source: S,
     peeked: Option<Option<S::Item>>,
 }
 
-impl<S : Source> PeekableSource<S> {
+impl<S: Source> PeekableSource<S> {
     pub const fn new(s: S) -> Self {
         PeekableSource {
             source: s,
@@ -46,7 +45,7 @@ pub trait Sink {
     fn write(&mut self, c: u8);
 }
 
-pub mod slice;
 pub mod read;
-pub mod write;
+pub mod slice;
 pub mod stdio;
+pub mod write;

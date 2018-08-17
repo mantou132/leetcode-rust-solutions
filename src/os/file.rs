@@ -1,19 +1,15 @@
-use super::super::ptr;
-use super::super::iter::Iterator;
 use super::super::io::Sink;
+use super::super::iter::Iterator;
+use super::super::ptr;
 use super::libc;
 use super::OSError;
-
 
 pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<usize, OSError> {
     let mut length = 0;
     let mut ptr = buf;
 
     while length < count {
-        let size =
-            unsafe {
-                libc::read(fd, ptr, count-length)
-            };
+        let size = unsafe { libc::read(fd, ptr, count - length) };
 
         if size < 0 {
             return libc::get_error();
@@ -36,10 +32,7 @@ pub fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), OSError> {
     let mut written = 0;
     let mut ptr = buf;
     while written < count {
-        let size =
-            unsafe {
-                libc::write(fd, ptr, count-written)
-            };
+        let size = unsafe { libc::write(fd, ptr, count - written) };
 
         if size < 0 {
             return libc::get_error();
@@ -94,7 +87,6 @@ impl Iterator for FileSource {
     }
 }
 
-
 pub struct FileSink {
     fd: i32,
     offset: isize,
@@ -104,7 +96,7 @@ pub struct FileSink {
 
 impl FileSink {
     pub const fn new(fd: i32, size: isize, buffer: *mut u8) -> Self {
-        FileSink{
+        FileSink {
             fd: fd,
             offset: 0,
             capacity: size,

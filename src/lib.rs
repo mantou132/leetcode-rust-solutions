@@ -7,7 +7,10 @@
 #![feature(specialization)]
 #![feature(refcell_replace_swap)]
 #![cfg_attr(not(any(test, debug_assertions)), feature(lang_items))]
-#![cfg_attr(not(any(test, debug_assertions)), feature(panic_implementation))]
+#![cfg_attr(
+    not(any(test, debug_assertions)),
+    feature(panic_implementation)
+)]
 #![no_std]
 
 //! [`porus`](self) is a library for competitive programming. It is at
@@ -89,17 +92,17 @@ pub mod ptr;
 #[macro_use]
 pub mod range;
 
+pub mod alloc;
 pub mod capacity;
 pub mod pool;
-pub mod alloc;
 
 #[macro_use]
 pub mod iter;
 pub mod collection;
 #[macro_use]
 pub mod list;
-pub mod stack;
 pub mod deque;
+pub mod stack;
 
 #[macro_use]
 pub mod static_array;
@@ -117,7 +120,7 @@ pub mod prelude;
 #[cfg(not(any(test, debug_assertions)))]
 #[lang = "eh_personality"]
 #[no_mangle]
-pub extern fn eh_personality() {}
+pub extern "C" fn eh_personality() {}
 
 #[cfg(not(any(test, debug_assertions)))]
 #[panic_implementation]

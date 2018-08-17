@@ -7,15 +7,11 @@ pub fn copy<T>(p: *mut T, src: isize, dst: isize, count: isize) {
 }
 
 pub fn read<T>(p: *mut T, index: isize) -> T {
-    unsafe {
-        ptr::read(p.offset(index))
-    }
+    unsafe { ptr::read(p.offset(index)) }
 }
 
 pub fn write<T>(p: *mut T, index: isize, item: T) {
-    unsafe {
-        ptr::write(p.offset(index), item)
-    }
+    unsafe { ptr::write(p.offset(index), item) }
 }
 
 pub fn get<'a, T>(p: *mut T, index: isize) -> &'a T {

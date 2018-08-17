@@ -6,18 +6,18 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let n : isize = read!();
+    let n: isize = read!();
 
     let list = &mut DoublyLinkedList::new();
     let mut cursor = list.front();
 
     for _ in 0..n {
-        let op : isize = read!();
+        let op: isize = read!();
         if op == 0 {
-            let x : isize = read!();
+            let x: isize = read!();
             cursor = list.insert_before(x, cursor);
         } else if op == 1 {
-            let d : isize = read!();
+            let d: isize = read!();
 
             if d < 0 {
                 for _ in 0..(-d) {

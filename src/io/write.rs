@@ -1,20 +1,27 @@
-use core::ops::{Div, Rem, Neg};
-use core::convert::TryInto;
 use super::super::iter::Iterator;
 use super::Sink;
+use core::convert::TryInto;
+use core::ops::{Div, Neg, Rem};
 
-pub fn fwrite<'a, S : 'a + Sink, F : FnMut(&'a mut S)>(sink: &'a mut S, f: &mut F) {
+pub fn fwrite<'a, S: 'a + Sink, F: FnMut(&'a mut S)>(sink: &'a mut S, f: &mut F) {
     f(sink)
 }
 
 #[cfg(not(doc))]
-pub fn join<'a, S : 'a + Sink, Sep : FnMut(&'a mut S), F : FnMut(&'a mut S), I : Iterator<Item=F>>(mut sep: Sep, mut it: I) -> impl FnMut(&'a mut S) {
+pub fn join<'a, S: 'a + Sink, Sep: FnMut(&'a mut S), F: FnMut(&'a mut S), I: Iterator<Item = F>>(
+    mut sep: Sep,
+    mut it: I,
+) -> impl FnMut(&'a mut S) {
     move |s: &'a mut S| {
         let iter = &mut it;
 
         match Iterator::next(iter) {
-            None => { return; }
-            Some(mut f) => { f(s); }
+            None => {
+                return;
+            }
+            Some(mut f) => {
+                f(s);
+            }
         }
 
         for mut f in iter {
@@ -25,7 +32,10 @@ pub fn join<'a, S : 'a + Sink, Sep : FnMut(&'a mut S), F : FnMut(&'a mut S), I :
 }
 
 #[cfg(doc)]
-pub fn join<'a, S : 'a + Sink, Sep : FnMut(&'a mut S), F : FnMut(&'a mut S), I : Iterator<Item=F>>(mut sep: Sep, mut it: I) -> impl FnMut(&'a mut S) {
+pub fn join<'a, S: 'a + Sink, Sep: FnMut(&'a mut S), F: FnMut(&'a mut S), I: Iterator<Item = F>>(
+    mut sep: Sep,
+    mut it: I,
+) -> impl FnMut(&'a mut S) {
     move |s: &'a mut S| {
         panic!();
     }
@@ -53,27 +63,43 @@ pub trait Int {
 
 fn to_char(d: u8) -> u8 {
     match d {
-        0 ... 9 => { b'0' + d },
-        10 ... 35 => { b'A' + d - 10 },
-        _ => { panic!() },
+        0...9 => b'0' + d,
+        10...35 => b'A' + d - 10,
+        _ => panic!(),
     }
 }
 
-fn write_unsigned<S: Sink, T: Copy + Default + PartialOrd + Div<Output=T> + Rem<Output=T> + TryInto<u8>>(s: &mut S, mut x: T, radix: T, width: usize) {
-    let mut buf = [b'0';40];
+fn write_unsigned<
+    S: Sink,
+    T: Copy + Default + PartialOrd + Div<Output = T> + Rem<Output = T> + TryInto<u8>,
+>(
+    s: &mut S,
+    mut x: T,
+    radix: T,
+    width: usize,
+) {
+    let mut buf = [b'0'; 40];
     let mut i = 39;
 
     while x > Default::default() {
         buf[i] = to_char(TryInto::try_into(x % radix).ok().unwrap());
         i -= 1;
-        x = x /radix;
+        x = x / radix;
     }
 
-    i = Ord::min(i+1, 40-width);
+    i = Ord::min(i + 1, 40 - width);
     fwrite_str(s, &buf[i..]);
 }
 
-fn write_signed<S: Sink, T: Copy + Default + PartialOrd + Neg<Output=T> + Div<Output=T> + Rem<Output=T> + TryInto<u8>>(s: &mut S, x: T, radix: T, width: usize) {
+fn write_signed<
+    S: Sink,
+    T: Copy + Default + PartialOrd + Neg<Output = T> + Div<Output = T> + Rem<Output = T> + TryInto<u8>,
+>(
+    s: &mut S,
+    x: T,
+    radix: T,
+    width: usize,
+) {
     if x < -x {
         Sink::write(s, b'-');
         write_unsigned(s, -x, radix, width);
@@ -83,23 +109,23 @@ fn write_signed<S: Sink, T: Copy + Default + PartialOrd + Neg<Output=T> + Div<Ou
 }
 
 macro_rules! unsigned {
-    ($t:ty) => (
+    ($t:ty) => {
         impl Int for $t {
             fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
                 write_unsigned(s, self, radix as _, width)
             }
         }
-    )
+    };
 }
 
 macro_rules! signed {
-    ($t:ty) => (
+    ($t:ty) => {
         impl Int for $t {
             fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
                 write_signed(s, self, radix as _, width)
             }
         }
-    )
+    };
 }
 
 unsigned!(u8);
@@ -116,7 +142,6 @@ signed!(i64);
 signed!(i128);
 signed!(isize);
 
-
 pub trait Float {
     fn write<S: Sink>(self, s: &mut S, prec: i32);
 }
@@ -124,7 +149,6 @@ pub trait Float {
 use core::intrinsics::powif64;
 
 impl Float for f64 {
-
     fn write<S: Sink>(mut self, s: &mut S, prec: i32) {
         if self.is_finite() {
             #[cfg(any(all(debug_assertions, not(test)), local))]

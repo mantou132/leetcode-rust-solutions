@@ -1,14 +1,18 @@
-use super::super::iter::{Iterator, IterRef, IterRefMut};
+use super::super::iter::{IterRef, IterRefMut, Iterator};
 use super::{ListBase, ListMutBase};
 
 pub struct ListIter<'a, T: 'a + ListBase>
-    where T::Elem : Copy {
+where
+    T::Elem: Copy,
+{
     list: &'a T,
     index: isize,
 }
 
 impl<'a, T: 'a + ListBase> Iterator for ListIter<'a, T>
-    where T::Elem : Copy {
+where
+    T::Elem: Copy,
+{
     type Item = T::Elem;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -23,13 +27,14 @@ impl<'a, T: 'a + ListBase> Iterator for ListIter<'a, T>
 }
 
 pub fn iter<T: ListBase>(list: &T) -> ListIter<T>
-    where T::Elem : Copy {
+where
+    T::Elem: Copy,
+{
     ListIter {
         list: list,
         index: 0,
     }
 }
-
 
 pub struct ListIterRef<'a, T: 'a + ListBase> {
     list: &'a T,
@@ -53,7 +58,6 @@ pub fn iter_ref<T: ListBase>(list: &T) -> ListIterRef<T> {
         index: 0,
     }
 }
-
 
 pub struct ListIterRefMut<'a, T: 'a + ListMutBase> {
     list: &'a mut T,

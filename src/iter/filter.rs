@@ -1,21 +1,17 @@
 use super::{IterRef, IterRefMut};
 
-
-pub struct FilterRef<I : IterRef, F : FnMut(&I::Item) -> bool> {
+pub struct FilterRef<I: IterRef, F: FnMut(&I::Item) -> bool> {
     it: I,
     f: F,
 }
 
-impl<I : IterRef, F : FnMut(&I::Item) -> bool> FilterRef<I, F> {
+impl<I: IterRef, F: FnMut(&I::Item) -> bool> FilterRef<I, F> {
     pub fn new(it: I, f: F) -> Self {
-        FilterRef {
-            it: it,
-            f: f,
-        }
+        FilterRef { it: it, f: f }
     }
 }
 
-impl<I : IterRef, F : FnMut(&I::Item) -> bool> IterRef for FilterRef<I, F> {
+impl<I: IterRef, F: FnMut(&I::Item) -> bool> IterRef for FilterRef<I, F> {
     type Item = I::Item;
 
     fn next(&mut self) -> Option<&Self::Item> {
@@ -28,22 +24,18 @@ impl<I : IterRef, F : FnMut(&I::Item) -> bool> IterRef for FilterRef<I, F> {
     }
 }
 
-
-pub struct FilterRefMut<I : IterRefMut, F : FnMut(&I::Item) -> bool> {
+pub struct FilterRefMut<I: IterRefMut, F: FnMut(&I::Item) -> bool> {
     it: I,
     f: F,
 }
 
-impl<I : IterRefMut, F : FnMut(&I::Item) -> bool> FilterRefMut<I, F> {
+impl<I: IterRefMut, F: FnMut(&I::Item) -> bool> FilterRefMut<I, F> {
     pub fn new(it: I, f: F) -> Self {
-        FilterRefMut {
-            it: it,
-            f: f,
-        }
+        FilterRefMut { it: it, f: f }
     }
 }
 
-impl<I : IterRefMut, F : FnMut(&I::Item) -> bool> IterRef for FilterRefMut<I, F> {
+impl<I: IterRefMut, F: FnMut(&I::Item) -> bool> IterRef for FilterRefMut<I, F> {
     type Item = I::Item;
 
     fn next(&mut self) -> Option<&Self::Item> {

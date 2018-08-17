@@ -1,40 +1,39 @@
-use core::marker::PhantomData;
-use super::pool::{Pool, Handle};
-use super::os::OSAllocator;
-use super::alloc::{Handle as OSHandle};
+use super::alloc::Handle as OSHandle;
 use super::deque::Deque;
+use super::os::OSAllocator;
+use super::pool::{Handle, Pool};
+use core::marker::PhantomData;
 
-pub struct Link<H : Handle> {
+pub struct Link<H: Handle> {
     prev: H,
     next: H,
 }
 
-pub struct Node<H : Handle, T> {
+pub struct Node<H: Handle, T> {
     link: Link<H>,
     data: T,
 }
 
-pub struct DoublyLinkedList<T, H : Handle, P : Pool<Node<H, T>, Handle=H> = OSAllocator> {
+pub struct DoublyLinkedList<T, H: Handle, P: Pool<Node<H, T>, Handle = H> = OSAllocator> {
     pool: P,
     sentinel: Link<H>,
     _data: PhantomData<T>,
 }
 
-impl <T> DoublyLinkedList<T, OSHandle, OSAllocator> {
+impl<T> DoublyLinkedList<T, OSHandle, OSAllocator> {
     pub fn new() -> Self {
         DoublyLinkedList {
             pool: OSAllocator {},
             sentinel: Link {
-                prev : Default::default(),
-                next : Default::default(),
+                prev: Default::default(),
+                next: Default::default(),
             },
-            _data: PhantomData
+            _data: PhantomData,
         }
     }
 }
 
-impl <T, H : Handle, P : Pool<Node<H, T>, Handle=H>> DoublyLinkedList<T,H,P> {
-
+impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> DoublyLinkedList<T, H, P> {
     pub fn front(&self) -> H {
         self.sentinel.next
     }
@@ -44,14 +43,13 @@ impl <T, H : Handle, P : Pool<Node<H, T>, Handle=H>> DoublyLinkedList<T,H,P> {
     }
 
     fn add_node(&mut self, data: T) -> H {
-        let node =
-            Node {
-                link: Link {
-                    prev : Default::default(),
-                    next : Default::default(),
-                },
-                data : data,
-            };
+        let node = Node {
+            link: Link {
+                prev: Default::default(),
+                next: Default::default(),
+            },
+            data: data,
+        };
         Pool::add(&mut self.pool, node)
     }
 
@@ -116,7 +114,7 @@ impl <T, H : Handle, P : Pool<Node<H, T>, Handle=H>> DoublyLinkedList<T,H,P> {
     }
 }
 
-impl <T, H : Handle, P : Pool<Node<H, T>, Handle=H>> Deque for DoublyLinkedList<T,H,P> {
+impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> Deque for DoublyLinkedList<T, H, P> {
     type Elem = T;
 
     fn is_empty(&self) -> bool {
@@ -141,5 +139,5 @@ impl <T, H : Handle, P : Pool<Node<H, T>, Handle=H>> Deque for DoublyLinkedList<
     fn pop_back(&mut self) -> T {
         let back = self.back();
         self.remove(back)
-    } 
+    }
 }

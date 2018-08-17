@@ -8,9 +8,9 @@ prelude!();
 
 fn solve() {
     loop {
-        let m : isize = read!();
-        let f : isize = read!();
-        let r : isize = read!();
+        let m: isize = read!();
+        let f: isize = read!();
+        let r: isize = read!();
 
         if (m == -1) && (f == -1) && (r == -1) {
             break;

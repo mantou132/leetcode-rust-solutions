@@ -7,7 +7,7 @@ prelude!();
 
 fn solve() {
     loop {
-        let (mut a, mut op, mut b) : (isize, u8, isize) = default();
+        let (mut a, mut op, mut b): (isize, u8, isize) = default();
         read!(&mut a, Char(&mut op), &mut b);
 
         if op == b'?' {
@@ -17,11 +17,11 @@ fn solve() {
         writelnf!(
             "{:d}",
             match op {
-                b'+' => { a + b },
-                b'-' => { a - b },
-                b'*' => { a * b },
-                b'/' => { a / b },
-                _ => { panic!() }
+                b'+' => a + b,
+                b'-' => a - b,
+                b'*' => a * b,
+                b'/' => a / b,
+                _ => panic!(),
             }
         );
     }

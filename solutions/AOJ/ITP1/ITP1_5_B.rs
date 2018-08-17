@@ -7,8 +7,8 @@ prelude!();
 
 fn solve() {
     loop {
-        let h : isize = read!();
-        let w : isize = read!();
+        let h: isize = read!();
+        let w: isize = read!();
         if (h == 0) && (w == 0) {
             break;
         }
@@ -18,9 +18,9 @@ fn solve() {
         }
         writelnf!("");
 
-        for _ in 0..(h-2) {
+        for _ in 0..(h - 2) {
             writef!("#");
-            for _ in 0..(w-2) {
+            for _ in 0..(w - 2) {
                 writef!(".");
             }
             writelnf!("#");
