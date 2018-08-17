@@ -33,3 +33,8 @@ Password:
 [SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs: Accepted (Memory: 2000, Time: 0, Length: 1380)
 $
 ```
+
+## Examples
+
+* [AOJ](AOJ.md) ([AIZU ONLINE JUDGE](http://judge.u-aizu.ac.jp/onlinejudge/))
+* [LC](LC.md) ([LeetCode](https://leetcode.com/))
