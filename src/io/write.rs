@@ -112,7 +112,7 @@ macro_rules! unsigned {
     ($t:ty) => {
         impl Int for $t {
             fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
-                write_unsigned(s, self, radix as _, width)
+                write_unsigned(s, self, <$t>::from(radix), width)
             }
         }
     };
@@ -122,7 +122,7 @@ macro_rules! signed {
     ($t:ty) => {
         impl Int for $t {
             fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
-                write_signed(s, self, radix as _, width)
+                write_signed(s, self, <$t>::from(radix), width)
             }
         }
     };
@@ -135,7 +135,7 @@ unsigned!(u64);
 unsigned!(u128);
 unsigned!(usize);
 
-signed!(i8);
+// signed!(i8);x
 signed!(i16);
 signed!(i32);
 signed!(i64);
@@ -167,7 +167,7 @@ impl Float for f64 {
             let i = self as u64;
             let m = 10u64.pow(prec as _);
 
-            if self <= 9007199254740992.0 {
+            if self <= 9_007_199_254_740_992.0 {
                 write_unsigned(s, i / m, 10, 1);
                 Sink::write(s, b'.');
                 write_unsigned(s, i % m, 10, prec as _);

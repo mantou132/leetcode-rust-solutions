@@ -6,10 +6,14 @@ use core::ptr::{null_mut, read, write};
 pub trait Allocator {
     type Error: Debug;
 
-    fn reallocate(&mut self, ptr: *mut u8, capacity: usize) -> Result<*mut u8, Self::Error>;
+    unsafe fn reallocate(&mut self, ptr: *mut u8, capacity: usize) -> Result<*mut u8, Self::Error>;
 }
 
-pub fn reallocate<T, A: Allocator>(allocator: &mut A, ptr: *mut T, mut capacity: isize) -> *mut T {
+pub unsafe fn reallocate<T, A: Allocator>(
+    allocator: &mut A,
+    ptr: *mut T,
+    mut capacity: isize,
+) -> *mut T {
     if capacity < 0 {
         capacity = 0
     }
@@ -17,11 +21,11 @@ pub fn reallocate<T, A: Allocator>(allocator: &mut A, ptr: *mut T, mut capacity:
     Allocator::reallocate(allocator, ptr as *mut _, size * (capacity as usize)).unwrap() as *mut _
 }
 
-pub fn allocate<T, A: Allocator>(allocator: &mut A, capacity: isize) -> *mut T {
+pub unsafe fn allocate<T, A: Allocator>(allocator: &mut A, capacity: isize) -> *mut T {
     reallocate(allocator, null_mut(), capacity)
 }
 
-pub fn deallocate<T, A: Allocator>(allocator: &mut A, ptr: *mut T) {
+pub unsafe fn deallocate<T, A: Allocator>(allocator: &mut A, ptr: *mut T) {
     reallocate(allocator, ptr, 0);
 }
 

@@ -22,7 +22,7 @@ impl<'a> Iterator for SliceSource<'a> {
 
 impl<'a> SliceSource<'a> {
     pub fn new(s: &'a [u8]) -> PeekableSource<Self> {
-        PeekableSource::new(SliceSource { offset: 0, s: s })
+        PeekableSource::new(SliceSource { offset: 0, s })
     }
 }
 
@@ -43,7 +43,7 @@ impl<'a> Sink for SliceSink<'a> {
 
 impl<'a> SliceSink<'a> {
     pub fn new(s: &'a mut [u8]) -> Self {
-        SliceSink { offset: 0, s: s }
+        SliceSink { offset: 0, s }
     }
 
     pub fn offset(&self) -> usize {

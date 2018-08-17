@@ -6,7 +6,7 @@ pub struct Item<'a> {
 
 impl<'a> Item<'a> {
     pub fn new(counter: &'a RefCell<usize>) -> Self {
-        Item { counter: counter }
+        Item { counter }
     }
 }
 

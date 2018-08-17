@@ -8,7 +8,7 @@ pub struct StaticArray<'a, T: 'a> {
 
 impl<'a, T: 'a> StaticArray<'a, T> {
     pub fn new(slice: &'a [T]) -> Self {
-        StaticArray { slice: slice }
+        StaticArray { slice }
     }
 }
 

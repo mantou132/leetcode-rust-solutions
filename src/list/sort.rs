@@ -15,6 +15,7 @@ fn swap<L: ListMut>(list: &mut L, i: isize, j: isize) {
     mem::forget(t);
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(nonminimal_bool))]
 pub fn is_stable_sort<
     E,
     L: List<Elem = E> + Collection,
@@ -30,7 +31,7 @@ pub fn is_stable_sort<
             return false;
         }
     }
-    return true;
+    true
 }
 
 pub fn bubble<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(

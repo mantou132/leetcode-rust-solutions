@@ -33,8 +33,7 @@ pub trait IterRef {
     where
         Self: Sized,
     {
-        let mut iter = IterRef::map(self, f);
-        while let Some(()) = iter.next() {}
+        for () in IterRef::map(self, f) {}
     }
 
     fn count(mut self) -> isize
@@ -72,8 +71,7 @@ pub trait IterRefMut {
     where
         Self: Sized,
     {
-        let mut iter = IterRefMut::map(self, f);
-        while let Some(()) = iter.next() {}
+        for () in IterRefMut::map(self, f) {}
     }
 
     fn count(mut self) -> isize

@@ -59,11 +59,11 @@ pub struct FileSource {
 impl FileSource {
     pub const fn new(fd: i32, size: isize, buffer: *mut u8) -> Self {
         FileSource {
-            fd: fd,
-            size: size,
+            fd,
+            size,
             offset: size,
             capacity: size,
-            buffer: buffer,
+            buffer,
         }
     }
 }
@@ -78,7 +78,7 @@ impl Iterator for FileSource {
         }
 
         if self.offset < self.size {
-            let c = ptr::read(self.buffer, self.offset);
+            let c = unsafe { ptr::read(self.buffer, self.offset) };
             self.offset += 1;
             Some(c)
         } else {
@@ -97,10 +97,10 @@ pub struct FileSink {
 impl FileSink {
     pub const fn new(fd: i32, size: isize, buffer: *mut u8) -> Self {
         FileSink {
-            fd: fd,
+            fd,
             offset: 0,
             capacity: size,
-            buffer: buffer,
+            buffer,
         }
     }
 }
@@ -112,7 +112,7 @@ impl Sink for FileSink {
             self.offset = 0;
         }
 
-        ptr::write(self.buffer, self.offset, c);
+        unsafe { ptr::write(self.buffer, self.offset, c) };
         self.offset += 1;
     }
 }

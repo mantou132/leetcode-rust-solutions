@@ -4,6 +4,7 @@ pub trait Source: Iterator<Item = u8> {}
 
 impl<T: Iterator<Item = u8>> Source for T {}
 
+#[cfg_attr(feature = "cargo-clippy", allow(option_option))]
 pub struct PeekableSource<S: Source> {
     source: S,
     peeked: Option<Option<S::Item>>,
@@ -18,7 +19,7 @@ impl<S: Source> PeekableSource<S> {
     }
 
     pub fn peek(&mut self) -> Option<&S::Item> {
-        if let None = self.peeked {
+        if self.peeked.is_none() {
             self.consume();
         }
 

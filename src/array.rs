@@ -22,17 +22,17 @@ impl<T, P: CapacityPolicy, A: Allocator + Default> Array<T, P, A> {
         let size = ExactSizeIterator::len(&it) as isize;
         let mut allocator = Default::default();
         let capacity = P::initial(size);
-        let data = allocate(&mut allocator, capacity);
+        let data = unsafe { allocate(&mut allocator, capacity) };
 
         for i in 0..size {
-            write(data, i, Iterator::next(&mut it).unwrap())
+            unsafe { write(data, i, Iterator::next(&mut it).unwrap()) }
         }
 
         Array {
-            size: size,
-            capacity: capacity,
-            data: data,
-            allocator: allocator,
+            size,
+            capacity,
+            data,
+            allocator,
             _policy: PhantomData,
         }
     }
@@ -55,7 +55,7 @@ impl<T, P: CapacityPolicy, A: Allocator> ListBase for Array<T, P, A> {
 
     fn get(&self, index: isize) -> Option<&T> {
         if (0 <= index) && (index < self.size) {
-            Some(get(self.data, index))
+            Some(unsafe { get(self.data, index) })
         } else {
             None
         }
@@ -65,7 +65,7 @@ impl<T, P: CapacityPolicy, A: Allocator> ListBase for Array<T, P, A> {
 impl<T, P: CapacityPolicy, A: Allocator> ListMutBase for Array<T, P, A> {
     fn get_mut(&mut self, index: isize) -> Option<&mut T> {
         if (0 <= index) && (index < self.size) {
-            Some(get_mut(self.data, index))
+            Some(unsafe { get_mut(self.data, index) })
         } else {
             None
         }
@@ -82,10 +82,10 @@ impl<T, P: CapacityPolicy, A: Allocator> Stack for Array<T, P, A> {
     fn push(&mut self, elem: T) {
         if self.size == self.capacity {
             self.capacity = P::grow(self.size);
-            self.data = reallocate(&mut self.allocator, self.data, self.capacity)
+            self.data = unsafe { reallocate(&mut self.allocator, self.data, self.capacity) };
         }
 
-        write(self.data, self.size, elem);
+        unsafe { write(self.data, self.size, elem) };
         self.size += 1;
     }
 
@@ -95,12 +95,12 @@ impl<T, P: CapacityPolicy, A: Allocator> Stack for Array<T, P, A> {
         }
 
         self.size -= 1;
-        let item = read(self.data, self.size);
+        let item = unsafe { read(self.data, self.size) };
 
         let new_capacity = P::shrink(self.size, self.capacity);
 
         if new_capacity < self.capacity {
-            self.data = reallocate(&mut self.allocator, self.data, new_capacity);
+            self.data = unsafe { reallocate(&mut self.allocator, self.data, new_capacity) };
             self.capacity = new_capacity;
         }
 
@@ -111,9 +111,9 @@ impl<T, P: CapacityPolicy, A: Allocator> Stack for Array<T, P, A> {
 impl<T, P: CapacityPolicy, A: Allocator> Drop for Array<T, P, A> {
     fn drop(&mut self) {
         for i in 0..self.size {
-            read(self.data, i);
+            unsafe { read(self.data, i) };
         }
-        deallocate(&mut self.allocator, self.data);
+        unsafe { deallocate(&mut self.allocator, self.data) };
     }
 }
 

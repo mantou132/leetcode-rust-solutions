@@ -7,7 +7,7 @@ pub struct MapRef<I: IterRef, T, F: FnMut(&I::Item) -> T> {
 
 impl<I: IterRef, T, F: FnMut(&I::Item) -> T> MapRef<I, T, F> {
     pub fn new(it: I, f: F) -> Self {
-        MapRef { it: it, f: f }
+        MapRef { it, f }
     }
 }
 
@@ -29,7 +29,7 @@ pub struct MapRefMut<I: IterRefMut, T, F: FnMut(&mut I::Item) -> T> {
 
 impl<I: IterRefMut, T, F: FnMut(&mut I::Item) -> T> MapRefMut<I, T, F> {
     pub fn new(it: I, f: F) -> Self {
-        MapRefMut { it: it, f: f }
+        MapRefMut { it, f }
     }
 }
 

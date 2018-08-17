@@ -33,6 +33,12 @@ impl<T> DoublyLinkedList<T, OSHandle, OSAllocator> {
     }
 }
 
+impl<T> Default for DoublyLinkedList<T, OSHandle, OSAllocator> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> DoublyLinkedList<T, H, P> {
     pub fn front(&self) -> H {
         self.sentinel.next
@@ -48,7 +54,7 @@ impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> DoublyLinkedList<T, H, P> {
                 prev: Default::default(),
                 next: Default::default(),
             },
-            data: data,
+            data,
         };
         Pool::add(&mut self.pool, node)
     }

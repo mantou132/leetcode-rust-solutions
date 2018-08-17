@@ -27,7 +27,7 @@ impl<'a> Cursor<'a> {
 }
 
 pub fn parse_args(tokens: TokenStream) -> Result<(LitStr, Expr), ParseError> {
-    let buf = TokenBuffer::new2(tokens.into());
+    let buf = TokenBuffer::new2(tokens);
     let mut cur = Cursor::new(&buf);
     let s: LitStr = cur.parse()?;
 

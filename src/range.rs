@@ -10,11 +10,7 @@ impl Range {
             panic!("step must not be zero")
         }
 
-        Range {
-            start: start,
-            stop: stop,
-            step: step,
-        }
+        Range { start, stop, step }
     }
 
     pub fn start(&self, size: isize) -> isize {

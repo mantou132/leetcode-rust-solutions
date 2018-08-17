@@ -14,19 +14,17 @@ impl Default for OSAllocator {
 impl Allocator for OSAllocator {
     type Error = OSError;
 
-    fn reallocate(&mut self, ptr: *mut u8, size: usize) -> Result<*mut u8, OSError> {
+    unsafe fn reallocate(&mut self, ptr: *mut u8, size: usize) -> Result<*mut u8, OSError> {
         if size == 0 {
             if !ptr.is_null() {
-                unsafe {
-                    free(ptr);
-                }
+                free(ptr);
             }
             Ok(null_mut())
         } else {
             let p = if ptr.is_null() {
-                unsafe { malloc(size) }
+                malloc(size)
             } else {
-                unsafe { realloc(ptr, size) }
+                realloc(ptr, size)
             };
 
             if p.is_null() {

@@ -30,10 +30,7 @@ pub fn iter<T: ListBase>(list: &T) -> ListIter<T>
 where
     T::Elem: Copy,
 {
-    ListIter {
-        list: list,
-        index: 0,
-    }
+    ListIter { list, index: 0 }
 }
 
 pub struct ListIterRef<'a, T: 'a + ListBase> {
@@ -53,10 +50,7 @@ impl<'a, T: 'a + ListBase> IterRef for ListIterRef<'a, T> {
 }
 
 pub fn iter_ref<T: ListBase>(list: &T) -> ListIterRef<T> {
-    ListIterRef {
-        list: list,
-        index: 0,
-    }
+    ListIterRef { list, index: 0 }
 }
 
 pub struct ListIterRefMut<'a, T: 'a + ListMutBase> {
@@ -76,8 +70,5 @@ impl<'a, T: 'a + ListMutBase> IterRefMut for ListIterRefMut<'a, T> {
 }
 
 pub fn iter_ref_mut<T: ListMutBase>(list: &mut T) -> ListIterRefMut<T> {
-    ListIterRefMut {
-        list: list,
-        index: 0,
-    }
+    ListIterRefMut { list, index: 0 }
 }

@@ -85,7 +85,7 @@ impl<'a, 'b: 'a, T: List + Collection> Slice<'b, T> for ListView<'a, T> {
         ListView {
             list: self.list,
             offset: self.offset + offset * self.step,
-            size: size,
+            size,
             step: self.step * step,
         }
     }
@@ -96,9 +96,9 @@ impl<'a, T: List + Collection> Slice<'a, T> for T {
         let (offset, size, step) = slice(Collection::size(self), range);
         ListView {
             list: self,
-            offset: offset,
-            size: size,
-            step: step,
+            offset,
+            size,
+            step,
         }
     }
 }
@@ -157,7 +157,7 @@ impl<'a, 'b: 'a, T: ListMut + Collection> SliceMut<'b, T> for ListMutView<'a, T>
         ListMutView {
             list: self.list,
             offset: self.offset + offset * self.step,
-            size: size,
+            size,
             step: self.step * step,
         }
     }
@@ -168,9 +168,9 @@ impl<'a, T: ListMut + Collection> SliceMut<'a, T> for T {
         let (offset, size, step) = slice(Collection::size(self), range);
         ListMutView {
             list: self,
-            offset: offset,
-            size: size,
-            step: step,
+            offset,
+            size,
+            step,
         }
     }
 }
